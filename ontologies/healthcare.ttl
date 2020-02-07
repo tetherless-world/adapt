@@ -1,4 +1,4 @@
-@prefix : <http://purl.org/twc/example/healthcare#> .
+@prefix : <http://purl.org/twc/policy/example/healthcare/> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix sio: <http://semanticscience.org/resource/> .
@@ -6,10 +6,10 @@
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 @prefix prov: <http://www.w3.org/ns/prov#> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@base <http://purl.org/twc/example/healthcare> .
+@base <http://purl.org/twc/policy/example/healthcare/> .
 
-<http://purl.org/twc/example/healthcare> rdf:type owl:Ontology ;
-                                          owl:imports <http://www.w3.org/ns/prov-o-20130430> .
+<http://purl.org/twc/policy/example/healthcare/> rdf:type owl:Ontology ;
+                                                  owl:imports <http://purl.org/twc/policy/> .
 
 #################################################################
 #    Object Properties
@@ -23,62 +23,42 @@ sio:hasAttribute rdf:type owl:ObjectProperty .
 #    Classes
 #################################################################
 
-###  http://purl.org/twc/example/healthcare#Administrator
+###  http://purl.org/twc/policy/example/healthcare/Administrator
 :Administrator rdf:type owl:Class ;
                rdfs:subClassOf prov:Person .
 
 
-###  http://purl.org/twc/example/healthcare#Controlled_Activity
-:Controlled_Activity rdf:type owl:Class ;
-                     rdfs:subClassOf prov:Activity .
-
-
-###  http://purl.org/twc/example/healthcare#Create
+###  http://purl.org/twc/policy/example/healthcare/Create
 :Create rdf:type owl:Class ;
-        rdfs:subClassOf :Controlled_Activity .
+        rdfs:subClassOf <http://purl.org/twc/policy/Managed_Activity> .
 
 
-###  http://purl.org/twc/example/healthcare#Delete
+###  http://purl.org/twc/policy/example/healthcare/Delete
 :Delete rdf:type owl:Class ;
-        rdfs:subClassOf :Controlled_Activity .
+        rdfs:subClassOf <http://purl.org/twc/policy/Managed_Activity> .
 
 
-###  http://purl.org/twc/example/healthcare#Deny
-:Deny rdf:type owl:Class ;
-      rdfs:subClassOf :Effect_Activity .
-
-
-###  http://purl.org/twc/example/healthcare#Effect_Activity
-:Effect_Activity rdf:type owl:Class ;
-                 rdfs:subClassOf prov:Activity .
-
-
-###  http://purl.org/twc/example/healthcare#Patient
+###  http://purl.org/twc/policy/example/healthcare/Patient
 :Patient rdf:type owl:Class ;
          rdfs:subClassOf prov:Person .
 
 
-###  http://purl.org/twc/example/healthcare#Patient_Data
+###  http://purl.org/twc/policy/example/healthcare/Patient_Data
 :Patient_Data rdf:type owl:Class ;
               rdfs:subClassOf prov:Entity .
 
 
-###  http://purl.org/twc/example/healthcare#Permit
-:Permit rdf:type owl:Class ;
-        rdfs:subClassOf :Effect_Activity .
-
-
-###  http://purl.org/twc/example/healthcare#Physician
+###  http://purl.org/twc/policy/example/healthcare/Physician
 :Physician rdf:type owl:Class ;
            rdfs:subClassOf prov:Person .
 
 
-###  http://purl.org/twc/example/healthcare#Read
+###  http://purl.org/twc/policy/example/healthcare/Read
 :Read rdf:type owl:Class ;
-      rdfs:subClassOf :Controlled_Activity .
+      rdfs:subClassOf <http://purl.org/twc/policy/Managed_Activity> .
 
 
-###  http://purl.org/twc/example/healthcare#Read_Policy_0
+###  http://purl.org/twc/policy/example/healthcare/Read_Policy_0
 :Read_Policy_0 rdf:type owl:Class ;
                owl:equivalentClass [ owl:intersectionOf ( :Read
                                                           [ rdf:type owl:Restriction ;
@@ -94,7 +74,7 @@ sio:hasAttribute rdf:type owl:ObjectProperty .
                rdfs:subClassOf :Read .
 
 
-###  http://purl.org/twc/example/healthcare#Read_Policy_0.1
+###  http://purl.org/twc/policy/example/healthcare/Read_Policy_0.1
 :Read_Policy_0.1 rdf:type owl:Class ;
                  owl:equivalentClass [ owl:intersectionOf ( :Read_Policy_0
                                                             [ rdf:type owl:Restriction ;
@@ -104,26 +84,26 @@ sio:hasAttribute rdf:type owl:ObjectProperty .
                                                           ) ;
                                        rdf:type owl:Class
                                      ] ;
-                 rdfs:subClassOf :Permit ,
+                 rdfs:subClassOf <http://purl.org/twc/policy/Permit> ,
                                  :Read_Policy_0 .
 
 
-###  http://purl.org/twc/example/healthcare#Update
+###  http://purl.org/twc/policy/example/healthcare/Update
 :Update rdf:type owl:Class ;
-        rdfs:subClassOf :Controlled_Activity .
+        rdfs:subClassOf <http://purl.org/twc/policy/Managed_Activity> .
 
 
-###  http://purl.org/twc/example/healthcare#some_admin_0
+###  http://purl.org/twc/policy/example/healthcare/some_admin_0
 :some_admin_0 rdf:type owl:Class ;
               rdfs:subClassOf :Administrator .
 
 
-###  http://purl.org/twc/example/healthcare#some_patient_0
+###  http://purl.org/twc/policy/example/healthcare/some_patient_0
 :some_patient_0 rdf:type owl:Class ;
                 rdfs:subClassOf :Patient .
 
 
-###  http://purl.org/twc/example/healthcare#some_physician_0
+###  http://purl.org/twc/policy/example/healthcare/some_physician_0
 :some_physician_0 rdf:type owl:Class ;
                   rdfs:subClassOf :Physician .
 
@@ -132,19 +112,19 @@ sio:hasAttribute rdf:type owl:ObjectProperty .
 #    Individuals
 #################################################################
 
-###  http://purl.org/twc/example/healthcare#agent0
+###  http://purl.org/twc/policy/example/healthcare/agent0
 :agent0 rdf:type owl:NamedIndividual ,
                  :some_patient_0 ;
         sio:hasAttribute :resource0 .
 
 
-###  http://purl.org/twc/example/healthcare#request0
+###  http://purl.org/twc/policy/example/healthcare/request0
 :request0 rdf:type owl:NamedIndividual ,
                    :Read ;
           prov:wasAssociatedWith :agent0 .
 
 
-###  http://purl.org/twc/example/healthcare#resource0
+###  http://purl.org/twc/policy/example/healthcare/resource0
 :resource0 rdf:type owl:NamedIndividual ,
                     :Patient_Data .
 
