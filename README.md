@@ -15,8 +15,8 @@ cd policy_tool/docker/compose/split/
 docker-compose up --build
 ```
 
-You can then access the triple store endpoint interface at http://localhost:9999/blazegraph
+From the host machine, you can then access the triple store interface at http://localhost:9999/blazegraph and the SPARQL endpoint at http://localhost:9999/blazegraph/sparql
 
-The SPARQL endpoint is available at http://localhost:9999/blazegraph/sparql
+From inside the containers, you can then access the triple store interface at http://blazegraph:8080/blazegraph and the SPARQL endpoint at http://blazegraph:8080/blazegraph/sparql
 
 OBS: Make sure to replace localhost with the appropriate docker-machine IP, if you system needs that (Windows, MacOS).
