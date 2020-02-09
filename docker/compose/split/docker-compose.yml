@@ -5,12 +5,20 @@ services:
     command: /docker-entrypoint.sh
     depends_on:
       - blazegraph
+      - twks-server
     build:
       context: ../../..
       dockerfile: docker/image/policy_tool/Dockerfile
     image: tetherlessworld/policy-tool:${POLICY_TOOL_IMAGE_TAG:-latest}
     ports:
       - "3000:3000"
+  
+  twks-server:
+    hostname: "twks"
+    container_name: "twks-server"
+    image: tetherlessworld/twks-server:latest
+    ports:
+      - 8082:8080
 
   blazegraph:
     image: metaphacts/blazegraph-basic:latest
