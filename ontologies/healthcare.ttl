@@ -30,12 +30,12 @@ sio:hasAttribute rdf:type owl:ObjectProperty .
 
 ###  http://purl.org/twc/policy/example/healthcare/Create
 :Create rdf:type owl:Class ;
-        rdfs:subClassOf <http://purl.org/twc/policy/Managed_Activity> .
+        rdfs:subClassOf prov:Activity .
 
 
 ###  http://purl.org/twc/policy/example/healthcare/Delete
 :Delete rdf:type owl:Class ;
-        rdfs:subClassOf <http://purl.org/twc/policy/Managed_Activity> .
+        rdfs:subClassOf prov:Activity .
 
 
 ###  http://purl.org/twc/policy/example/healthcare/Patient
@@ -55,7 +55,7 @@ sio:hasAttribute rdf:type owl:ObjectProperty .
 
 ###  http://purl.org/twc/policy/example/healthcare/Read
 :Read rdf:type owl:Class ;
-      rdfs:subClassOf <http://purl.org/twc/policy/Managed_Activity> .
+      rdfs:subClassOf prov:Activity .
 
 
 ###  http://purl.org/twc/policy/example/healthcare/Read_Policy_0
@@ -90,7 +90,7 @@ sio:hasAttribute rdf:type owl:ObjectProperty .
 
 ###  http://purl.org/twc/policy/example/healthcare/Update
 :Update rdf:type owl:Class ;
-        rdfs:subClassOf <http://purl.org/twc/policy/Managed_Activity> .
+        rdfs:subClassOf prov:Activity .
 
 
 ###  http://purl.org/twc/policy/example/healthcare/some_admin_0
@@ -111,6 +111,16 @@ sio:hasAttribute rdf:type owl:ObjectProperty .
 #################################################################
 #    Individuals
 #################################################################
+
+###  http://purl.org/twc/policy/example/healthcare/Read_Policy_0
+:Read_Policy_0 rdf:type owl:NamedIndividual ,
+                        <http://purl.org/twc/policy/Policy> .
+
+
+###  http://purl.org/twc/policy/example/healthcare/Read_Policy_0.1
+:Read_Policy_0.1 rdf:type owl:NamedIndividual ,
+                          <http://purl.org/twc/policy/Policy> .
+
 
 ###  http://purl.org/twc/policy/example/healthcare/agent0
 :agent0 rdf:type owl:NamedIndividual ,
