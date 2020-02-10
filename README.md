@@ -15,8 +15,12 @@ cd policy_tool/docker/compose/split/
 docker-compose up --build
 ```
 
-From the host machine, you can then access the triple store interface at http://localhost:9999/blazegraph and the SPARQL endpoint at http://localhost:9999/blazegraph/sparql
+From the host machine, the TWKS store is available at http://localhost:8080.
 
-From inside the containers, you can then access the triple store interface at http://blazegraph:8080/blazegraph and the SPARQL endpoint at http://blazegraph:8080/blazegraph/sparql
+From inside the container, the TWKS store is available at http://twks-server:8080.
+
+Please follow the TWKS documentation at  on how to access its API https://twks.readthedocs.io/en/latest/server-api.html
+
+The TWKS command-line interface is also available from inside the `policy_tool` container. Please refer to the `docker-entrypoint.sh` file and also the `twks-cli` documentation at https://twks.readthedocs.io/
 
 OBS: Make sure to replace localhost with the appropriate docker-machine IP, if you system needs that (Windows, MacOS).
