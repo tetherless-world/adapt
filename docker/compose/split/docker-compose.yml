@@ -1,8 +1,7 @@
 version: '3'
 services:
   policy_tool:
-    container_name: policy_tool
-    command: /docker-entrypoint.sh
+    container_name: policy-tool
     depends_on:
       - twks-server
     build:
@@ -10,7 +9,7 @@ services:
       dockerfile: docker/image/policy_tool/Dockerfile
     image: tetherlessworld/policy-tool:${POLICY_TOOL_IMAGE_TAG:-latest}
     ports:
-      - "3000:3000"
+      - "80:8080"
   
   twks-server:
     hostname: "twks-server"
