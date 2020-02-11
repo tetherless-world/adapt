@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Card, CardContent, Box, Typography, Grid, makeStyles } from '@material-ui/core'
+import { Typography, Grid, makeStyles } from '@material-ui/core'
 import MuiDataform from 'mui-dataforms'
 import AttributeEditor from './AttributeEditor'
 
