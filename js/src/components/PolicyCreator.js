@@ -54,26 +54,39 @@ export default function PolicyCreator () {
     }
   ]
 
-  const [values, setValues] = useState({})
+  const [state, setState] = useState({ info: {}, attributes: [{ values: [] }] })
 
-  const handleOnChange = (key) => (value) => {
-    setValues(prevValues => ({ ...prevValues, [key]: value }))
+  const handleOnChange = key => value => {
+    setState(prevValues => ({
+      ...prevValues,
+      info: {
+        ...prevValues.info,
+        [key]: value
+      }
+    }))
+  }
+
+  const setAttributes = (apply) => {
+    setState(prevValues => ({
+      ...prevValues,
+      attributes: apply(prevValues.attributes)
+    }))
   }
 
   return (
     <>
       <Grid container>
         <Grid item xs={12}>
-          <MuiDataform fields={fields} values={values} onChange={handleOnChange} />
+          <MuiDataform fields={fields} values={state} onChange={handleOnChange} />
         </Grid>
         <Grid item xs={12} style={{ paddingTop: 30 }}>
           <Typography variant={'h5'}>Attribute Editor</Typography>
-          <AttributeEditor />
+          <AttributeEditor attributes={state.attributes} setAttributes={setAttributes} />
         </Grid>
         <Grid item xs={12} className={classes.preview}>
           <Typography variant={'h5'}>Preview</Typography>
           <pre>
-            {JSON.stringify(values, null, 2)}
+            {JSON.stringify(state, null, 2)}
           </pre>
         </Grid>
       </Grid>

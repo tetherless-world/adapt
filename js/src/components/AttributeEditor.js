@@ -26,14 +26,11 @@ const ButtonProps = {
   size: 'small'
 }
 
-export default function AttributeEditor ({ validAttributes }) {
+export default function AttributeEditor ({ attributes, setAttributes, validAttributes }) {
   const classes = useStyles()
 
   const newValue = () => null
   const newAttribute = () => ({ values: [newValue()] })
-
-  const [attributes, setAttributes] = useState([newAttribute()])
-
 
   const addIntersection = () => {
     setAttributes(prevAttrs => [...prevAttrs, newAttribute()])
@@ -85,7 +82,7 @@ export default function AttributeEditor ({ validAttributes }) {
   const ClearButton = () => (
     <Button
       startIcon={<DeleteIcon />}
-      onClick={() => setAttributes([newAttribute()])}
+      onClick={() => setAttributes(() => [newAttribute()])}
       {...ButtonProps}
     >
       Clear All Attributes
