@@ -23,29 +23,23 @@ export default function PolicyCreator () {
           id: 'source',
           title: 'Policy Source',
           type: 'select',
-          size: { xs: 12, sm: 6 },
+          size: { sm: 6 },
           options: [
-            {
-              value: 'lorem',
-              label: 'lorem'
-            },
-            {
-              value: 'ipsum',
-              label: 'ipsum'
-            }
+            { value: 'lorem', label: 'lorem' },
+            { value: 'ipsum', label: 'ipsum' }
           ]
         },
         {
           id: 'id',
           title: 'Policy Id',
           type: 'text',
-          size: { xs: 12, sm: 6 },
+          size: { sm: 6 },
         },
         {
           id: 'label',
           title: 'Policy Label',
           type: 'text',
-          size: { xs: 12, sm: 6 },
+          size: { sm: 6 },
         },
         {
           type: 'spacer',
@@ -54,8 +48,7 @@ export default function PolicyCreator () {
         {
           id: 'definition',
           title: 'Policy Definition',
-          type: 'text',
-          size: { xs: 12 }
+          type: 'text'
         }
       ]
     }
@@ -73,8 +66,9 @@ export default function PolicyCreator () {
         <Grid item xs={12}>
           <MuiDataform fields={fields} values={values} onChange={handleOnChange} />
         </Grid>
-        <Grid item xs={12} style={{paddingTop:30}}>
-          <AttributeEditor/>
+        <Grid item xs={12} style={{ paddingTop: 30 }}>
+          <Typography variant={'h5'}>Attribute Editor</Typography>
+          <AttributeEditor />
         </Grid>
         <Grid item xs={12} className={classes.preview}>
           <Typography variant={'h5'}>Preview</Typography>

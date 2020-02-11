@@ -1,11 +1,16 @@
 import React, { useState } from 'react'
-import { makeStyles, Button, Grid, Select, InputLabel, MenuItem, FormControl } from '@material-ui/core'
-// import _ from 'lodash'
+import { makeStyles, Button, Grid, Select, InputLabel, MenuItem, FormControl, IconButton, Typography } from '@material-ui/core'
+import { Delete as DeleteIcon, Clear as ClearIcon } from '@material-ui/icons'
 
 const useStyles = makeStyles(theme => ({
-  root: {},
+  root: {
+    padding: theme.spacing(2)
+  },
   attr: {
-    padding: theme.spacing(1)
+    // padding: theme.spacing(1)
+  },
+  nested: {
+    paddingLeft: theme.spacing(4)
   },
   formControl: {
     minWidth: 300
@@ -18,46 +23,79 @@ const useStyles = makeStyles(theme => ({
 const ButtonProps = {
   color: 'primary',
   variant: 'outlined',
-  // size: 'small'
+  size: 'small'
 }
 
-export default function AttributeEditor () {
+export default function AttributeEditor ({ validAttributes }) {
   const classes = useStyles()
-
-  const valid_attrs = ['Frequency Range', 'Time', 'Location']
 
   const newValue = () => null
   const newAttribute = () => ({ values: [newValue()] })
 
-  const [state, setState] = useState([newAttribute()])
+  const [attributes, setAttributes] = useState([newAttribute()])
 
 
-  const addIntersection = (index) => { }
+  const addIntersection = () => {
+    setAttributes(prevAttrs => [...prevAttrs, newAttribute()])
+  }
 
   const addUnion = (index) => {
-    setState(prevState => {
-      let copy = [...prevState]
+    setAttributes(prevAttrs => {
+      let copy = [...prevAttrs]
       copy[index].values = [...copy[index].values, newValue()]
       return copy
     })
   }
 
+  const deleteValue = (index, valueIndex) => {
+    setAttributes(prevAttrs => {
+      let copy = [...prevAttrs]
+      copy[index].values = copy[index].values.length === 1 ? [newValue()] : copy[index].values.filter((_, i) => i !== valueIndex)
+      return copy
+    })
+  }
+
   const UnionButton = ({ index }) => (
-    <Button {...ButtonProps} onClick={() => addUnion(index)}>
+    <Button
+      onClick={() => addUnion(index)}
+      {...ButtonProps}
+    >
       Union
     </Button>
   )
 
-  const IntersectButton = ({ index }) => (
-    <Button {...ButtonProps} onClick={() => addIntersection(index)}>
+  const IntersectButton = () => (
+    <Button
+      onClick={() => addIntersection()}
+      {...ButtonProps}
+    >
       Intersect
+    </Button>
+  )
+
+  const DeleteValueButton = ({ index, valueIndex }) => (
+    <IconButton
+      onClick={() => deleteValue(index, valueIndex)}
+      {...ButtonProps}
+    >
+      <ClearIcon />
+    </IconButton>
+  )
+
+  const ClearButton = () => (
+    <Button
+      startIcon={<DeleteIcon />}
+      onClick={() => setAttributes([newAttribute()])}
+      {...ButtonProps}
+    >
+      Clear All Attributes
     </Button>
   )
 
   const Attribute = ({ attr, index }) => {
     return (
       <>
-        <Grid container spacing={4}>
+        <Grid container spacing={1} alignItems={'flex-end'}>
           <Grid item>
             <FormControl className={classes.formControl}>
               <InputLabel id={`attr_${index}`}>
@@ -69,33 +107,51 @@ export default function AttributeEditor () {
             </FormControl>
           </Grid>
           <Grid item>
-            <Grid container direction={'column'}>
-              {state[index].values.map((v, i) => (
-                <Grid item>
-                  <FormControl className={classes.formControl} key={`value_${index}_${i}`}>
-                    <InputLabel id={`value_${index}`}>
-                      Value {i}
-                    </InputLabel>
-                    <Select labelId={`value_${index}`}>
-                      <MenuItem />
-                    </Select>
-                  </FormControl>
-                </Grid>
-              ))}
-            </Grid>
-          </Grid>
-          <Grid item>
             <UnionButton index={index} />
           </Grid>
+        </Grid>
+        <Grid
+          container
+          direction={'column'}
+          className={classes.nested}
+        >
+          {attributes[index].values.map((v, i) => (
+            <Grid
+              container
+              item
+              spacing={2}
+              alignItems={"flex-end"}
+            >
+              <Grid item>
+                <FormControl className={classes.formControl} key={`value_${index}_${i}`}>
+                  <InputLabel id={`value_${index}`}>
+                    Value {i}
+                  </InputLabel>
+                  <Select labelId={`value_${index}`}>
+                    <MenuItem />
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item>
+                <DeleteValueButton index={index} valueIndex={i} />
+              </Grid>
+            </Grid>
+          ))}
         </Grid>
       </>
     )
   }
 
   return (
-    <>
-      <Grid container spacing={1}>
-        {state.map((attr, index) => (
+    <div className={classes.root}>
+      <Grid container spacing={1} >
+        <Grid item>
+          <IntersectButton />
+        </Grid>
+        <Grid item>
+          <ClearButton />
+        </Grid>
+        {attributes.map((attr, index) => (
           <Grid item xs={12}>
             <Attribute index={index} attr={attr} />
           </Grid>
@@ -103,9 +159,8 @@ export default function AttributeEditor () {
       </Grid>
       <Grid container item className={classes.pre}>
         <Grid item xs={12}>
-          <Button onClick={() => setState([newAttribute()])}>Clear</Button>
         </Grid>
       </Grid>
-    </>
+    </div>
   )
 }
