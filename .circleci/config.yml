@@ -1,0 +1,26 @@
+version: 2
+jobs:
+  build:
+    working_directory: /git-policy-tool
+    docker:
+      - image: docker/compose:1.25.4
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker image
+          command: |
+            cd docker/compose/split && docker-compose build policy_tool
+      # - run:
+      #     name: Run tests
+      #     command: |
+      #       docker-compose -f ./docker-compose.test.yml up
+      # - deploy:
+      #     name: Push application Docker image
+      #     command: |
+      #       if [ "${CIRCLE_BRANCH}" == "master" ]; then
+      #         login="$(aws ecr get-login)"
+      #         ${login}
+      #         docker tag app "${ECR_ENDPOINT}/app:${CIRCLE_SHA1}"
+      #         docker push "${ECR_ENDPOINT}/app:${CIRCLE_SHA1}"
+      #       fi
