@@ -4,7 +4,7 @@ import { Delete as DeleteIcon, Clear as ClearIcon } from '@material-ui/icons'
 
 const useStyles = makeStyles(theme => ({
   root: {
-    padding: theme.spacing(2)
+    paddingTop: theme.spacing(2)
   },
   attr: {
     // padding: theme.spacing(1)
@@ -28,7 +28,7 @@ const ButtonProps = {
 
 export default function AttributeEditor ({ attributes, addUnion, addIntersection, deleteValue, clearAttributes, validAttributes }) {
   const classes = useStyles()
-  
+
   const UnionButton = ({ index }) => (
     <Button
       onClick={() => addUnion(index)}
@@ -124,14 +124,12 @@ export default function AttributeEditor ({ attributes, addUnion, addIntersection
         <Grid item>
           <ClearButton />
         </Grid>
-        {attributes.map((attribute, index) => (
-          <Grid item xs={12}>
-            <Attribute index={index} attribute={attribute} />
-          </Grid>
-        ))}
-      </Grid>
-      <Grid container item className={classes.pre}>
-        <Grid item xs={12}>
+        <Grid container item xs={12}>
+          {attributes.map((attribute, index) => (
+            <Grid item xs={12}>
+              <Attribute index={index} attribute={attribute} />
+            </Grid>
+          ))}
         </Grid>
       </Grid>
     </div>

@@ -1,13 +1,11 @@
 import React, { useState } from 'react'
-import { Typography, Grid, makeStyles } from '@material-ui/core'
+import { Typography, Grid, makeStyles, Switch, Collapse } from '@material-ui/core'
 import MuiDataform from 'mui-dataforms'
 import AttributeEditor from './AttributeEditor'
 
 const useStyles = makeStyles(theme => ({
-  root: {},
-  form: {},
   preview: {
-    paddingTop: theme.spacing(2)
+    paddingTop: theme.spacing(8)
   }
 }))
 
@@ -15,7 +13,15 @@ export default function PolicyCreator () {
 
   const classes = useStyles()
 
-  const [state, setState] = useState({ attributes: [{ attr: '', values: [] }] })
+  const [state, setState] = useState({
+    source: null,
+    id: null,
+    label: null,
+    definition: null,
+    attributes: [{ attr: '', values: [] }]
+  })
+
+  const [showPreview, setShowPreview] = useState(false)
 
   const handleOnChange = key => value => {
     setState(prevValues => ({
@@ -26,15 +32,13 @@ export default function PolicyCreator () {
 
   const newValue = () => (null)
   const newAttribute = () => ({ attr: '', values: [] })
-
   const setAttributes = (apply) => {
     setState(prevValues => ({
       ...prevValues,
       attributes: apply(prevValues.attributes)
     }))
   }
-
-  const ButtonFunctions = {
+  const AttributeEditorFunctions = {
     addIntersection: () => { setAttributes(prevAttrs => [...prevAttrs, newAttribute()]) },
     addUnion: (index) => {
       setAttributes(prevAttrs => {
@@ -63,10 +67,7 @@ export default function PolicyCreator () {
           title: 'Policy Source',
           type: 'select',
           size: { sm: 6 },
-          options: [
-            { value: 'lorem', label: 'lorem' },
-            { value: 'ipsum', label: 'ipsum' }
-          ]
+          options: []
         },
         {
           id: 'id',
@@ -92,13 +93,42 @@ export default function PolicyCreator () {
       ]
     },
     {
-      title: 'Attributes',
-      description: 'Edit the policy attributes',
+      title: 'Additional Rules',
+      description: 'Enter additional rules for the new policy',
       fields: [
         {
           id: 'attributes',
           type: 'custom',
-          Component: () => <AttributeEditor attributes={state.attributes} {...ButtonFunctions} />,
+          Component: () => <AttributeEditor attributes={state.attributes} {...AttributeEditorFunctions} />,
+        },
+        {
+          id: 'precedence',
+          title: 'Policy Precedence',
+          type: 'select',
+          size: { sm: 6 },
+          options: []
+        },
+        {
+          type: 'spacer',
+          size: { xs: false, sm: 6 }
+        },
+        {
+          id: 'effect',
+          title: 'Policy Effect',
+          type: 'select',
+          size: { sm: 6 },
+          options: []
+        },
+        {
+          type: 'spacer',
+          size: { xs: false, sm: 6 }
+        },
+        {
+          id: 'obligation',
+          title: 'Policy Obligation',
+          type: 'select',
+          size: { sm: 6 },
+          options: []
         }
       ]
     }
@@ -112,13 +142,23 @@ export default function PolicyCreator () {
           <MuiDataform fields={fields} values={state} onChange={handleOnChange} />
         </Grid>
         <Grid item xs={12} className={classes.preview}>
-          <Typography variant={'h5'}>Preview</Typography>
-          <pre>
-            {JSON.stringify(state, null, 2)}
-          </pre>
+          <Grid container spacing={4}>
+            <Grid item>
+              <Typography variant={'h5'}>Policy Preview</Typography>
+            </Grid>
+            <Grid item>
+              <Switch value={showPreview} onClick={() => setShowPreview(!showPreview)} />
+            </Grid>
+          </Grid>
+          <Grid container item>
+            <Collapse in={showPreview}>
+              <pre>
+                {JSON.stringify(state, null, 2)}
+              </pre>
+            </Collapse>
+          </Grid>
         </Grid>
       </Grid>
-
     </>
   )
 }
