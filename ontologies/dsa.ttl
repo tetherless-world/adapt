@@ -57,13 +57,11 @@
                 rdfs:subClassOf sio:Attribute ,
                                 [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
                                                          owl:onProperty sio:hasAttribute ;
-                                                         owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                                         owl:onClass :FrequencyMaximum
+                                                         owl:someValuesFrom :FrequencyMaximum
                                                        ]
                                                        [ rdf:type owl:Restriction ;
                                                          owl:onProperty sio:hasAttribute ;
-                                                         owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                                         owl:onClass :FrequencyMinimum
+                                                         owl:someValuesFrom :FrequencyMinimum
                                                        ]
                                                      ) ;
                                   rdf:type owl:Class
