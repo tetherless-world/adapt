@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    working_directory: /
+    working_directory: /git-policy-tool
     docker:
       - image: docker/compose:1.25.4
     steps:
