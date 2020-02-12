@@ -15,6 +15,11 @@
 #    Classes
 #################################################################
 
+###  http://purl.org/twc/policy/example/healthcare/policy/HealthCarePolicy
+:HealthCarePolicy rdf:type owl:Class ;
+                  rdfs:subClassOf <http://purl.org/twc/policy/Policy> .
+
+
 ###  http://purl.org/twc/policy/example/healthcare/policy/Read_Policy_0
 :Read_Policy_0 rdf:type owl:Class ;
                owl:equivalentClass [ owl:intersectionOf ( <http://purl.org/twc/policy/example/healthcare/Read>
@@ -48,6 +53,16 @@
 #################################################################
 #    Individuals
 #################################################################
+
+###  http://purl.org/twc/policy/example/healthcare/policy/Read_Policy_0
+:Read_Policy_0 rdf:type owl:NamedIndividual ,
+                        :HealthCarePolicy .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/Read_Policy_0.1
+:Read_Policy_0.1 rdf:type owl:NamedIndividual ,
+                          :HealthCarePolicy .
+
 
 ###  http://purl.org/twc/policy/example/healthcare/policy/agent0
 :agent0 rdf:type owl:NamedIndividual ,

@@ -12,14 +12,6 @@
                                                   owl:imports <http://purl.org/twc/policy/> .
 
 #################################################################
-#    Object Properties
-#################################################################
-
-###  http://semanticscience.org/resource/hasAttribute
-sio:hasAttribute rdf:type owl:ObjectProperty .
-
-
-#################################################################
 #    Classes
 #################################################################
 
@@ -45,7 +37,7 @@ sio:hasAttribute rdf:type owl:ObjectProperty .
 
 ###  http://purl.org/twc/policy/example/healthcare/Patient_Data
 :Patient_Data rdf:type owl:Class ;
-              rdfs:subClassOf prov:Entity .
+              rdfs:subClassOf sio:Attribute .
 
 
 ###  http://purl.org/twc/policy/example/healthcare/Physician
