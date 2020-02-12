@@ -75,7 +75,9 @@ export default function AttributeEditor ({ attributes, addUnion, addIntersection
               Attribute {index}
             </InputLabel>
             <Select labelId={`attr_${index}`} value={attribute.attr}>
-              {validAttributes && validAttributes.map(({ label, value }) => <MenuItem value={value}>{label}</MenuItem>)}
+              {validAttributes && validAttributes.map(({ label, value }) => (
+                <MenuItem value={value}>{label}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </Grid>
