@@ -7,7 +7,7 @@ const useStyles = makeStyles(theme => ({
   root: {},
   form: {},
   preview: {
-    paddingTop: theme.spacing(8)
+    paddingTop: theme.spacing(2)
   }
 }))
 
@@ -15,9 +15,48 @@ export default function PolicyCreator () {
 
   const classes = useStyles()
 
+  const [state, setState] = useState({ attributes: [{ attr: '', values: [] }] })
+
+  const handleOnChange = key => value => {
+    setState(prevValues => ({
+      ...prevValues,
+      [key]: value
+    }))
+  }
+
+  const newValue = () => (null)
+  const newAttribute = () => ({ attr: '', values: [] })
+
+  const setAttributes = (apply) => {
+    setState(prevValues => ({
+      ...prevValues,
+      attributes: apply(prevValues.attributes)
+    }))
+  }
+
+  const ButtonFunctions = {
+    addIntersection: () => { setAttributes(prevAttrs => [...prevAttrs, newAttribute()]) },
+    addUnion: (index) => {
+      setAttributes(prevAttrs => {
+        let copy = [...prevAttrs]
+        copy[index].values = [...copy[index].values, newValue()]
+        return copy
+      })
+    },
+    deleteValue: (index, valueIndex) => {
+      setAttributes(prevAttrs => {
+        let copy = [...prevAttrs]
+        copy[index].values = copy[index].values.filter((_, i) => i !== valueIndex)
+        return copy
+      })
+    },
+    clearAttributes: () => { setAttributes(() => [newAttribute()]) }
+  }
+
   const fields = [
     {
       title: 'Policy Information',
+      description: 'Provide some basic information about the policy',
       fields: [
         {
           id: 'source',
@@ -49,39 +88,28 @@ export default function PolicyCreator () {
           id: 'definition',
           title: 'Policy Definition',
           type: 'text'
+        },
+      ]
+    },
+    {
+      title: 'Attributes',
+      description: 'Edit the policy attributes',
+      fields: [
+        {
+          id: 'attributes',
+          type: 'custom',
+          Component: () => <AttributeEditor attributes={state.attributes} {...ButtonFunctions} />,
         }
       ]
     }
   ]
 
-  const [state, setState] = useState({ info: {}, attributes: [{ values: [] }] })
-
-  const handleOnChange = key => value => {
-    setState(prevValues => ({
-      ...prevValues,
-      info: {
-        ...prevValues.info,
-        [key]: value
-      }
-    }))
-  }
-
-  const setAttributes = (apply) => {
-    setState(prevValues => ({
-      ...prevValues,
-      attributes: apply(prevValues.attributes)
-    }))
-  }
 
   return (
     <>
       <Grid container>
         <Grid item xs={12}>
           <MuiDataform fields={fields} values={state} onChange={handleOnChange} />
-        </Grid>
-        <Grid item xs={12} style={{ paddingTop: 30 }}>
-          <Typography variant={'h5'}>Attribute Editor</Typography>
-          <AttributeEditor attributes={state.attributes} setAttributes={setAttributes} />
         </Grid>
         <Grid item xs={12} className={classes.preview}>
           <Typography variant={'h5'}>Preview</Typography>
@@ -93,5 +121,4 @@ export default function PolicyCreator () {
 
     </>
   )
-
 }

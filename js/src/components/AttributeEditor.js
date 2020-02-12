@@ -26,32 +26,9 @@ const ButtonProps = {
   size: 'small'
 }
 
-export default function AttributeEditor ({ attributes, setAttributes, validAttributes }) {
+export default function AttributeEditor ({ attributes, addUnion, addIntersection, deleteValue, clearAttributes, validAttributes }) {
   const classes = useStyles()
-
-  const newValue = () => null
-  const newAttribute = () => ({ values: [newValue()] })
-
-  const addIntersection = () => {
-    setAttributes(prevAttrs => [...prevAttrs, newAttribute()])
-  }
-
-  const addUnion = (index) => {
-    setAttributes(prevAttrs => {
-      let copy = [...prevAttrs]
-      copy[index].values = [...copy[index].values, newValue()]
-      return copy
-    })
-  }
-
-  const deleteValue = (index, valueIndex) => {
-    setAttributes(prevAttrs => {
-      let copy = [...prevAttrs]
-      copy[index].values = copy[index].values.length === 1 ? [newValue()] : copy[index].values.filter((_, i) => i !== valueIndex)
-      return copy
-    })
-  }
-
+  
   const UnionButton = ({ index }) => (
     <Button
       onClick={() => addUnion(index)}
@@ -82,62 +59,61 @@ export default function AttributeEditor ({ attributes, setAttributes, validAttri
   const ClearButton = () => (
     <Button
       startIcon={<DeleteIcon />}
-      onClick={() => setAttributes(() => [newAttribute()])}
+      onClick={clearAttributes}
       {...ButtonProps}
     >
-      Clear All Attributes
+      Clear All
     </Button>
   )
 
-  const Attribute = ({ attr, index }) => {
-    return (
-      <>
-        <Grid container spacing={1} alignItems={'flex-end'}>
-          <Grid item>
-            <FormControl className={classes.formControl}>
-              <InputLabel id={`attr_${index}`}>
-                Attribute {index}
-              </InputLabel>
-              <Select labelId={`attr_${index}`}>
-                <MenuItem />
-              </Select>
-            </FormControl>
-          </Grid>
-          <Grid item>
-            <UnionButton index={index} />
-          </Grid>
+  const Attribute = ({ attribute, index }) => (
+    <>
+      <Grid container spacing={1} alignItems={'flex-end'}>
+        <Grid item>
+          <FormControl className={classes.formControl}>
+            <InputLabel id={`attr_${index}`}>
+              Attribute {index}
+            </InputLabel>
+            <Select labelId={`attr_${index}`} value={attribute.attr}>
+              {validAttributes && validAttributes.map(({ label, value }) => <MenuItem value={value}>{label}</MenuItem>)}
+            </Select>
+          </FormControl>
         </Grid>
-        <Grid
-          container
-          direction={'column'}
-          className={classes.nested}
-        >
-          {attributes[index].values.map((v, i) => (
-            <Grid
-              container
-              item
-              spacing={2}
-              alignItems={"flex-end"}
-            >
-              <Grid item>
-                <FormControl className={classes.formControl} key={`value_${index}_${i}`}>
-                  <InputLabel id={`value_${index}`}>
-                    Value {i}
-                  </InputLabel>
-                  <Select labelId={`value_${index}`}>
-                    <MenuItem />
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <DeleteValueButton index={index} valueIndex={i} />
-              </Grid>
+        <Grid item>
+          <UnionButton index={index} />
+        </Grid>
+      </Grid>
+      <Grid
+        container
+        direction={'column'}
+        className={classes.nested}
+      >
+        {attribute.values.map((v, i) => (
+          <Grid
+            container
+            item
+            spacing={2}
+            alignItems={"flex-end"}
+          >
+            <Grid item>
+              <FormControl className={classes.formControl} key={`value_${index}_${i}`}>
+                <InputLabel id={`value_${index}`}>
+                  Value {i}
+                </InputLabel>
+                <Select labelId={`value_${index}`}>
+                  {/* TODO: map valid value options to MenuItems  */}
+                  <MenuItem />
+                </Select>
+              </FormControl>
             </Grid>
-          ))}
-        </Grid>
-      </>
-    )
-  }
+            <Grid item>
+              <DeleteValueButton index={index} valueIndex={i} />
+            </Grid>
+          </Grid>
+        ))}
+      </Grid>
+    </>
+  )
 
   return (
     <div className={classes.root}>
@@ -148,9 +124,9 @@ export default function AttributeEditor ({ attributes, setAttributes, validAttri
         <Grid item>
           <ClearButton />
         </Grid>
-        {attributes.map((attr, index) => (
+        {attributes.map((attribute, index) => (
           <Grid item xs={12}>
-            <Attribute index={index} attr={attr} />
+            <Attribute index={index} attribute={attribute} />
           </Grid>
         ))}
       </Grid>
