@@ -19,6 +19,18 @@
 sio:hasAttribute rdf:type owl:ObjectProperty .
 
 
+###  http://semanticscience.org/resource/hasUnit
+sio:hasUnit rdf:type owl:ObjectProperty .
+
+
+#################################################################
+#    Data properties
+#################################################################
+
+###  http://semanticscience.org/resource/hasValue
+sio:hasValue rdf:type owl:DatatypeProperty .
+
+
 #################################################################
 #    Classes
 #################################################################
