@@ -4,7 +4,7 @@ services:
     hostname: policy-tool-frontend
     container_name: policy-tool-frontend
     depends_on:
-      - policy-tool
+      - policy-tool-backend
       - twks-server
     build: 
       context: ../../..
@@ -13,7 +13,7 @@ services:
     ports:
       - 80:80
 
-  policy_tool:
+  policy-tool-backend:
     hostname: "policy-tool-backend"
     container_name: "policy-tool-backend"
     depends_on:

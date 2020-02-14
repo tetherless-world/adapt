@@ -12,7 +12,7 @@ FROM python:3-alpine
 
 # copy scripts & ontologies
 # COPY load-ontologies.sh /
-# COPY docker/image/docker-entrypoint.sh /policy-docker-entrypoint.sh
+COPY docker/image/docker-entrypoint.sh /policy-docker-entrypoint.sh
 # COPY ontologies/*.ttl /ontologies/
 
 # copy python app

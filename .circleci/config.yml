@@ -8,9 +8,13 @@ jobs:
       - checkout
       - setup_remote_docker
       - run:
-          name: Build Docker image
+          name: Build Docker frontend image
           command: |
-            cd docker/compose/split && docker-compose build policy_tool
+            cd docker/compose/split && docker-compose build policy-tool-frontend
+      - run:
+          name: Build Docker backend image
+          command: |
+            cd docker/compose/split && docker-compose build policy-tool-backend
       # - run:
       #     name: Run tests
       #     command: |
