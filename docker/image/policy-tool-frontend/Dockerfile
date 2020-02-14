@@ -1,11 +1,13 @@
+# policy-tool-frontend
+
 # compile react code in a separate image
 FROM node:12-alpine as build
-WORKDIR /js
-ENV PATH /js/node_modules/.bin:$PATH
-COPY package.json /js/package.json
+WORKDIR /policy-tool-frontend
+ENV PATH /policy-tool-frontend/node_modules/.bin:$PATH
+COPY package.json /policy-tool-frontend/package.json
 RUN npm install
 RUN npm install react-scripts
-COPY js /js
+COPY policy-tool-frontend /policy-tool-frontend
 RUN npm run build
 
 # production environment

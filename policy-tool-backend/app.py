@@ -1,4 +1,4 @@
-# policy-tool_web/app.py
+# policy-tool-backend/app.py
 
 from flask import Flask, render_template
 app = Flask(__name__)
