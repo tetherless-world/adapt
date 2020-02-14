@@ -9,10 +9,24 @@ Clone the repo
 git clone https://github.com/hansidm/policy_tool.git
 ```
 
+# For production
 Build and start the containers
 ```
 cd policy_tool/docker/compose/split/
-docker-compose up --build
+docker-compose up -d --build
+```
+
+# For development
+Start the TWKS server
+```
+cd policy_tool/docker/compose/split/
+docker-compose up -d twks-server
+```
+
+Load the ontologies (repeat the docker exec for every .ttl file)
+```
+cd ontologies/
+cat <file>.ttl | docker exec -i twks-server /twks-cli put-nanopublications --lang turtle -
 ```
 
 From the host machine, the TWKS store is available at http://localhost:8080.
