@@ -1,5 +1,18 @@
 version: '3'
 services:
+  policy-tool-frontend:
+    hostname: policy-tool-frontend
+    container_name: policy-tool-frontend
+    depends_on:
+      - policy-tool
+      - twks-server
+    build: 
+      context: ../../..
+      dockerfile: docker/image/policy-tool-frontend/Dockerfile
+    image: tetherlessworld/policy-tool-frontend:${POLICY_TOOL_IMAGE_TAG:-latest}
+    ports:
+      - 80:80
+
   policy_tool:
     hostname: "policy-tool"
     container_name: "policy-tool"

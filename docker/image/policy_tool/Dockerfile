@@ -1,15 +1,6 @@
 # get twks-cli image
 FROM tetherlessworld/twks-cli:latest as twks-cli
 
-# compile react code in a separate image
-FROM node:12-alpine as build-js
-WORKDIR /js
-ENV PATH /js/node_modules/.bin:$PATH
-COPY js/package.json /js/package.json
-RUN npm install
-COPY js /js
-RUN npm run build
-
 # base image
 FROM python:3-slim
 
