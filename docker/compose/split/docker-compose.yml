@@ -14,20 +14,20 @@ services:
       - 80:80
 
   policy-tool-backend:
-    hostname: "policy-tool-backend"
-    container_name: "policy-tool-backend"
+    hostname: policy-tool-backend
+    container_name: policy-tool-backend
     depends_on:
       - twks-server
     build:
       context: ../../..
       dockerfile: docker/image/policy-tool-backend/Dockerfile
-    image: tetherlessworld/policy-tool:${POLICY_TOOL_IMAGE_TAG:-latest}
+    image: tetherlessworld/policy-tool-backend:${POLICY_TOOL_IMAGE_TAG:-latest}
     ports:
       - 5000:5000
   
   twks-server:
-    hostname: "twks-server"
-    container_name: "twks-server"
+    hostname: twks-server
+    container_name: twks-server
     image: tetherlessworld/twks-server:latest
     ports:
       - 8080:8080
