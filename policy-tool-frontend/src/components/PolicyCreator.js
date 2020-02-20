@@ -1,19 +1,27 @@
 import React, { useState } from 'react'
-import { Typography, Grid, makeStyles, Switch, Collapse } from '@material-ui/core'
+import { Grid, makeStyles, Button } from '@material-ui/core'
 import MuiDataform from 'mui-dataforms'
+
+import useApi from '../functions/BackendApi'
 import AttributeEditor from './AttributeEditor'
+import PreviewJson from './PreviewJson'
 
 const useStyles = makeStyles(theme => ({
   preview: {
+    paddingTop: theme.spacing(8)
+  },
+  create: {
     paddingTop: theme.spacing(8)
   }
 }))
 
 export default function PolicyCreator () {
 
+  const api = useApi()
   const classes = useStyles()
 
-  const [state, setState] = useState({
+  // State variables
+  const [policy, setPolicy] = useState({
     source: null,
     id: null,
     label: null,
@@ -21,23 +29,17 @@ export default function PolicyCreator () {
     attributes: [{ attr: '', values: [] }]
   })
 
-  const [showPreview, setShowPreview] = useState(false)
-
+  // State mutators
   const handleOnChange = key => value => {
-    setState(prevValues => ({
-      ...prevValues,
-      [key]: value
-    }))
+    setPolicy(prev => ({ ...prev, [key]: value }))
+  }
+  const setAttributes = (apply) => {
+    setPolicy(prev => ({ ...prev, attributes: apply(prev.attributes) }))
   }
 
+  // Attribute functions
   const newValue = () => (null)
   const newAttribute = () => ({ attr: '', values: [] })
-  const setAttributes = (apply) => {
-    setState(prevValues => ({
-      ...prevValues,
-      attributes: apply(prevValues.attributes)
-    }))
-  }
   const AttributeEditorFunctions = {
     addIntersection: () => { setAttributes(prevAttrs => [...prevAttrs, newAttribute()]) },
     addUnion: (index) => {
@@ -57,6 +59,7 @@ export default function PolicyCreator () {
     clearAttributes: () => { setAttributes(() => [newAttribute()]) }
   }
 
+  // Form fields
   const fields = [
     {
       title: 'Policy Information',
@@ -99,7 +102,7 @@ export default function PolicyCreator () {
         {
           id: 'attributes',
           type: 'custom',
-          Component: () => <AttributeEditor attributes={state.attributes} {...AttributeEditorFunctions} />,
+          Component: () => <AttributeEditor attributes={policy.attributes} {...AttributeEditorFunctions} />,
         },
         {
           id: 'precedence',
@@ -134,29 +137,22 @@ export default function PolicyCreator () {
     }
   ]
 
+  // Handling submission
+  const handleOnClickConstruct = () => {
+    api.constructPolicy(policy).then(d => console.log(d))
+  }
 
   return (
     <>
       <Grid container>
         <Grid item xs={12}>
-          <MuiDataform fields={fields} values={state} onChange={handleOnChange} />
+          <MuiDataform fields={fields} values={policy} onChange={handleOnChange} />
         </Grid>
         <Grid item xs={12} className={classes.preview}>
-          <Grid container spacing={4}>
-            <Grid item>
-              <Typography variant={'h5'}>Policy Preview</Typography>
-            </Grid>
-            <Grid item>
-              <Switch value={showPreview} onClick={() => setShowPreview(!showPreview)} />
-            </Grid>
-          </Grid>
-          <Grid container item>
-            <Collapse in={showPreview}>
-              <pre>
-                {JSON.stringify(state, null, 2)}
-              </pre>
-            </Collapse>
-          </Grid>
+          <PreviewJson title={'Policy Preview'} data={policy} />
+        </Grid>
+        <Grid item className={classes.create}>
+          <Button onClick={handleOnClickConstruct}>Construct</Button>
         </Grid>
       </Grid>
     </>
