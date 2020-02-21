@@ -1,66 +1,41 @@
 import React, { useState } from 'react'
-import { Grid, makeStyles, Button } from '@material-ui/core'
+import { Grid, makeStyles, Button, Typography } from '@material-ui/core'
 import MuiDataform from 'mui-dataforms'
 
 import useApi from '../functions/BackendApi'
 import AttributeEditor from './AttributeEditor'
 import PreviewJson from './PreviewJson'
 
-const useStyles = makeStyles(theme => ({
-  preview: {
-    paddingTop: theme.spacing(8)
-  },
-  create: {
-    paddingTop: theme.spacing(8)
-  }
-}))
+// const useStyles = makeStyles(theme => ({}))
 
 export default function PolicyCreator () {
 
   const api = useApi()
-  const classes = useStyles()
+  // const classes = useStyles()
 
-  // State variables
-  const [policy, setPolicy] = useState({
-    source: null,
-    id: null,
-    label: null,
-    definition: null,
-    attributes: [{ attr: '', values: [] }]
+  // state vars
+  const [attributes, setAttributes] = useState([])
+
+  const [additionalRules, setAdditionalRules] = useState({
+    precedence: '',
+    effect: '',
+    obligation: ''
   })
 
-  // State mutators
-  const handleOnChange = key => value => {
-    setPolicy(prev => ({ ...prev, [key]: value }))
-  }
-  const setAttributes = (apply) => {
-    setPolicy(prev => ({ ...prev, attributes: apply(prev.attributes) }))
-  }
+  const [info, setInfo] = useState({
+    definition: '',
+    id: '',
+    label: '',
+    source: '',
+  })
 
-  // Attribute functions
-  const newValue = () => (null)
-  const newAttribute = () => ({ attr: '', values: [] })
-  const AttributeEditorFunctions = {
-    addIntersection: () => { setAttributes(prevAttrs => [...prevAttrs, newAttribute()]) },
-    addUnion: (index) => {
-      setAttributes(prevAttrs => {
-        let copy = [...prevAttrs]
-        copy[index].values = [...copy[index].values, newValue()]
-        return copy
-      })
-    },
-    deleteValue: (index, valueIndex) => {
-      setAttributes(prevAttrs => {
-        let copy = [...prevAttrs]
-        copy[index].values = copy[index].values.filter((_, i) => i !== valueIndex)
-        return copy
-      })
-    },
-    clearAttributes: () => { setAttributes(() => [newAttribute()]) }
+  // Handling changes
+  const handleOnChange = setState => key => value => {
+    setState(prev => ({ ...prev, [key]: value }))
   }
 
   // Form fields
-  const fields = [
+  const infoFields = [
     {
       title: 'Policy Information',
       description: 'Provide some basic information about the policy',
@@ -94,16 +69,14 @@ export default function PolicyCreator () {
           type: 'text'
         },
       ]
-    },
+    }
+  ]
+
+  const additionalRulesFields = [
     {
       title: 'Additional Rules',
       description: 'Enter additional rules for the new policy',
       fields: [
-        {
-          id: 'attributes',
-          type: 'custom',
-          Component: () => <AttributeEditor attributes={policy.attributes} {...AttributeEditorFunctions} />,
-        },
         {
           id: 'precedence',
           title: 'Policy Precedence',
@@ -137,22 +110,43 @@ export default function PolicyCreator () {
     }
   ]
 
+
   // Handling submission
   const handleOnClickConstruct = () => {
-    api.constructPolicy(policy).then(d => console.log(d))
+    api.constructPolicy(info).then(d => console.log(d))
   }
 
   return (
     <>
-      <Grid container>
+      <Grid container spacing={8}>
         <Grid item xs={12}>
-          <MuiDataform fields={fields} values={policy} onChange={handleOnChange} />
+          <MuiDataform
+            fields={infoFields}
+            values={info}
+            onChange={handleOnChange(setInfo)}
+          />
         </Grid>
-        <Grid item xs={12} className={classes.preview}>
-          <PreviewJson title={'Policy Preview'} data={policy} />
+        <Grid item xs={12}>
+          <Typography variant={'h5'}>Attribute Editor</Typography>
+          <AttributeEditor attributes={attributes} setAttributes={setAttributes} />
         </Grid>
-        <Grid item className={classes.create}>
-          <Button onClick={handleOnClickConstruct}>Construct</Button>
+        <Grid item xs={12}>
+          <MuiDataform
+            fields={additionalRulesFields}
+            values={additionalRules}
+            onChange={handleOnChange(setAdditionalRules)}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <PreviewJson title={'Policy Preview'} data={info} />
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            variant={'outlined'}
+            color={'primary'}
+            onClick={handleOnClickConstruct}
+          >
+            Construct</Button>
         </Grid>
       </Grid>
     </>

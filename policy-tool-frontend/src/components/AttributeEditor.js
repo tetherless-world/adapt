@@ -1,16 +1,16 @@
-import React, { useState } from 'react'
-import { makeStyles, Button, Grid, Select, InputLabel, MenuItem, FormControl, IconButton, Typography } from '@material-ui/core'
+import React, { useEffect } from 'react'
+import { makeStyles, Button, Grid, Select, InputLabel, MenuItem, FormControl, IconButton } from '@material-ui/core'
 import { Delete as DeleteIcon, Clear as ClearIcon } from '@material-ui/icons'
 
 const useStyles = makeStyles(theme => ({
   root: {
-    paddingTop: theme.spacing(2)
+    paddingTop: theme.spacing(2),
   },
   attr: {
     // padding: theme.spacing(1)
   },
   nested: {
-    paddingLeft: theme.spacing(4)
+    paddingLeft: theme.spacing(10)
   },
   formControl: {
     minWidth: 300
@@ -26,8 +26,41 @@ const ButtonProps = {
   size: 'small'
 }
 
-export default function AttributeEditor ({ attributes, addUnion, addIntersection, deleteValue, clearAttributes, validAttributes }) {
+const newValue = () => (null)
+const newAttribute = () => ({ attr: '', values: [] })
+
+export default function AttributeEditor ({ attributes, setAttributes, validAttributes }) {
   const classes = useStyles()
+
+  useEffect(() => {
+    setAttributes([newAttribute()])
+  }, [])
+
+  const addIntersection = () => setAttributes(prev => [...prev, newAttribute()])
+
+  const addUnion = (index) => setAttributes(prev => {
+    let copy = [...prev]
+    copy[index].values.push(newValue())
+    return copy
+  })
+
+  const deleteAttribute = (index) => {
+    setAttributes(prev => {
+      let copy = [...prev]
+      copy.splice(index, 1)
+      return copy
+    })
+  }
+
+  const deleteValue = (index, valueIndex) => {
+    setAttributes(prev => {
+      let copy = [...prev]
+      copy[index].values.splice(valueIndex, 1)
+      return copy
+    })
+  }
+  
+  const clearAttributes = () => setAttributes([newAttribute()])
 
   const UnionButton = ({ index }) => (
     <Button
@@ -45,6 +78,15 @@ export default function AttributeEditor ({ attributes, addUnion, addIntersection
     >
       Intersect
     </Button>
+  )
+
+  const DeleteAttributeButton = ({ index }) => (
+    <IconButton
+      onClick={() => deleteAttribute(index)}
+      {...ButtonProps}
+    >
+      <ClearIcon />
+    </IconButton>
   )
 
   const DeleteValueButton = ({ index, valueIndex }) => (
@@ -69,6 +111,9 @@ export default function AttributeEditor ({ attributes, addUnion, addIntersection
   const Attribute = ({ attribute, index }) => (
     <>
       <Grid container spacing={1} alignItems={'flex-end'}>
+        <Grid item>
+          <DeleteAttributeButton index={index}/>
+        </Grid>
         <Grid item>
           <FormControl className={classes.formControl}>
             <InputLabel id={`attr_${index}`}>
@@ -96,9 +141,10 @@ export default function AttributeEditor ({ attributes, addUnion, addIntersection
             item
             spacing={2}
             alignItems={"flex-end"}
+            key={`value_${index}_${i}`}
           >
             <Grid item>
-              <FormControl className={classes.formControl} key={`value_${index}_${i}`}>
+              <FormControl className={classes.formControl}>
                 <InputLabel id={`value_${index}`}>
                   Value {i}
                 </InputLabel>
@@ -128,7 +174,7 @@ export default function AttributeEditor ({ attributes, addUnion, addIntersection
         </Grid>
         <Grid container item xs={12}>
           {attributes.map((attribute, index) => (
-            <Grid item xs={12}>
+            <Grid item xs={12} key={index}>
               <Attribute index={index} attribute={attribute} />
             </Grid>
           ))}
