@@ -3,6 +3,7 @@
 import logging
 import os
 import pathlib
+import re
 
 import rdflib
 # from rdflib.plugins.sparql.results.xmlresults import XMLResultParser
@@ -43,14 +44,15 @@ def index():
 
 @app.route(f'{API_URL}/domains', methods=['GET'])
 def getDomains():
-    results = client.query_assertions(
+    response = client.query_assertions(
         """
         PREFIX  owl:    <http://www.w3.org/2002/07/owl#>
         PREFIX  rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        SELECT  ?ont    WHERE   { ?ont  rdf:type    <http://www.w3.org/2002/07/owl#Ontology> }
+        SELECT  ?ont    
+        WHERE   { ?ont rdf:type owl:Ontology }
         """)
     logging.info('Returning domains')
-    return jsonify([result for result in results])
+    return jsonify([r[0] for r in response if re.search('/policy/(\w*/)*policy/?$', str(r[0]))])
 
 
 @app.route(f'{API_URL}/policies', methods=['POST'])
