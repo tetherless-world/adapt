@@ -1,17 +1,22 @@
 # policy-tool-backend/app.py
 
 import logging
-from os import listdir
-from os.path import join, dirname
+import os
 import pathlib
 
 import rdflib
+from rdflib.plugins.sparql.results.xmlresults import XMLResultParser
 from flask import Flask, request, jsonify
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
 
+
+# Configurations
+API_URL = '/api'
+ONTOLOGY_PATH = os.path.abspath('../ontologies')
+
 client = TwksClient(server_base_url='http://localhost:8080')
-api_url = '/api'
+xml_result_parser = XMLResultParser()
 
 app = Flask(__name__)
 
@@ -21,21 +26,13 @@ def __load_ontologies():
     """
     Add ontologies to the twks-server
     """
-    files = [
-        'ontologies/policy.ttl',
-        'ontologies/healthcare.ttl',
-        'ontologies/healthcare-policy.ttl',
-        'ontologies/dsa.ttl',
-        'ontologies/dsa-policy.ttl'
-    ]
-    print('hello')
-    for file_name in files:
-        logging.info(f"putting {file_name} nanopublication to the server")
-        file_path = join(dirname(__file__), file_name)
+    for f in os.listdir(ONTOLOGY_PATH):
+        file_path = os.path.abspath(os.path.join('../ontologies', f))
         nanopublication = Nanopublication.parse_assertions(
             format="ttl",
             source=file_path,
             source_uri=rdflib.URIRef(pathlib.Path(file_path).as_uri()))
+        logging.info(f"putting {f} nanopublication to the server")
         client.put_nanopublication(nanopublication)
 
 
@@ -44,11 +41,19 @@ def index():
     return 'Hello there!'
 
 
-@app.route(f'{api_url}/domains', methods=['GET'])
+@app.route(f'{API_URL}/domains', methods=['GET'])
 def getDomains():
-    return jsonify([node for node in client.get_assertions().all_nodes()])
+    result = client.query_assertions(
+        """
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        CONSTRUCT WHERE { ?s ?p ?o }
+        """)
+    logging.info(resultgi)
+    return 'hello\n'
+    # return jsonify([node for node in client.get_assertions().all_nodes()])
 
 
-@app.route(f'{api_url}/policies', methods=['POST'])
+@app.route(f'{API_URL}/policies', methods=['POST'])
 def constructPolicy(policy):
     pass
