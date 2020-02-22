@@ -5,7 +5,7 @@ import os
 import pathlib
 
 import rdflib
-from rdflib.plugins.sparql.results.xmlresults import XMLResultParser
+# from rdflib.plugins.sparql.results.xmlresults import XMLResultParser
 from flask import Flask, request, jsonify
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
@@ -16,7 +16,7 @@ API_URL = '/api'
 ONTOLOGY_PATH = os.path.abspath('../ontologies')
 
 client = TwksClient(server_base_url='http://localhost:8080')
-xml_result_parser = XMLResultParser()
+# xml_result_parser = XMLResultParser()
 
 app = Flask(__name__)
 
@@ -43,15 +43,14 @@ def index():
 
 @app.route(f'{API_URL}/domains', methods=['GET'])
 def getDomains():
-    result = client.query_assertions(
+    results = client.query_assertions(
         """
-        PREFIX owl: <http://www.w3.org/2002/07/owl#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        CONSTRUCT WHERE { ?s ?p ?o }
+        PREFIX  owl:    <http://www.w3.org/2002/07/owl#>
+        PREFIX  rdf:    <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        SELECT  ?ont    WHERE   { ?ont  rdf:type    <http://www.w3.org/2002/07/owl#Ontology> }
         """)
-    logging.info(resultgi)
-    return 'hello\n'
-    # return jsonify([node for node in client.get_assertions().all_nodes()])
+    logging.info('Returning domains')
+    return jsonify([result for result in results])
 
 
 @app.route(f'{API_URL}/policies', methods=['POST'])
