@@ -41,7 +41,6 @@ def __load_ontologies():
 def index():
     return 'Hello there!'
 
-
 @app.route(f'{API_URL}/domains', methods=['GET'])
 def getDomains():
     response = client.query_assertions(
@@ -51,8 +50,17 @@ def getDomains():
         SELECT  ?ont    
         WHERE   { ?ont rdf:type owl:Ontology }
         """)
+
+    # assemble domains
+    domains = []
+    for r in response:
+        uri = str(r[0])
+        if re.search('/policy/(\w*/)*policy/?$', uri):
+            title = uri[:(-8 if uri[-1] == '/' else -7)].split('/')[-1].upper()
+            domains.append({'uri': uri, 'title': title})
+
     logging.info('Returning domains')
-    return jsonify([r[0] for r in response if re.search('/policy/(\w*/)*policy/?$', str(r[0]))])
+    return jsonify(domains)
 
 
 @app.route(f'{API_URL}/policies', methods=['POST'])

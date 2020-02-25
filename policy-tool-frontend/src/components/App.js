@@ -1,7 +1,9 @@
 import React from 'react'
-import { Container, CssBaseline, makeStyles } from '@material-ui/core'
+import { Container, makeStyles, Typography } from '@material-ui/core'
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 import Navigation from './Navigation'
 import PolicyCreator from './PolicyCreator'
+import DomainSelection from './DomainSelection'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -13,10 +15,21 @@ export default function App () {
   const classes = useStyles()
   return (
     <div className={classes.root}>
-      <CssBaseline />
       <Container>
         <Navigation title={'Policy Creator'} />
-        <PolicyCreator />
+        <BrowserRouter>
+          <Switch >
+            <Route path={'/creator'} exact>
+              <PolicyCreator />
+            </Route>
+            <Route path={'/domains'} exact>
+              <DomainSelection />
+            </Route>
+            <Route path={'/'}>
+              <Typography variant={'h1'}>Hello there!</Typography>
+            </Route>
+          </Switch>
+        </BrowserRouter>
       </Container>
     </div>
   )
