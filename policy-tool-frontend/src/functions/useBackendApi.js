@@ -2,7 +2,8 @@ import axios from 'axios'
 
 const baseUrl = '/api'
 
-export default function useApi () {
+
+export default function useBackendApi () {
   return {
     getDomains: async () => {
       let url = `${baseUrl}/domains`

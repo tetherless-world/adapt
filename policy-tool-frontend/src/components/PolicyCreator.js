@@ -2,15 +2,19 @@ import React, { useState } from 'react'
 import { Grid, makeStyles, Button, Typography } from '@material-ui/core'
 import MuiDataform from 'mui-dataforms'
 
-import useApi from '../functions/BackendApi'
 import AttributeEditor from './AttributeEditor'
 import PreviewJson from './PreviewJson'
+
+import useDomain from '../functions/useDomain'
+import useBackendApi from '../functions/useBackendApi'
+import useQuery from '../functions/useQuery'
 
 // const useStyles = makeStyles(theme => ({}))
 
 export default function PolicyCreator () {
-
-  const api = useApi()
+  const query = useQuery()
+  const api = useBackendApi()
+  const domain = useDomain(query.get('uri'))
   // const classes = useStyles()
 
   // state vars
@@ -146,7 +150,8 @@ export default function PolicyCreator () {
             color={'primary'}
             onClick={handleOnClickConstruct}
           >
-            Construct</Button>
+            Construct
+          </Button>
         </Grid>
       </Grid>
     </>

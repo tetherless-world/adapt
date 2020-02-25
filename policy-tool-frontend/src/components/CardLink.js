@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom'
 const useStyles = makeStyles(theme => ({
   root: {},
   content: {
-    minHeight: 100,
     minWidth: 100
   }
 }))
