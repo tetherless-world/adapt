@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Typography, Grid } from '@material-ui/core'
 
-import CardLink from './CardLink'
-import LoadingWrapper from './LoadingWrapper'
+import CardLink from '../common/CardLink'
+import LoadingWrapper from '../common/LoadingWrapper'
 
-import useBackendApi from '../functions/useBackendApi'
+import useBackendApi from '../../functions/useBackendApi'
 
 
 export default function DomainSelection () {

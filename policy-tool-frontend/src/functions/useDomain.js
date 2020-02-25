@@ -4,14 +4,14 @@ const domains = {
   'http://purl.org/twc/policy/example/dsa/': {
     attributes: [
       {
-        attribute: 'frequencyRange',
+        label: 'frequencyRange',
         values: [
           {
-            title: 'frequencyMin',
+            label: 'frequencyMin',
             type: 'float'
           },
           {
-            title: 'frequencyMax',
+            label: 'frequencyMax',
             type: 'float'
           }
         ]

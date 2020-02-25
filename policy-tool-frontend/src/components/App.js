@@ -1,9 +1,9 @@
 import React from 'react'
-import { Container, makeStyles, Typography } from '@material-ui/core'
+import { Container, makeStyles, Typography, CssBaseline } from '@material-ui/core'
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import Navigation from './Navigation'
-import PolicyCreator from './PolicyCreator'
-import DomainSelection from './DomainSelection'
+import Navigation from './common/Navigation'
+import PolicyCreator from './PolicyCreator/PolicyCreator'
+import DomainSelection from './DomainSelection/DomainSelection'
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -15,6 +15,7 @@ export default function App () {
   const classes = useStyles()
   return (
     <div className={classes.root}>
+      <CssBaseline/>
       <Container>
         <Navigation title={'Policy Creator'} />
         <BrowserRouter>

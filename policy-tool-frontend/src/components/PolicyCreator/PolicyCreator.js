@@ -3,11 +3,11 @@ import { Grid, makeStyles, Button, Typography } from '@material-ui/core'
 import MuiDataform from 'mui-dataforms'
 
 import AttributeEditor from './AttributeEditor'
-import PreviewJson from './PreviewJson'
+import PreviewJson from '../common/PreviewJson'
 
-import useDomain from '../functions/useDomain'
-import useBackendApi from '../functions/useBackendApi'
-import useQuery from '../functions/useQuery'
+import useDomain from '../../functions/useDomain'
+import useBackendApi from '../../functions/useBackendApi'
+import useQuery from '../../functions/useQuery'
 
 // const useStyles = makeStyles(theme => ({}))
 
@@ -15,7 +15,6 @@ export default function PolicyCreator () {
   const query = useQuery()
   const api = useBackendApi()
   const domain = useDomain(query.get('uri'))
-  // const classes = useStyles()
 
   // state vars
   const [attributes, setAttributes] = useState([])
