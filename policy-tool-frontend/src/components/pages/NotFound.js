@@ -14,17 +14,13 @@ const useStyles = makeStyles(theme => ({
 export default function NotFound () {
   const classes = useStyles()
   return (
-    <div>
-      <Grid container justify={'center'} className={classes.root}>
-        <Grid item className={classes.title}>
+    <div className={classes.root}>
+      <Grid container spacing={4}>
+        <Grid container item justify={'center'}>
           <Typography variant={'h1'}>¯\_(ツ)_/¯</Typography>
         </Grid>
-      </Grid>
-      <Grid container justify={'center'} className={classes.root}>
-        <Grid item>
-          <Typography variant={'h4'}>
-            Sorry, the page you were looking for could not be found.
-          </Typography>
+        <Grid container item justify={'center'}>
+          <Typography variant={'h4'}>Sorry, the page you were looking for could not be found.</Typography>
         </Grid>
       </Grid>
     </div>
