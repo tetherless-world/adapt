@@ -53,6 +53,10 @@ sio:hasValue rdf:type owl:DatatypeProperty .
 :Policy rdf:type owl:Class .
 
 
+###  http://purl.org/twc/policy/Request
+:Request rdf:type owl:Class .
+
+
 ###  http://semanticscience.org/resource/Attribute
 sio:Attribute rdf:type owl:Class .
 
