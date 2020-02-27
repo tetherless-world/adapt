@@ -1,12 +1,11 @@
 # policy-tool-backend/app.py
-
+from flask import Flask, render_template
 import logging
 import os
 import pathlib
 import re
 
 import rdflib
-# from rdflib.plugins.sparql.results.xmlresults import XMLResultParser
 from flask import Flask, request, jsonify
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
@@ -16,8 +15,12 @@ from twks.nanopub import Nanopublication
 API_URL = '/api'
 ONTOLOGY_PATH = os.path.abspath('../ontologies')
 
+
+# Configurations
+API_URL = '/api'
+ONTOLOGY_PATH = os.path.abspath('../ontologies')
+
 client = TwksClient(server_base_url='http://localhost:8080')
-# xml_result_parser = XMLResultParser()
 
 app = Flask(__name__)
 
