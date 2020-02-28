@@ -1,7 +1,7 @@
 import React from 'react'
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import PolicyCreator from '../PolicyCreator/PolicyCreator'
-import DomainSelection from '../DomainSelection/DomainSelection'
+import PolicyCreator from './PolicyCreator/PolicyCreator'
+import DomainSelection from './DomainSelection'
 import Layout from '../common/Layout';
 import NotFound from './NotFound'
 import Home from './Home';
