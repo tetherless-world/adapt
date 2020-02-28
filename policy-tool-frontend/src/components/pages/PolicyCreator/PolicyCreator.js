@@ -3,11 +3,11 @@ import { Grid, makeStyles, Button, Typography } from '@material-ui/core'
 import MuiDataform from 'mui-dataforms'
 
 import AttributeEditor from './AttributeEditor'
-import PreviewJson from '../common/PreviewJson'
+import PreviewJson from '../../common/PreviewJson'
 
-import useDomain from '../../functions/useDomain'
-import useBackendApi from '../../functions/useBackendApi'
-import useQuery from '../../functions/useQuery'
+import useDomain from '../../../functions/useDomain'
+import useBackendApi from '../../../functions/useBackendApi'
+import useQuery from '../../../functions/useQuery'
 
 // const useStyles = makeStyles(theme => ({}))
 
@@ -75,21 +75,21 @@ export default function PolicyCreator () {
     }
   ]
 
-  const additionalRulesFields = [
+  const conditionsFields = [
     {
-      title: 'Additional Rules',
-      description: 'Enter additional rules for the new policy',
+      title: 'Conditions and Effects',
       fields: [
         {
-          id: 'precedence',
-          title: 'Policy Precedence',
+          id: 'action',
+          title: 'Policy Action',
           type: 'select',
           size: { sm: 6 },
           options: []
         },
         {
           type: 'spacer',
-          size: { xs: false, sm: 6 }
+          size: { xs: false, sm: 6 },
+          options: []
         },
         {
           id: 'effect',
@@ -103,8 +103,20 @@ export default function PolicyCreator () {
           size: { xs: false, sm: 6 }
         },
         {
-          id: 'obligation',
-          title: 'Policy Obligation',
+          id: 'obligations',
+          title: 'Policy Obligations',
+          type: 'select',
+          size: { sm: 6 },
+          options: []
+          // predefined, or user input
+        },
+        {
+          type: 'spacer',
+          size: { xs: false, sm: 6 }
+        },
+        {
+          id: 'precedence',
+          title: 'Policy Precedence',
           type: 'select',
           size: { sm: 6 },
           options: []
@@ -130,12 +142,12 @@ export default function PolicyCreator () {
           />
         </Grid>
         <Grid item xs={12}>
-          <Typography variant={'h5'}>Attribute Editor</Typography>
+          <Typography variant={'h5'}>Rules</Typography>
           <AttributeEditor attributes={attributes} setAttributes={setAttributes} />
         </Grid>
         <Grid item xs={12}>
           <MuiDataform
-            fields={additionalRulesFields}
+            fields={conditionsFields}
             values={additionalRules}
             onChange={handleOnChange(setAdditionalRules)}
           />
