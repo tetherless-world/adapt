@@ -25,6 +25,18 @@ services:
     ports:
       - 5000:5000
   
+  policy-tool-reasoner:
+    hostname: policy-tool-reasoner
+    container_name: policy-tool-reasoner
+    depends_on:
+      - twks-server
+    build:
+      context: ../../..
+      dockerfile: docker/image/policy-tool-reasoner/Dockerfile
+    image: tetherlessworld/policy-tool-reasoner:${POLICY_TOOL_IMAGE_TAG:-latest}
+    ports:
+      - 9000:9000
+
   twks-server:
     hostname: twks-server
     container_name: twks-server
