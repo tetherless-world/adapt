@@ -20,6 +20,11 @@
                              rdfs:subClassOf <http://purl.org/twc/policy/Policy> .
 
 
+###  http://purl.org/twc/policy/example/dsa/policy/DynamicSpectrumAccessRequest
+:DynamicSpectrumAccessRequest rdf:type owl:Class ;
+                              rdfs:subClassOf <http://purl.org/twc/policy/Request> .
+
+
 ###  http://purl.org/twc/policy/example/dsa/policy/Transmit_Policy_0
 :Transmit_Policy_0 rdf:type owl:Class ;
                    owl:equivalentClass [ owl:intersectionOf ( <http://purl.org/twc/policy/example/dsa/Transmit>
