@@ -28,17 +28,14 @@
 ###  http://purl.org/twc/policy/example/dsa/Frequency
 :Frequency rdf:type owl:Class ;
            rdfs:subClassOf sio:Attribute ,
-                           [ owl:intersectionOf ( [ rdf:type owl:Restriction ;
-                                                    owl:onProperty sio:hasUnit ;
-                                                    owl:hasValue <http://purl.obolibrary.org/obo/UO_0000105>
-                                                  ]
-                                                  [ rdf:type owl:Restriction ;
-                                                    owl:onProperty sio:hasValue ;
-                                                    owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
-                                                    owl:onDataRange xsd:float
-                                                  ]
-                                                ) ;
-                             rdf:type owl:Class
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty sio:hasUnit ;
+                             owl:someValuesFrom <http://purl.obolibrary.org/obo/UO_0000105>
+                           ] ,
+                           [ rdf:type owl:Restriction ;
+                             owl:onProperty sio:hasValue ;
+                             owl:qualifiedCardinality "1"^^xsd:nonNegativeInteger ;
+                             owl:onDataRange xsd:float
                            ] .
 
 
