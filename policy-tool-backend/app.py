@@ -20,7 +20,7 @@ ONTOLOGY_PATH = os.path.abspath('../ontologies')
 API_URL = '/api'
 ONTOLOGY_PATH = os.path.abspath('../ontologies')
 
-client = TwksClient(server_base_url='http://localhost:8080')
+client = TwksClient(server_base_url='http://twks-server:8080')
 
 app = Flask(__name__)
 
