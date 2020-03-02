@@ -52,7 +52,7 @@ export default function useAttributes () {
 
   return {
     attributes,
-    setAttribute,
-    updateAttributes
+    setAttributes,
+    updateAttribute
   }
 }

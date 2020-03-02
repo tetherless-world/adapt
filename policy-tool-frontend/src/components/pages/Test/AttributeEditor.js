@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Grid, Divider, Button } from '@material-ui/core'
+import { Grid, Divider, Button, Select, FormControl, makeStyles, InputLabel, MenuItem } from '@material-ui/core'
 
 import Attribute from './Attribute'
 
@@ -7,7 +7,9 @@ import PreviewJson from '../../common/PreviewJson'
 import useAttributes from '../../../functions/useAttributes'
 
 
+
 export default function AttributeEditor () {
+
   const validAttributes = [
     {
       name: 'Start Time',
@@ -23,7 +25,7 @@ export default function AttributeEditor () {
 
   // const [attributes, setAttributes] = useState([])
 
-  const {attributes, updateAttribute, setAttributes} = useAttributes();
+  const { attributes, updateAttribute, setAttributes } = useAttributes();
 
   // useEffect(() => {
   //   setAttributes(prev => [
@@ -36,7 +38,7 @@ export default function AttributeEditor () {
   //   ])
   // }, [])
 
-  const handleChangeAttribute = index => newAttribute => {
+  const handleChangeAttribute = (index, newAttribute) => {
     updateAttribute(index, newAttribute)
   }
 
@@ -51,32 +53,30 @@ export default function AttributeEditor () {
     <>
       <Grid container>
         <Grid item xs={12}>
-          {attributes && attributes.map((attribute, index) => {
-            return (
-              <div key={index}>
-                <Grid container alignItems={'flex-end'}>
-                  <Grid item>
-                    <Attribute
-                      attribute={attribute}
-                      validAttributes={validAttributes}
-                      onChangeAttribute={handleChangeAttribute(index)}
-                      onChangeAttributeValue={handleChangeAttributeValue(index)}
-                    />
-                  </Grid>
-                  <Grid item>
-                    <Button onClick={() => {
-                      setAttributes(prev => {
-                        prev[index] = { ...prev[index], values: [...prev[index].values, null] }
-                        return [...prev]
-                      })
-                    }}>
-                      Add
-                    </Button>
-                  </Grid>
+          {attributes.map((attribute, index) => (
+            <>
+              <Grid container>
+                <Grid item xs={12} sm={4}>
+                  <FormControl fullWidth>
+                    <InputLabel>Attribute</InputLabel>
+                    <Select
+                      value={attribute.name}
+                      onChange={event => updateAttribute(index, validAttributes.filter(a => a.name === event.target.value).shift())}
+                    >
+                      {validAttributes.map((option, index) => (
+                        <MenuItem
+                          value={option.name}
+                          key={index}
+                        >
+                          {option.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </Grid>
-              </div>
-            )
-          })}
+              </Grid>
+            </>
+          ))}
         </Grid>
       </Grid>
       <div style={{ paddingTop: 30 }} />
