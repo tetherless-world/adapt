@@ -5,6 +5,8 @@ import Attribute from './Attribute'
 
 import PreviewJson from '../../common/PreviewJson'
 import useAttributes from '../../../functions/useAttributes'
+import SelectField from './components/SelectField'
+import UnknownField from './components/UnknownField'
 
 
 
@@ -61,7 +63,11 @@ export default function AttributeEditor () {
                     <InputLabel>Attribute</InputLabel>
                     <Select
                       value={attribute.name}
-                      onChange={event => updateAttribute(index, validAttributes.filter(a => a.name === event.target.value).shift())}
+                      onChange={event =>
+                        updateAttribute(index,
+                          validAttributes.filter(a => a.name === event.target.value)
+                            .shift()
+                        )}
                     >
                       {validAttributes.map((option, index) => (
                         <MenuItem
@@ -75,6 +81,35 @@ export default function AttributeEditor () {
                   </FormControl>
                 </Grid>
               </Grid>
+              {attribute.values.map((value, valueIndex) => {
+                let FieldComponent = UnknownField
+
+                switch (attribute.type) {
+                  case 'xsd:datetime':
+                    FieldComponent = SelectField
+                    break
+                }
+
+                return (
+                  <FieldComponent
+                    key={valueIndex}
+                    field={{ type: attribute.type, id: valueIndex, title: 'Value' }}
+                    value={value}
+                    onChange={(event) => {
+                      updateAttribute(index,
+                        {
+                          ...attribute,
+                          values: attribute.values.map((v, i) =>
+                            i === valueIndex
+                              ? event.target.value
+                              : value
+                          )
+                        }
+                      )
+                    }}
+                  />
+                )
+              })}
             </>
           ))}
         </Grid>
