@@ -9,7 +9,7 @@ export default function UnknownField ({
 }) {
   return (
     <>
-      <Typography>Unknown field type `{type}` for `{id}`</Typography>
+      <Typography color={'error'}>Unknown field type `{type || 'undefined'}` for `{id}`</Typography>
     </>
   )
 
