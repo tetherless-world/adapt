@@ -45,8 +45,8 @@ export default function AttributeEditor() {
     )
   }
 
-  const handleChangeAttributeValue = (index, valueIndex) => event => {
-    updateValue(index, valueIndex, event.target.value)
+  const handleChangeAttributeValue = (index, valueIndex) => value => {
+    updateValue(index, valueIndex, value)
   }
 
   return (
