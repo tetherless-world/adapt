@@ -16,10 +16,7 @@ export default function SelectField({
           name: id,
           id: id
         }}
-        onChange={event => {
-          onChange(event.target.value)
-          console.log(event)
-        }}
+        onChange={event => onChange(event.target.value)}
         {...props}
       >
         {options.map((option, index) => (
