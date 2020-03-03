@@ -15,6 +15,10 @@ jobs:
           name: Build Docker backend image
           command: |
             cd docker/compose/split && docker-compose build policy-tool-backend
+      - run:
+          name: Build Docker reasoner image
+          command: |
+            cd docker/compose/split && docker-compose build policy-tool-reasoner
       # - run:
       #     name: Run tests
       #     command: |

@@ -10,8 +10,8 @@ RUN pip install -r requirements.txt
 COPY policy-tool-backend /policy-tool-backend
 
 # copy scripts & ontologies
-COPY docker/image/docker-entrypoint.sh /policy-docker-entrypoint.sh
+COPY docker/image/backend-entrypoint.sh /backend-entrypoint.sh
 COPY ontologies/*.ttl /ontologies/
 
 EXPOSE 5000
-ENTRYPOINT [ "/policy-docker-entrypoint.sh" ]
+ENTRYPOINT [ "/backend-entrypoint.sh" ]
