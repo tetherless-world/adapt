@@ -1,18 +1,30 @@
 import { useState, useEffect } from 'react'
 
-export default function useAttributes () {
+export default function useAttributes() {
   const [attributes, setAttributes] = useState([])
 
   const updateAttribute = (index, newAttribute) => {
-    if (attributes.length) {
-      setAttributes(prev =>
-        prev.map((oldAttribute, i) => i === index ? newAttribute : oldAttribute)
+    setAttributes(prev =>
+      prev.map((oldAttribute, idx) =>
+        idx === index ? newAttribute : oldAttribute
       )
-    } else {
-      setAttributes([newAttribute])
-    }
+    )
   }
 
+  const updateValue = (index, valueIndex, newValue) => {
+    setAttributes(prev =>
+      prev.map((attr, idx1) =>
+        idx1 === index
+          ? {
+              ...attr,
+              values: attr.values.map((v, idx2) =>
+                idx2 === valueIndex ? newValue : v
+              )
+            }
+          : attr
+      )
+    )
+  }
 
   const blankAttribute = () => ({ name: '', type: '', values: [] })
 
@@ -44,8 +56,6 @@ export default function useAttributes () {
   //   })
   // }
 
-
-
   useEffect(() => {
     setAttributes([blankAttribute()])
   }, [])
@@ -53,6 +63,7 @@ export default function useAttributes () {
   return {
     attributes,
     setAttributes,
-    updateAttribute
+    updateAttribute,
+    updateValue
   }
 }

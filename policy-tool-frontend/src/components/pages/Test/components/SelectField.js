@@ -1,13 +1,12 @@
 import React from 'react'
 import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core'
 
-export default function SelectField ({
+export default function SelectField({
   value,
   onChange,
   field: { id, title, options },
   ...props
 }) {
-  console.log(value)
   return (
     <FormControl fullWidth>
       <InputLabel htmlFor={id}>{title}</InputLabel>
@@ -23,16 +22,12 @@ export default function SelectField ({
         }}
         {...props}
       >
-        {options.map((option, index) =>
-          <MenuItem
-            value={option.value}
-            key={index}
-          >
+        {options.map((option, index) => (
+          <MenuItem value={option.value} key={index}>
             {option.label}
           </MenuItem>
-        )}
+        ))}
       </Select>
     </FormControl>
   )
-
 }

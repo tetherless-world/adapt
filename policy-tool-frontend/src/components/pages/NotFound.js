@@ -10,8 +10,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-
-export default function NotFound () {
+export default function NotFound() {
   const classes = useStyles()
   return (
     <div className={classes.root}>
@@ -20,7 +19,9 @@ export default function NotFound () {
           <Typography variant={'h1'}>¯\_(ツ)_/¯</Typography>
         </Grid>
         <Grid container item justify={'center'}>
-          <Typography variant={'h4'}>Sorry, the page you were looking for could not be found.</Typography>
+          <Typography variant={'h4'}>
+            Sorry, the page you were looking for could not be found.
+          </Typography>
         </Grid>
       </Grid>
     </div>

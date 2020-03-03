@@ -9,7 +9,7 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export default function Attribute ({
+export default function Attribute({
   attribute,
   validAttributes,
   onChangeAttribute,
@@ -48,7 +48,6 @@ export default function Attribute ({
           </Grid>
         ))}
       </Grid>
-
     </>
   )
 }
