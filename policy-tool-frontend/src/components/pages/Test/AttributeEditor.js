@@ -88,7 +88,7 @@ export default function AttributeEditor() {
                         key={valueIndex}
                         value={value}
                         field={{
-                          id: valueIndex,
+                          id: `${valueIndex}`,
                           title: 'Value',
                           type: attribute.type
                         }}
