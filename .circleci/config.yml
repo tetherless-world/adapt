@@ -1,5 +1,16 @@
 version: 2
 jobs:
+  test-reasoner:
+    working_directory: /git-policy-tool
+    docker:
+      - image: hseeberger/scala-sbt:11.0.6_1.3.8_2.13.1
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Test policy-tool-reasoner
+          command: |
+            cd policy-tool-reasoner && sbt test
   build:
     working_directory: /git-policy-tool
     docker:
@@ -32,3 +43,9 @@ jobs:
       #         docker tag app "${ECR_ENDPOINT}/app:${CIRCLE_SHA1}"
       #         docker push "${ECR_ENDPOINT}/app:${CIRCLE_SHA1}"
       #       fi
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - test-reasoner
+      - build
