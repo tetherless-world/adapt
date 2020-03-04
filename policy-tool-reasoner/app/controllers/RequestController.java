@@ -1,8 +1,7 @@
 package controllers;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.JsonNode;
 
-import play.libs.Json;
 import play.mvc.*;
 
 /**
@@ -17,11 +16,10 @@ public class RequestController extends Controller {
      * this method will be called when the application receives a
      * <code>GET</code> request with a path of <code>/</code>.
      */
-    public Result evaluate() {
-        ObjectNode result = Json.newObject();
-        result.put("exampleField1", "foobar");
-        result.put("exampleField2", "Hello world!");
-        return ok(result);
+    @BodyParser.Of(BodyParser.Json.class)
+    public Result evaluate(Http.Request request) {
+        JsonNode json = request.body().asJson();
+        return ok(json);
     }
 
 }
