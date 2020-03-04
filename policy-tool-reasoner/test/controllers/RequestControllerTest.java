@@ -12,7 +12,16 @@ import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.GET;
 import static play.test.Helpers.route;
 
-public class HomeControllerTest extends WithApplication {
+import java.io.File;
+import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+public class RequestControllerTest extends WithApplication {
+
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     @Override
     protected Application provideApplication() {
@@ -20,12 +29,15 @@ public class HomeControllerTest extends WithApplication {
     }
 
     @Test
-    public void testIndex() {
+    public void testEvaluate() throws JsonProcessingException, IOException {
+        JsonNode json = mapper.readTree(new File("test-data/requests.json"));
         Http.RequestBuilder request = new Http.RequestBuilder()
                 .method(GET)
-                .uri("/");
+                .bodyJson(json)
+                .uri("/request/evaluate");
 
         Result result = route(app, request);
+        
         assertEquals(OK, result.status());
     }
 
