@@ -1,0 +1,29 @@
+[
+  {
+    "attributeName": "http://purl.org/twc/policy/example/dsa/FrequencyRange",
+    "typeInfo": {
+      "http://semanticscience.org/resource/hasAttribute": "http://purl.org/twc/policy/example/dsa/FrequencyMinimum"
+    }
+  },
+  {
+    "attributeName": "http://purl.org/twc/policy/example/dsa/Frequency",
+    "typeInfo": {
+      "http://semanticscience.org/resource/hasUnit": "http://purl.obolibrary.org/obo/UO_0000105",
+      "http://semanticscience.org/resource/hasValue": "http://www.w3.org/2001/XMLSchema#float"
+    }
+  },
+  {
+    "attributeName": "http://purl.org/twc/policy/example/dsa/FrequencyMaximum",
+    "typeInfo": {
+      "http://semanticscience.org/resource/hasUnit": "http://purl.obolibrary.org/obo/UO_0000105",
+      "http://semanticscience.org/resource/hasValue": "http://www.w3.org/2001/XMLSchema#float"
+    }
+  },
+  {
+    "attributeName": "http://purl.org/twc/policy/example/dsa/FrequencyMinimum",
+    "typeInfo": {
+      "http://semanticscience.org/resource/hasUnit": "http://purl.obolibrary.org/obo/UO_0000105",
+      "http://semanticscience.org/resource/hasValue": "http://www.w3.org/2001/XMLSchema#float"
+    }
+  }
+]

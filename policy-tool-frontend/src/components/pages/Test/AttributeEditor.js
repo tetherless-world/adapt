@@ -90,7 +90,7 @@ export default function AttributeEditor({
                     validAttributes={validAttributes}
                   />
                 </Grid>
-
+                
                 <Grid item>
                   <Button onClick={() => handleAddAttributeValue(index)}>
                     Add value
@@ -101,20 +101,12 @@ export default function AttributeEditor({
               <Grid container>
                 <Grid item xs={12} md={4} className={classes.values}>
                   {attribute.values.map((value, valueIndex) => {
-                    let FieldComponent = UnknownField
-
-                    switch (attribute.type) {
-                      case 'xsd:datetime':
-                        FieldComponent = TextInput
-                        break
-                    }
-
                     return (
                       <Grid container alignItems={'flex-end'} spacing={2}>
                         <Grid item xs={12} md={10}>
                           <AttributeValue
                             value={value}
-                            id={`${valueIndex}`}
+                            onChange={handleChangeAttributeValue(index, valueIndex)}
                             typeInfo={attribute.typeInfo}
                             type={attribute}
                           />

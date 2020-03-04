@@ -1,11 +1,22 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { TextField, FormControl, InputLabel } from '@material-ui/core'
+import moment from 'moment'
 
 export default function DateTimeField({ value, onChange, field: { title } }) {
+
+  useEffect(() => {
+    onChange(moment.utc().toISOString())
+  }, [])
+
   return (
     <FormControl fullWidth>
-      <InputLabel>{title}</InputLabel>
-      <TextField type="datetime-local" value={value} onChange={onChange} />
+      <TextField
+        value={value}
+        label={title || 'Value'}
+        type={'datetime-local'}
+        InputLabelProps={{ shrink: true }}
+        onChange={event => onChange(event.target.value)}
+      />
     </FormControl>
   )
 }

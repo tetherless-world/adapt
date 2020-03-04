@@ -4,6 +4,7 @@ import logging
 import os
 import pathlib
 import re
+import json
 
 import rdflib
 from flask import Flask, request, jsonify
@@ -88,8 +89,10 @@ def getDomains():
 @app.route(f'{API_URL}/attributes', methods=['GET'])
 def getAttributes():
     logging.info('GETTING ATTRIBUTES')
-    response = client.query_assertions(
-        """
+    response = None
+    if os.getenv('FLASK_ENV', 'default') != 'development':
+        response = client.query_assertions(
+            """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
@@ -126,22 +129,27 @@ def getAttributes():
             }
         }
         """)
+        attributes = {}
+        for attribute in response:
+            a_name, a_prop, a_range, a_propType, a_extent, a_card = attribute
+            logging.info(f'[GET] {a_name}')
+            # logging.info(a_name)
+            # logging.info(a_prop)
+            # logging.info(a_range)
+            # logging.info(a_propType)
+            # logging.info(a_extent)
+            # logging.info(a_card)
+            if a_name not in attributes:
+                attributes[a_name] = {'attributeName': a_name, 'typeInfo': {}}
+            attributes[a_name]['typeInfo'][a_prop] = a_range
 
-    attributes = {}
-    for attribute in response:
-        a_name, a_prop, a_range, a_propType, a_extent, a_card = attribute
-        logging.info(f'[GET] {a_name}')
-        # logging.info(a_name)
-        # logging.info(a_prop)
-        # logging.info(a_range)
-        # logging.info(a_propType)
-        # logging.info(a_extent)
-        # logging.info(a_card)
-        if a_name not in attributes:
-            attributes[a_name] = {'attributeName': a_name, 'typeInfo': {}}
-        attributes[a_name]['typeInfo'][a_prop] = a_range
+        return jsonify([v for (k, v) in attributes.items()])
 
-    return jsonify([v for (k, v) in attributes.items()])
+    else:
+        # Temporary fix while waiting for twks-issue #120 (https://github.com/tetherless-world/twks/issues/120)
+        with open('./response.json', "r") as fp:
+            response = json.load(fp)
+        return jsonify(response)
 
 
 @app.route(f'{API_URL}/policies', methods=['POST'])
