@@ -87,60 +87,59 @@ def getDomains():
 
 @app.route(f'{API_URL}/attributes', methods=['GET'])
 def getAttributes():
-    attributes_response = client.query_assertions(
+    logging.info('GETTING ATTRIBUTES')
+    response = client.query_assertions(
         """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX sio: <http://semanticscience.org/resource/>
-        select ?attribute where {
-        ?attribute rdfs:subClassOf+ sio:Attribute
+        SELECT distinct ?attribute ?property ?range ?propertyType ?extent ?cardinality WHERE {
+            ?attribute rdfs:subClassOf+ sio:Attribute.
+            ?attribute (rdfs:subClassOf|owl:equivalentClass|(owl:intersectionOf/rdf:rest*/rdf:first))* ?superClass.
+            {
+                ?superClass owl:onProperty ?property.
+                ?superClass owl:someValuesFrom|owl:allValuesFrom ?range.
+                ?superClass ?extent ?range.
+                optional { ?property rdf:type ?propertyType }
+            } union {
+                ?superClass owl:onDataRange ?range.
+                ?superClass owl:onProperty ?property.
+                ?superClass owl:minQualifiedCardinality|owl:maxQualifiedCardinality|owl:qualifiedCardinality ?cardinality.
+                ?superClass ?extent ?cardinality.
+                bind(owl:DatatypeProperty as ?propertyType)
+            } union {
+                ?superClass owl:onClass ?range.
+                ?superClass owl:onProperty ?property.
+                ?superClass owl:minQualifiedCardinality|owl:maxQualifiedCardinality|owl:qualifiedCardinality ?cardinality.
+                ?superClass ?extent ?cardinality.
+                bind(owl:ObjectProperty as ?propertyType)
+            } union {
+                ?superClass owl:onProperty ?property.
+                ?superClass owl:minCardinality|owl:maxCardinality|owl:exactCardinality ?cardinality.
+                ?superClass ?extent ?cardinality.
+                optional { ?property rdf:type ?propertyType }
+            } union {
+                ?property rdfs:domain ?superClass;
+                        rdfs:range ?range.
+                optional { ?property rdf:type ?propertyType }
+            }
         }
         """)
 
     attributes = {}
-    for (attr_uri,) in attributes_response:
-        # TEMPORARY SOLUTION: IGNORE FREQUENCY RANGE
-        if str(attr_uri) == 'http://purl.org/twc/policy/example/dsa/FrequencyRange':
-            continue
-        
-        logging.info(f"Querying attr_uri {attr_uri}")
-        attr_info = client.query_assertions(
-            f"""
-            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX owl: <http://www.w3.org/2002/07/owl#>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            SELECT distinct ?property ?range ?propertyType ?extent ?cardinality 
-            WHERE {{
-            <{str(attr_uri)}> (rdfs:subClassOf|owl:equivalentClass|(owl:intersectionOf/rdf:rest*/rdf:first))* ?superClass.
-                {{
-                    ?superClass owl:onProperty ?property.
-                    ?superClass owl:someValuesFrom|owl:allValuesFrom ?range.
-                    ?superClass ?extent ?range.
-                    optional {{ ?property rdf:type ?propertyType }}
-                }} union {{
-                    ?superClass owl:onDataRange ?range.
-                    ?superClass owl:onProperty ?property.
-                    ?superClass owl:minQualifiedCardinality|owl:maxQualifiedCardinality|owl:qualifiedCardinality ?cardinality.
-                    ?superClass ?extent ?cardinality.
-                    bind(owl:DatatypeProperty as ?propertyType)
-                }} union {{
-                    ?superClass owl:onClass ?range.
-                    ?superClass owl:onProperty ?property.
-                    ?superClass owl:minQualifiedCardinality|owl:maxQualifiedCardinality|owl:qualifiedCardinality ?cardinality.
-                    ?superClass ?extent ?cardinality.
-                    bind(owl:ObjectProperty as ?propertyType)
-                }} union {{
-                    ?superClass owl:onProperty ?property.
-                    ?superClass owl:minCardinality|owl:maxCardinality|owl:exactCardinality ?cardinality.
-                    ?superClass ?extent ?cardinality.
-                    optional {{ ?property rdf:type ?propertyType }}
-                }} union {{
-                    ?property rdfs:domain ?superClass;
-                            rdfs:range ?range.
-                    optional {{ ?property rdf:type ?propertyType }}
-                }}
-            }}
-            """)
-        attributes[attr_uri] = attr_info
+    for attribute in response:
+        a_name, a_prop, a_range, a_propType, a_extent, a_card = attribute
+        logging.info(f'[GET] {a_name}')
+        # logging.info(a_name)
+        # logging.info(a_prop)
+        # logging.info(a_range)
+        # logging.info(a_propType)
+        # logging.info(a_extent)
+        # logging.info(a_card)
+        if a_name not in attributes:
+            attributes[a_name] = {}
+        attributes[a_name][a_prop] = a_range
 
     return jsonify(attributes)
 
