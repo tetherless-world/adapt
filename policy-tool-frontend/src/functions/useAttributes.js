@@ -1,6 +1,15 @@
 import { useState, useEffect } from 'react'
 
 export default function useAttributes(attributes, setAttributes) {
+  const blankAttribute = () => ({ attributeName: '', typeInfo: {}, values: [] })
+
+  const resetAttributes = () => {
+    setAttributes([blankAttribute()])
+  }
+
+  const addAttribute = () => {
+    setAttributes(prev => [...prev, blankAttribute()])
+  }
 
   const updateAttribute = (index, newAttribute) => {
     setAttributes(prev =>
@@ -25,43 +34,15 @@ export default function useAttributes(attributes, setAttributes) {
     )
   }
 
-  const blankAttribute = () => ({ name: '', type: '', values: [] })
-
-  // const handleChangeAttributeName = index => name => {
-  //   setAttributes(prev => {
-  //     prev[index] = {
-  //       ...prev[index],
-  //       ...validAttributes.filter(attr => attr.name === name).shift()
-  //     }
-  //     return [...prev]
-  //   })
-  // }
-
-  // const handleAddAttribute = () => {
-  //   setAttributes(prev => [...prev, blankAttribute()])
-  // }
-
-  // const handleAddValue = index => {
-  //   setAttributes(prev => {
-  //     prev[index].values = [...prev.index.values, null]
-  //     return [...prev]
-  //   })
-  // }
-
-  // const handleChangeAttributeValue = attrIndex => valueIndex => newValue => {
-  //   setAttributes(prev => {
-  //     prev[index].values[key] = value
-  //     return [...prev]
-  //   })
-  // }
-
   useEffect(() => {
-    setAttributes([blankAttribute()])
+    addAttribute()
   }, [])
 
   return {
     attributes,
     setAttributes,
+    resetAttributes,
+    addAttribute,
     updateAttribute,
     updateValue
   }

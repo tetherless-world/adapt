@@ -1,25 +1,19 @@
-import React, { useState } from 'react'
-import { Grid, makeStyles, Button, Typography } from '@material-ui/core'
+import React, { useState, useEffect } from 'react'
+import { Grid, Button, Typography } from '@material-ui/core'
 import MuiDataform from 'mui-dataforms'
 
-import AttributeEditor from './AttributeEditor'
+import AttributeEditor from './AttributeEditor/AttributeEditor'
 import PreviewJson from '../../common/PreviewJson'
+import LoadingWrapper from '../../common/LoadingWrapper'
 
-import useDomain from '../../../functions/useDomain'
 import useBackendApi from '../../../functions/useBackendApi'
-import useQuery from '../../../functions/useQuery'
 
-// const useStyles = makeStyles(theme => ({}))
+const api = useBackendApi()
 
-export default function PolicyCreator () {
-  const query = useQuery()
-  const api = useBackendApi()
-  const domain = useDomain(query.get('uri'))
-
+export default function PolicyCreator() {
   // state vars
-  const [attributes, setAttributes] = useState([])
 
-  const [additionalRules, setAdditionalRules] = useState({
+  const [conditions, setConditions] = useState({
     precedence: '',
     effect: '',
     obligation: ''
@@ -29,8 +23,44 @@ export default function PolicyCreator () {
     definition: '',
     id: '',
     label: '',
-    source: '',
+    source: ''
   })
+
+  const [isLoading, setIsLoading] = useState(true)
+  const [validAttributes, setValidAttributes] = useState([])
+  const [attributes, setAttributes] = useState([])
+
+  useEffect(() => {
+    let defaultValidAttributes = [
+      {
+        attributeName: 'Start Time',
+        values: [],
+        typeInfo: {
+          'http://semanticscience.org/resource/hasUnit':
+            'http://www.w3.org/2001/XMLSchema#dateTime'
+        }
+      },
+      {
+        attributeName: 'End Time',
+        values: [],
+        typeInfo: {
+          'http://semanticscience.org/resource/hasUnit':
+            'http://www.w3.org/2001/XMLSchema#dateTime'
+        }
+      }
+    ]
+
+    api
+      .getValidAttributes()
+      .then(({ data }) => {
+        console.log(data)
+        setValidAttributes([
+          ...defaultValidAttributes,
+          ...data.map(d => ({ ...d, values: [] }))
+        ])
+      })
+      .then(() => setIsLoading(false))
+  }, [])
 
   // Handling changes
   const handleOnChange = setState => key => value => {
@@ -54,13 +84,13 @@ export default function PolicyCreator () {
           id: 'id',
           title: 'Policy Id',
           type: 'text',
-          size: { sm: 6 },
+          size: { sm: 6 }
         },
         {
           id: 'label',
           title: 'Policy Label',
           type: 'text',
-          size: { sm: 6 },
+          size: { sm: 6 }
         },
         {
           type: 'spacer',
@@ -70,7 +100,7 @@ export default function PolicyCreator () {
           id: 'definition',
           title: 'Policy Definition',
           type: 'text'
-        },
+        }
       ]
     }
   ]
@@ -125,7 +155,6 @@ export default function PolicyCreator () {
     }
   ]
 
-
   // Handling submission
   const handleOnClickConstruct = () => {
     api.constructPolicy(info).then(d => console.log(d))
@@ -133,38 +162,47 @@ export default function PolicyCreator () {
 
   return (
     <>
-      <Grid container spacing={8}>
-        <Grid item xs={12}>
-          <MuiDataform
-            fields={infoFields}
-            values={info}
-            onChange={handleOnChange(setInfo)}
-          />
+      <LoadingWrapper isLoading={isLoading}>
+        <Grid container spacing={8}>
+          <Grid item xs={12}>
+            <MuiDataform
+              fields={infoFields}
+              values={info}
+              onChange={handleOnChange(setInfo)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant={'h5'}>Rules</Typography>
+            <AttributeEditor
+              attributes={attributes}
+              setAttributes={setAttributes}
+              validAttributes={validAttributes}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <MuiDataform
+              fields={conditionsFields}
+              values={conditions}
+              onChange={handleOnChange(setConditions)}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <PreviewJson
+              title={'Policy Preview'}
+              data={{ info, attributes, conditions }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Button
+              variant={'outlined'}
+              color={'primary'}
+              onClick={handleOnClickConstruct}
+            >
+              Construct
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item xs={12}>
-          <Typography variant={'h5'}>Rules</Typography>
-          <AttributeEditor attributes={attributes} setAttributes={setAttributes} />
-        </Grid>
-        <Grid item xs={12}>
-          <MuiDataform
-            fields={conditionsFields}
-            values={additionalRules}
-            onChange={handleOnChange(setAdditionalRules)}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <PreviewJson title={'Policy Preview'} data={info} />
-        </Grid>
-        <Grid item xs={12}>
-          <Button
-            variant={'outlined'}
-            color={'primary'}
-            onClick={handleOnClickConstruct}
-          >
-            Construct
-          </Button>
-        </Grid>
-      </Grid>
+      </LoadingWrapper>
     </>
   )
 }
