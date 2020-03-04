@@ -6,12 +6,12 @@ jobs:
       - image: hseeberger/scala-sbt:11.0.6_1.3.8_2.13.1
     steps:
       - checkout
-      - store_test_results:
-          path: /git-policy-tool/policy-tool-reasoner/target/test-reports
       - run:
           name: Test policy-tool-reasoner
           command: |
             cd policy-tool-reasoner && sbt test
+      - store_test_results:
+          path: policy-tool-reasoner/target/test-reports
   build:
     working_directory: /git-policy-tool
     docker:
