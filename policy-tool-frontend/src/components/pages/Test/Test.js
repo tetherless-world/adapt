@@ -32,13 +32,13 @@ export default function Test({}) {
     api
       .getValidAttributes()
       .then(({ data }) => {
+        console.log(data)
         setValidAttributes([
           ...defaultValidAttributes,
           ...data.map(d => ({ ...d, values: [] }))
         ])
       })
       .then(() => setIsLoading(false))
-      .then(console.log(validAttributes))
   }, [])
 
   return (
