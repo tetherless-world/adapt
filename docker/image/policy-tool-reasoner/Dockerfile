@@ -3,7 +3,7 @@ FROM hseeberger/scala-sbt:11.0.6_1.3.8_2.13.1 as build
 
 # copy & compile java project
 COPY policy-tool-reasoner /policy-tool-reasoner
-RUN cd /policy-tool-reasoner && sbt playUpdateSecret && sbt dist
+RUN cd /policy-tool-reasoner && sbt test && sbt playUpdateSecret && sbt dist
 RUN cd /policy-tool-reasoner/target/universal && unzip -o policy-tool-reasoner-1.0-SNAPSHOT.zip && rm policy-tool-reasoner-1.0-SNAPSHOT.zip
 
 # base image - check later to see if there is an alpine image
