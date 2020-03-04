@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 
-export default function useAttributes() {
-  const [attributes, setAttributes] = useState([])
+export default function useAttributes(attributes, setAttributes) {
 
   const updateAttribute = (index, newAttribute) => {
     setAttributes(prev =>

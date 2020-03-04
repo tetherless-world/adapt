@@ -138,10 +138,10 @@ def getAttributes():
         # logging.info(a_extent)
         # logging.info(a_card)
         if a_name not in attributes:
-            attributes[a_name] = {}
-        attributes[a_name][a_prop] = a_range
+            attributes[a_name] = {'attributeName': a_name, 'typeInfo': {}}
+        attributes[a_name]['typeInfo'][a_prop] = a_range
 
-    return jsonify(attributes)
+    return jsonify([v for (k, v) in attributes.items()])
 
 
 @app.route(f'{API_URL}/policies', methods=['POST'])

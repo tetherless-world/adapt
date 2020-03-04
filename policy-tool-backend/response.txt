@@ -1,0 +1,46 @@
+[(
+  rdflib.term.URIRef('http://semanticscience.org/resource/hasAttribute'), 
+  rdflib.term.URIRef('http://purl.org/twc/policy/example/dsa/FrequencyMaximum'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#ObjectProperty'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#someValuesFrom'), 
+  None
+),
+(
+  rdflib.term.URIRef('http://semanticscience.org/resource/hasAttribute'), 
+  rdflib.term.URIRef('http://purl.org/twc/policy/example/dsa/FrequencyMinimum'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#ObjectProperty'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#someValuesFrom'), 
+  None
+)
+]
+INFO:root:Querying attr_uri http://purl.org/twc/policy/example/dsa/Frequency        
+
+(
+  rdflib.term.URIRef('http://semanticscience.org/resource/hasValue'), 
+  rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#float'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#DatatypeProperty'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#qualifiedCardinality'), 
+  rdflib.term.Literal('1', datatype=rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#nonNegativeInteger'))
+)
+(
+  rdflib.term.URIRef('http://semanticscience.org/resource/hasUnit'), 
+  rdflib.term.URIRef('http://purl.obolibrary.org/obo/UO_0000105'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#ObjectProperty'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#someValuesFrom'), 
+  None
+)
+INFO:root:Querying attr_uri http://purl.org/twc/policy/example/dsa/FrequencyMaximum 
+(
+  rdflib.term.URIRef('http://semanticscience.org/resource/hasValue'), 
+  rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#float'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#DatatypeProperty'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#qualifiedCardinality'), 
+  rdflib.term.Literal('1', datatype=rdflib.term.URIRef('http://www.w3.org/2001/XMLSchema#nonNegativeInteger'))
+)
+(
+  rdflib.term.URIRef('http://semanticscience.org/resource/hasUnit'), 
+  rdflib.term.URIRef('http://purl.obolibrary.org/obo/UO_0000105'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#ObjectProperty'), 
+  rdflib.term.URIRef('http://www.w3.org/2002/07/owl#someValuesFrom'), 
+  None
+)

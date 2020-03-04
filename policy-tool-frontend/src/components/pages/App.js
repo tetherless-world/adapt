@@ -5,7 +5,7 @@ import DomainSelection from './DomainSelection'
 import Layout from '../common/Layout'
 import NotFound from './NotFound'
 import Home from './Home'
-import AttributeEditor from './Test/AttributeEditor'
+import Test from './Test/Test'
 
 
 export default function App () {
@@ -15,7 +15,7 @@ export default function App () {
         <Switch >
           <Route path={'/creator'} exact component={PolicyCreator} />
           <Route path={'/domains'} exact component={DomainSelection} />
-          <Route path={'/test'} exact component={AttributeEditor} />
+          <Route path={'/test'} exact component={Test} />
           <Route path={'/'} exact component={Home} />
           <Route path={'*'} component={NotFound} />
         </Switch>

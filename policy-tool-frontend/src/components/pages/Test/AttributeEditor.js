@@ -1,19 +1,12 @@
 import React from 'react'
-import {
-  Grid,
-  Button,
-  Select,
-  FormControl,
-  makeStyles,
-  InputLabel,
-  MenuItem,
-  IconButton
-} from '@material-ui/core'
-import { Delete as DeleteIcon, Clear as ClearIcon } from '@material-ui/icons'
+import { Grid, Button, makeStyles, IconButton } from '@material-ui/core'
+import { Clear as ClearIcon } from '@material-ui/icons'
 
 import PreviewJson from '../../common/PreviewJson'
+import AttributeSelector from './AttributeSelector'
+import AttributeValue from './AttributeValue'
 import useAttributes from '../../../functions/useAttributes'
-import SelectField from './components/SelectField'
+
 import TextInput from './components/TextInput'
 import UnknownField from './components/UnknownField'
 
@@ -28,28 +21,17 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-export default function AttributeEditor() {
+export default function AttributeEditor({
+  attributes,
+  setAttributes,
+  validAttributes
+}) {
   const classes = useStyles()
 
-  const validAttributes = [
-    {
-      name: 'Start Time',
-      type: 'xsd:datetime',
-      values: ['']
-    },
-    {
-      name: 'End Time',
-      type: 'xsd:datetime',
-      values: ['']
-    }
-  ]
-
-  const {
+  const { updateAttribute, updateValue } = useAttributes(
     attributes,
-    setAttributes,
-    updateAttribute,
-    updateValue
-  } = useAttributes()
+    setAttributes
+  )
 
   const handleClearAll = () => {
     setAttributes([{ name: '', type: '', values: [] }])
@@ -59,11 +41,8 @@ export default function AttributeEditor() {
     setAttributes(prev => [...prev, { name: '', type: '', values: [] }])
   }
 
-  const handleChangeSelectedAttribute = index => event => {
-    updateAttribute(
-      index,
-      validAttributes.filter(a => a.name === event.target.value).shift()
-    )
+  const handleChangeSelectedAttribute = index => name => {
+    updateAttribute(index, validAttributes.filter(a => a.attributeName === name).shift())
   }
 
   const handleAddAttributeValue = index => {
@@ -105,19 +84,11 @@ export default function AttributeEditor() {
                 className={classes.attribute}
               >
                 <Grid item xs={12} md={4}>
-                  <FormControl fullWidth>
-                    <InputLabel>Attribute</InputLabel>
-                    <Select
-                      value={attribute.name}
-                      onChange={handleChangeSelectedAttribute(index)}
-                    >
-                      {validAttributes.map((option, index) => (
-                        <MenuItem value={option.name} key={index}>
-                          {option.name}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                  <AttributeSelector
+                    attribute={attribute}
+                    onChange={handleChangeSelectedAttribute(index)}
+                    validAttributes={validAttributes}
+                  />
                 </Grid>
 
                 <Grid item>
@@ -141,18 +112,11 @@ export default function AttributeEditor() {
                     return (
                       <Grid container alignItems={'flex-end'} spacing={2}>
                         <Grid item xs={12} md={10}>
-                          <FieldComponent
-                            key={valueIndex}
+                          <AttributeValue
                             value={value}
-                            field={{
-                              id: `${valueIndex}`,
-                              title: 'Value',
-                              type: attribute.type
-                            }}
-                            onChange={handleChangeAttributeValue(
-                              index,
-                              valueIndex
-                            )}
+                            id={`${valueIndex}`}
+                            typeInfo={attribute.typeInfo}
+                            type={attribute}
                           />
                         </Grid>
                         <Grid item>

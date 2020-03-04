@@ -1,37 +1,29 @@
 import React from 'react'
-import { makeStyles, FormControl, InputLabel, Select, MenuItem } from '@material-ui/core'
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem
+} from '@material-ui/core'
 
-
-const useStyles = makeStyles(theme => ({
-  root: {
-    minWidth: 300
-  }
-}))
-
-
-export default function AttributeSelector ({
+export default function AttributeSelector({
   attribute,
-  onChangeAttribute,
+  onChange,
   validAttributes
 }) {
-  const classes = useStyles()
-
   return (
     <>
-      <FormControl className={classes.root}>
+      <FormControl fullWidth>
         <InputLabel>Attribute</InputLabel>
         <Select
-          value={attribute.name}
-          onChange={event => onChangeAttribute(event.target.value)}
+          value={attribute.attributeName}
+          onChange={event => onChange(event.target.value)}
         >
-          {validAttributes.map((attribute, index) =>
-            <MenuItem
-              value={attribute.name}
-              key={index}
-            >
-              {attribute.name}
+          {validAttributes.map((option, index) => (
+            <MenuItem value={option.attributeName} key={index}>
+              {option.attributeName}
             </MenuItem>
-          )}
+          ))}
         </Select>
       </FormControl>
     </>

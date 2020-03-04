@@ -4,18 +4,14 @@ import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core'
 export default function SelectField({
   value,
   onChange,
-  field: { id, title, options },
+  field: { title, options },
   ...props
 }) {
   return (
     <FormControl fullWidth>
-      <InputLabel htmlFor={id}>{title}</InputLabel>
+      <InputLabel>{title}</InputLabel>
       <Select
         value={value || ''}
-        inputProps={{
-          name: id,
-          id: id
-        }}
         onChange={event => onChange(event.target.value)}
         {...props}
       >
