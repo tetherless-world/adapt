@@ -5,8 +5,6 @@ import { Clear as ClearIcon } from '@material-ui/icons'
 import AttributeSelector from './AttributeSelector'
 import AttributeValue from './AttributeValue'
 
-import PreviewJson from '../../../common/PreviewJson'
-
 import useAttributes from '../../../../functions/useAttributes'
 
 const useStyles = makeStyles(theme => ({
@@ -69,7 +67,7 @@ export default function AttributeEditor({
 
   return (
     <>
-      <Grid container spacing={4}>
+      <Grid container spacing={1}>
         <Grid item>
           <Button onClick={handleAddAttribute}>Intersect</Button>
         </Grid>
@@ -124,6 +122,7 @@ export default function AttributeEditor({
                             onClick={() =>
                               handleDeleteAttributeValue(index, valueIndex)
                             }
+                            disabled={attribute.values.length === 1}
                           >
                             <ClearIcon />
                           </IconButton>

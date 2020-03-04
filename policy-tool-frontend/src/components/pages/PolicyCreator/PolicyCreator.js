@@ -7,6 +7,7 @@ import PreviewJson from '../../common/PreviewJson'
 import LoadingWrapper from '../../common/LoadingWrapper'
 
 import useBackendApi from '../../../functions/useBackendApi'
+import useDefaultValidAttributes from '../../../functions/useDefaultValidAttributes'
 
 const api = useBackendApi()
 
@@ -29,38 +30,23 @@ export default function PolicyCreator() {
   const [isLoading, setIsLoading] = useState(true)
   const [validAttributes, setValidAttributes] = useState([])
   const [attributes, setAttributes] = useState([])
+  let defaultValidAttributes = useDefaultValidAttributes()
 
+  // get Valid attributes
   useEffect(() => {
-    let defaultValidAttributes = [
-      {
-        attributeName: 'Start Time',
-        values: [],
-        typeInfo: {
-          'http://semanticscience.org/resource/hasUnit':
-            'http://www.w3.org/2001/XMLSchema#dateTime'
-        }
-      },
-      {
-        attributeName: 'End Time',
-        values: [],
-        typeInfo: {
-          'http://semanticscience.org/resource/hasUnit':
-            'http://www.w3.org/2001/XMLSchema#dateTime'
-        }
-      }
-    ]
-
     api
       .getValidAttributes()
       .then(({ data }) => {
-        console.log(data)
         setValidAttributes([
           ...defaultValidAttributes,
-          ...data.map(d => ({ ...d, values: [] }))
+          ...data.map(d => ({ ...d, values: [null] }))
         ])
       })
       .then(() => setIsLoading(false))
   }, [])
+
+  // Get other information
+  useEffect(() => {})
 
   // Handling changes
   const handleOnChange = setState => key => value => {
@@ -193,13 +179,7 @@ export default function PolicyCreator() {
             />
           </Grid>
           <Grid item xs={12}>
-            <Button
-              variant={'outlined'}
-              color={'primary'}
-              onClick={handleOnClickConstruct}
-            >
-              Construct
-            </Button>
+            <Button onClick={handleOnClickConstruct}>Construct</Button>
           </Grid>
         </Grid>
       </LoadingWrapper>

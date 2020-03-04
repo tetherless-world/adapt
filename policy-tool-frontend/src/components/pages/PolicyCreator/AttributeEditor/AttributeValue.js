@@ -22,6 +22,8 @@ export default function AttributeValue({
       case 'http://www.w3.org/2001/XMLSchema#dateTime':
         FieldComponent = DateTimeField
         break
+      default:
+        FieldComponent = SelectField
     }
   }
 

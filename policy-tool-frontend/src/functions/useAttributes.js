@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 
 export default function useAttributes(attributes, setAttributes) {
-  const blankAttribute = () => ({ attributeName: '', typeInfo: {}, values: [] })
+  const blankAttribute = () => ({ attributeName: '', typeInfo: {}, values: [null] })
 
   const resetAttributes = () => {
     setAttributes([blankAttribute()])

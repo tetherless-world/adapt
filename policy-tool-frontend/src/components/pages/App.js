@@ -1,18 +1,16 @@
 import React from 'react'
-import { BrowserRouter, Route, Switch } from "react-router-dom"
+import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import PolicyCreator from './PolicyCreator/PolicyCreator'
 import DomainSelection from './DomainSelection'
 import Layout from '../common/Layout'
 import NotFound from './NotFound'
 import Home from './Home'
-import Test from './Test/Test'
 
-
-export default function App () {
+export default function App() {
   return (
     <Layout title={'Policy Creator'}>
       <BrowserRouter>
-        <Switch >
+        <Switch>
           <Route path={'/creator'} exact component={PolicyCreator} />
           <Route path={'/domains'} exact component={DomainSelection} />
           <Route path={'/'} exact component={Home} />
