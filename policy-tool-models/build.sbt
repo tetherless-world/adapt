@@ -1,17 +1,18 @@
-name := """policy-tool-models"""
-organization := "edu.rpi.tw.policy-tool"
-
-version := "1.0-SNAPSHOT"
-
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val root = (project in file("."))
+    .settings(
+        libraryDependencies ++= Seq(
+            "io.lemonlabs" %% "scala-uri" % "2.1.0",
+            "org.apache.jena" % "jena-core" % jenaVersion,
+            "org.apache.jena" % "jena-geosparql" % jenaVersion,
+            "org.scalatest" %% "scalatest" % "3.0.8" % "test",
+            "com.novocode" % "junit-interface" % "0.11" % "test",
+            "org.slf4j" % "slf4j-simple" % "1.7.30" % "test"
+        ),
+        name := """policy-tool-models""",
+        organization := "edu.rpi.tw.policy-tool",
+        testOptions += Tests.Argument(TestFrameworks.JUnit, "-q", "-v"),
+        version := "1.0-SNAPSHOT"
+    )
 
 scalaVersion := "2.13.1"
-
-libraryDependencies += guice
-libraryDependencies += "org.scalatestplus.play" %% "scalatestplus-play" % "5.0.0" % Test
-
-// Adds additional packages into Twirl
-//TwirlKeys.templateImports += "edu.rpi.tw.policy-tool.controllers._"
-
-// Adds additional packages into conf/routes
-// play.sbt.routes.RoutesKeys.routesImport += "edu.rpi.tw.policy-tool.binders._"
+val jenaVersion = "3.14.0"
