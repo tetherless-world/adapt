@@ -7,6 +7,10 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install policy-tool-models locally
+          command: |
+            cd policy-tool-models && sbt publishLocal
+      - run:
           name: Test policy-tool-reasoner
           command: |
             cd policy-tool-reasoner && sbt test
