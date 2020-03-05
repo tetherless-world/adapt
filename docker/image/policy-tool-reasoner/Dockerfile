@@ -1,7 +1,11 @@
 # compile java code in a separate image
 FROM hseeberger/scala-sbt:11.0.6_1.3.8_2.13.1 as build
 
-# copy & compile java project
+# copy & install policy-tool-models
+COPY policy-tool-models /policy-tool-models
+RUN cd /policy-tool-models && sbt publishLocal
+
+# copy & compile policy-tool-reasoner
 COPY policy-tool-reasoner /policy-tool-reasoner
 RUN cd /policy-tool-reasoner && sbt playUpdateSecret && sbt dist
 RUN cd /policy-tool-reasoner/target/universal && unzip -o policy-tool-reasoner-1.0-SNAPSHOT.zip && rm policy-tool-reasoner-1.0-SNAPSHOT.zip
