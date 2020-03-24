@@ -25,6 +25,16 @@
                                             rdfs:subClassOf <http://purl.obolibrary.org/obo/UO_0000105> .
 
 
+###  http://purl.org/twc/policy/example/dsa/Affiliation
+:Affiliation rdf:type owl:Class ;
+             rdfs:subClassOf sio:Attribute ,
+                             [ rdf:type owl:Restriction ;
+                               owl:onProperty sio:hasAttribute ;
+                               owl:someValuesFrom :Affiliation
+                             ] ;
+             rdfs:label "Affiliation" .
+
+
 ###  http://purl.org/twc/policy/example/dsa/Frequency
 :Frequency rdf:type owl:Class ;
            rdfs:subClassOf sio:Attribute ,
