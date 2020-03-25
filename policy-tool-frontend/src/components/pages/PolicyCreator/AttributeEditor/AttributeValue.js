@@ -31,6 +31,7 @@ export default function AttributeValue({
     <FieldComponent
       value={value}
       field={{
+        id: title,
         title: title || 'Value',
         type: typeInfo['http://semanticscience.org/resource/hasValue']
       }}

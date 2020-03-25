@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { Grid, Button, Typography } from '@material-ui/core'
+import { Grid, Typography } from '@material-ui/core'
 import MuiDataform from 'mui-dataforms'
 
 import AttributeEditor from './AttributeEditor/AttributeEditor'
 import PreviewJson from '../../common/PreviewJson'
 import LoadingWrapper from '../../common/LoadingWrapper'
 
-import useBackendApi from '../../../functions/useBackendApi'
-import useDefaultValidAttributes from '../../../functions/useDefaultValidAttributes'
+import useAPI from '../../../functions/useAPI'
+import { DefaultValidAttributes } from '../../../data/DefaultValidAttributes'
 
-const api = useBackendApi()
+const api = useAPI()
 
 export default function PolicyCreator() {
   // state vars
@@ -28,25 +28,16 @@ export default function PolicyCreator() {
   })
 
   const [isLoading, setIsLoading] = useState(true)
-  const [validAttributes, setValidAttributes] = useState([])
   const [attributes, setAttributes] = useState([])
-  let defaultValidAttributes = useDefaultValidAttributes()
+  const [validAttributes, setValidAttributes] = useState(DefaultValidAttributes)
 
   // get Valid attributes
   useEffect(() => {
     api
       .getValidAttributes()
-      .then(({ data }) => {
-        setValidAttributes([
-          ...defaultValidAttributes,
-          ...data.map(d => ({ ...d, values: [null] }))
-        ])
-      })
+      .then(data => setValidAttributes([...validAttributes, ...data]))
       .then(() => setIsLoading(false))
   }, [])
-
-  // Get other information
-  useEffect(() => {})
 
   // Handling changes
   const handleOnChange = setState => key => value => {
@@ -141,11 +132,6 @@ export default function PolicyCreator() {
     }
   ]
 
-  // Handling submission
-  const handleOnClickConstruct = () => {
-    api.constructPolicy(info).then(d => console.log(d))
-  }
-
   return (
     <>
       <LoadingWrapper isLoading={isLoading}>
@@ -177,9 +163,6 @@ export default function PolicyCreator() {
               title={'Policy Preview'}
               data={{ info, attributes, conditions }}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <Button onClick={handleOnClickConstruct}>Construct</Button>
           </Grid>
         </Grid>
       </LoadingWrapper>

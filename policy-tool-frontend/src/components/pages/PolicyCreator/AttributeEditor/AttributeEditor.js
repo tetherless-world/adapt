@@ -40,11 +40,11 @@ export default function AttributeEditor({
     addAttribute()
   }
 
-  const handleChangeSelectedAttribute = index => name => {
-    updateAttribute(
-      index,
-      validAttributes.filter(a => a.attributeName === name).shift()
-    )
+  const handleChangeSelectedAttribute = index => uri => {
+    updateAttribute(index, {
+      ...validAttributes.filter(a => a.attr_uri === uri).shift(),
+      values: []
+    })
   }
 
   const handleAddAttributeValue = index => {
@@ -102,34 +102,34 @@ export default function AttributeEditor({
 
               <Grid container>
                 <Grid item xs={12} md={4} className={classes.values}>
-                  {attribute.values.map((value, valueIndex) => {
-                    return (
-                      <Grid container alignItems={'flex-end'} spacing={2}>
-                        <Grid item xs={12} md={10}>
-                          <AttributeValue
-                            value={value}
-                            onChange={handleChangeAttributeValue(
-                              index,
-                              valueIndex
-                            )}
-                            typeInfo={attribute.typeInfo}
-                            type={attribute}
-                          />
+                  {attribute.values &&
+                    attribute.values.map((value, valueIndex) => {
+                      return (
+                        <Grid container alignItems={'flex-end'} spacing={2}>
+                          <Grid item xs={12} md={10}>
+                            <AttributeValue
+                              value={value}
+                              onChange={handleChangeAttributeValue(
+                                index,
+                                valueIndex
+                              )}
+                              typeInfo={attribute.type_info}
+                            />
+                          </Grid>
+                          <Grid item>
+                            <IconButton
+                              size={'small'}
+                              onClick={() =>
+                                handleDeleteAttributeValue(index, valueIndex)
+                              }
+                              disabled={attribute.values.length === 1}
+                            >
+                              <ClearIcon />
+                            </IconButton>
+                          </Grid>
                         </Grid>
-                        <Grid item>
-                          <IconButton
-                            size={'small'}
-                            onClick={() =>
-                              handleDeleteAttributeValue(index, valueIndex)
-                            }
-                            disabled={attribute.values.length === 1}
-                          >
-                            <ClearIcon />
-                          </IconButton>
-                        </Grid>
-                      </Grid>
-                    )
-                  })}
+                      )
+                    })}
                 </Grid>
               </Grid>
             </>
