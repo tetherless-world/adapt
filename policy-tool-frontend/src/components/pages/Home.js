@@ -9,15 +9,27 @@ export default function Home() {
         <Grid container item justify={'center'}>
           <Typography variant={'h2'}>Welcome to the Policy Creator</Typography>
         </Grid>
-        <Grid container item justify={'center'}>
-          <Button
-            variant={'outlined'}
-            color={'primary'}
-            component={Link}
-            to={'/domains'}
-          >
-            Select a domain
-          </Button>
+        <Grid container justify={'center'} spacing={2}>
+          {/* <Grid item>
+            <Button
+              variant={'outlined'}
+              color={'primary'}
+              component={Link}
+              to={'/domains'}
+            >
+              Select a domain (WIP)
+            </Button>
+          </Grid> */}
+          <Grid item>
+            <Button
+              variant={'outlined'}
+              color={'primary'}
+              component={Link}
+              to={'/creator'}
+            >
+              Create from scratch
+            </Button>
+          </Grid>
         </Grid>
       </Grid>
     </>

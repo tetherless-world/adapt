@@ -1,10 +1,14 @@
 import { useState, useEffect } from 'react'
 
 export default function useAttributes(attributes, setAttributes) {
-  const blankAttribute = () => ({ attributeName: '', typeInfo: {}, values: [null] })
+  const blankAttribute = () => ({
+    attr_uri: '',
+    attr_label: '',
+    type_info: {}
+  })
 
   const resetAttributes = () => {
-    setAttributes([blankAttribute()])
+    setAttributes([])
   }
 
   const addAttribute = () => {
@@ -13,20 +17,18 @@ export default function useAttributes(attributes, setAttributes) {
 
   const updateAttribute = (index, newAttribute) => {
     setAttributes(prev =>
-      prev.map((oldAttribute, idx) =>
-        idx === index ? newAttribute : oldAttribute
-      )
+      prev.map((old, i) => (i === index ? newAttribute : old))
     )
   }
 
   const updateValue = (index, valueIndex, newValue) => {
     setAttributes(prev =>
-      prev.map((attr, idx1) =>
-        idx1 === index
+      prev.map((attr, i) =>
+        i === index
           ? {
               ...attr,
-              values: attr.values.map((v, idx2) =>
-                idx2 === valueIndex ? newValue : v
+              values: attr.values.map((v, j) =>
+                j === valueIndex ? newValue : v
               )
             }
           : attr
@@ -34,13 +36,7 @@ export default function useAttributes(attributes, setAttributes) {
     )
   }
 
-  useEffect(() => {
-    addAttribute()
-  }, [])
-
   return {
-    attributes,
-    setAttributes,
     resetAttributes,
     addAttribute,
     updateAttribute,

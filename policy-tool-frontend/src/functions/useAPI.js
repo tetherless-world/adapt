@@ -2,15 +2,17 @@ import axios from 'axios'
 
 const baseUrl = '/api'
 
-export default function useBackendApi() {
+export default function useAPI() {
   return {
     getDomains: async () => {
       let url = `${baseUrl}/domains`
-      return await axios.get(url)
+      let { data } = await axios.get(url)
+      return data
     },
     getValidAttributes: async () => {
       let url = `${baseUrl}/attributes`
-      return axios.get(url)
+      let { data } = await axios.get(url)
+      return data
     },
     constructPolicy: async data => {
       let url = `${baseUrl}/policies`
