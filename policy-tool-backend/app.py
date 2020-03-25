@@ -89,13 +89,15 @@ def getDomains():
 @app.route(f'{API_URL}/attributes', methods=['GET'])
 def getAttributes():
     logging.info('GETTING ATTRIBUTES')
+
     response = client.query_assertions(
         """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX sio: <http://semanticscience.org/resource/>
-        SELECT distinct ?attribute ?property ?range ?propertyType ?extent ?cardinality WHERE {
+        SELECT distinct ?attribute ?label ?property ?range ?propertyType ?extent ?cardinality WHERE {
+            ?attribute rdfs:label ?label.
             ?attribute rdfs:subClassOf+ sio:Attribute.
             ?attribute (rdfs:subClassOf|owl:equivalentClass|(owl:intersectionOf/rdf:rest*/rdf:first))* ?superClass.
             {
@@ -130,13 +132,18 @@ def getAttributes():
 
     attributes = {}
     for attribute in response:
-        a_name, a_prop, a_range, a_propType, a_extent, a_card = attribute
-        logging.info(f'[GET] {a_name}')
-        if a_name not in attributes:
-            attributes[a_name] = {'attributeName': a_name, 'typeInfo': {}}
-        attributes[a_name]['typeInfo'][a_prop] = a_range
+        _uri, _label, _prop, _range, _propType, _extent, _card = attribute
+        logging.info(f'[GET] {_uri} ')
+        if _uri not in attributes:
+            attributes[_uri] = {
+                'attr_uri': _uri,
+                'attr_label': _label,
+                'type_info': {}
+            }
 
-    return jsonify([v for (k, v) in attributes.items()])
+        attributes[_uri]['type_info'][_prop] = _range
+
+    return jsonify(list(attributes.values()))
 
 
 @app.route(f'{API_URL}/policies', methods=['POST'])
