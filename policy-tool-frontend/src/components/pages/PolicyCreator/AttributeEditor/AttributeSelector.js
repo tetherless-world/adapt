@@ -1,10 +1,5 @@
 import React from 'react'
-import {
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem
-} from '@material-ui/core'
+import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core'
 
 export default function AttributeSelector({
   attribute,
@@ -19,11 +14,12 @@ export default function AttributeSelector({
           value={attribute.attributeName}
           onChange={event => onChange(event.target.value)}
         >
-          {validAttributes.map((option, index) => (
-            <MenuItem value={option.attributeName} key={index}>
-              {option.attributeName}
-            </MenuItem>
-          ))}
+          {validAttributes &&
+            validAttributes.map((option, index) => (
+              <MenuItem value={option.attr_uri} key={index}>
+                {option.attr_label}
+              </MenuItem>
+            ))}
         </Select>
       </FormControl>
     </>

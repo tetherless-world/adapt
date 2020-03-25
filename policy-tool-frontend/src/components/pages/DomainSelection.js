@@ -4,24 +4,19 @@ import { Typography, Grid } from '@material-ui/core'
 import CardLink from '../common/CardLink'
 import LoadingWrapper from '../common/LoadingWrapper'
 
-import useBackendApi from '../../functions/useBackendApi'
+import useAPI from '../../functions/useAPI'
 
-
-export default function DomainSelection () {
-  const api = useBackendApi()
+export default function DomainSelection() {
+  const api = useAPI()
 
   const [options, setOptions] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.getDomains()
-      .then(({ data }) => {
-        console.log(data)
-        setOptions(data)
-      })
-      .then(() => {
-        setLoading(false)
-      })
+    api
+      .getDomains()
+      .then(data => setOptions(data))
+      .then(() => setLoading(false))
   }, [])
 
   return (
@@ -36,11 +31,9 @@ export default function DomainSelection () {
             ))}
           </Grid>
         ) : (
-            <Typography variant={'h6'}>No domains found...</Typography>
-          )
-        }
+          <Typography variant={'h6'}>No domains found...</Typography>
+        )}
       </LoadingWrapper>
     </>
   )
-
 }
