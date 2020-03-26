@@ -4,6 +4,7 @@ from flask import Blueprint, current_app, jsonify
 from twks.client import TwksClient
 
 from ..models.Attribute import Attribute
+from ..models.AttributeResponseDTO import AttributeResponseDTO
 from .common.ClientControllerBlueprint import ClientControllerBlueprint
 
 # configure logging
@@ -63,9 +64,14 @@ class AttributeControllerBP(ClientControllerBlueprint):
                 }
                 """
             )
-            
-            # return jsonify([Attribute(*attr) for attr in response])
 
+            results = [Attribute(*attr) for attr in response]
+            # return jsonify([Attribute(*attr) for attr in response])
             
+            return jsonify([
+                AttributeResponseDTO(attr.uri, attr.label, attr.range)
+                for attr in results
+                if str(attr.propertyType) == "http://www.w3.org/2002/07/owl#DatatypeProperty"
+            ])
 
         return controller
