@@ -30,8 +30,7 @@
                                                                                                          ) ;
                                                                                       rdf:type owl:Class
                                                                                     ] ;
-                                                                rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/Dietary_Assessment> ;
-                                                                rdfs:label "Diet guideline 5.20 (Age)" .
+                                                                rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/Dietary_Assessment> .
 
 
 ###  http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Drink
@@ -48,8 +47,7 @@
                                                                                           rdf:type owl:Class
                                                                                         ] ;
                                                                     rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Gender> ,
-                                                                                    <http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Recommendation> ;
-                                                                    rdfs:label "Diet guideline 5.20.1 (Drink)" .
+                                                                                    <http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Recommendation> .
 
 
 ###  http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Gender
@@ -62,8 +60,7 @@
                                                                                                               ) ;
                                                                                            rdf:type owl:Class
                                                                                          ] ;
-                                                                     rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/policy/5.20-Age> ;
-                                                                     rdfs:label "Diet guideline 5.20.1 (Gender)" .
+                                                                     rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/policy/5.20-Age> .
 
 
 ###  http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Recommendation
@@ -86,8 +83,7 @@
                                                                                           rdf:type owl:Class
                                                                                         ] ;
                                                                     rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Gender> ,
-                                                                                    <http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Recommendation> ;
-                                                                    rdfs:label "Diet guideline 5.20.2 (Drink)" .
+                                                                                    <http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Recommendation> .
 
 
 ###  http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Gender
@@ -100,8 +96,7 @@
                                                                                                               ) ;
                                                                                            rdf:type owl:Class
                                                                                          ] ;
-                                                                     rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/policy/5.20-Age> ;
-                                                                     rdfs:label "Diet guideline 5.20.2 (Gender)" .
+                                                                     rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/policy/5.20-Age> .
 
 
 ###  http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Recommendation
@@ -148,6 +143,50 @@
 :request1 rdf:type owl:NamedIndividual ,
                    <http://purl.org/twc/policy/example/healthcare/Dietary_Assessment> ;
           prov:wasAssociatedWith :agent1 .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/5.20-Age
+<http://purl.org/twc/policy/example/healthcare/policy/5.20-Age> rdf:type owl:NamedIndividual ,
+                                                                         :HealthCarePolicy .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Drink
+<http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Drink> rdf:type owl:NamedIndividual ,
+                                                                             :HealthCarePolicy .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Gender
+<http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Gender> rdf:type owl:NamedIndividual ,
+                                                                              :HealthCarePolicy .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Drink
+<http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Drink> rdf:type owl:NamedIndividual ,
+                                                                             :HealthCarePolicy .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Gender
+<http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Gender> rdf:type owl:NamedIndividual ,
+                                                                              :HealthCarePolicy .
+
+
+#################################################################
+#    Annotations
+#################################################################
+
+<http://purl.org/twc/policy/example/healthcare/policy/5.20-Age> rdfs:label "Diet guideline 5.20 (Age)" .
+
+
+<http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Drink> rdfs:label "Diet guideline 5.20.1 (Drink)" .
+
+
+<http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Gender> rdfs:label "Diet guideline 5.20.1 (Gender)" .
+
+
+<http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Drink> rdfs:label "Diet guideline 5.20.2 (Drink)" .
+
+
+<http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Gender> rdfs:label "Diet guideline 5.20.2 (Gender)" .
 
 
 ###  Generated by the OWL API (version 4.5.9.2019-02-01T07:24:44Z) https://github.com/owlcs/owlapi
