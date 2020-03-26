@@ -14,6 +14,11 @@ export default function useAPI() {
       let { data } = await axios.get(url)
       return data
     },
+    getConditions: async () => {
+      let url = `${baseUrl}/conditions`
+      let { data } = await axios.get(url)
+      return data
+    },
     constructPolicy: async data => {
       let url = `${baseUrl}/policies`
       axios.post(url, data)

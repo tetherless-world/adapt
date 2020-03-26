@@ -17,7 +17,8 @@ export default function PolicyCreator() {
   const [conditions, setConditions] = useState({
     precedence: '',
     effect: '',
-    obligation: ''
+    obligation: '',
+    action: ''
   })
 
   const [info, setInfo] = useState({
@@ -31,11 +32,23 @@ export default function PolicyCreator() {
   const [attributes, setAttributes] = useState([])
   const [validAttributes, setValidAttributes] = useState(DefaultValidAttributes)
 
+  const [validActions, setValidActions] = useState([])
+  const [validEffects, setValidEffects] = useState([])
+  const [validPrecedences, setValidPrecedences] = useState([])
+
   // get Valid attributes
   useEffect(() => {
     api
       .getValidAttributes()
-      .then(data => setValidAttributes([...validAttributes, ...data]))
+      .then(data => setValidAttributes(v => [...v, ...data]))
+    api
+      .getConditions()
+      .then(({ actions, precedences, effects }) => {
+        console.log(actions)
+        setValidActions(v => [...v, actions])
+        setValidEffects(v => [...v, effects])
+        setValidPrecedences(v => [...v, precedences])
+      })
       .then(() => setIsLoading(false))
   }, [])
 
@@ -91,7 +104,7 @@ export default function PolicyCreator() {
           title: 'Policy Action',
           type: 'select',
           size: { sm: 6 },
-          options: []
+          options: validActions.map(v => ({ value: v.uri, label: v.label }))
         },
         {
           type: 'spacer',
@@ -103,7 +116,7 @@ export default function PolicyCreator() {
           title: 'Policy Effect',
           type: 'select',
           size: { sm: 6 },
-          options: []
+          options: validEffects.map(v => ({ value: v.uri, label: v.label }))
         },
         {
           type: 'spacer',
@@ -126,7 +139,7 @@ export default function PolicyCreator() {
           title: 'Policy Precedence',
           type: 'select',
           size: { sm: 6 },
-          options: []
+          options: validPrecedences.map(v => ({ value: v.uri, label: v.label }))
         }
       ]
     }
