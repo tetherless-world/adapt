@@ -67,7 +67,7 @@ class AttributeControllerBP(ClientControllerBlueprint):
 
             results = [Attribute(*attr) for attr in response]
             # return jsonify([Attribute(*attr) for attr in response])
-            
+
             return jsonify([
                 AttributeResponseDTO(attr.uri, attr.label, attr.range)
                 for attr in results
