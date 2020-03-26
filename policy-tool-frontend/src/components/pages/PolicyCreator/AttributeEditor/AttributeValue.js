@@ -9,21 +9,25 @@ import {
 
 export default function AttributeValue({
   value,
-  typeInfo,
+  valueType,
   onChange,
   title = undefined
 }) {
-  let FieldComponent = UnknownField
-  if (!!typeInfo && !!typeInfo['http://semanticscience.org/resource/hasUnit']) {
-    switch (typeInfo['http://semanticscience.org/resource/hasUnit']) {
-      case 'http://purl.obolibrary.org/obo/UO_0000105':
+  let FieldComponent = null
+  if (!!valueType) {
+    switch (valueType) {
+      case 'http://www.w3.org/2001/XMLSchema#float':
+        FieldComponent = TextInput
+        break
+      case 'http://www.w3.org/2001/XMLSchema#string':
         FieldComponent = TextInput
         break
       case 'http://www.w3.org/2001/XMLSchema#dateTime':
         FieldComponent = DateTimeField
         break
       default:
-        FieldComponent = SelectField
+        //   FieldComponent = SelectField
+        FieldComponent = UnknownField
     }
   }
 
@@ -33,7 +37,7 @@ export default function AttributeValue({
       field={{
         id: title,
         title: title || 'Value',
-        type: typeInfo['http://semanticscience.org/resource/hasValue']
+        type: valueType
       }}
       onChange={onChange}
     />

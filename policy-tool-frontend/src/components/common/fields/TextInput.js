@@ -7,11 +7,14 @@ export default function TextInputs({
   field: { title, type },
   ...props
 }) {
-  let fieldType = 'text'
+  let fieldType = null
   if (!!type) {
     switch (type) {
       case 'http://www.w3.org/2001/XMLSchema#float':
         fieldType = 'number'
+        break
+      case 'http://www.w3.org/2001/XMLSchema#string':
+        fieldType = 'text'
         break
       default:
         fieldType = 'text'

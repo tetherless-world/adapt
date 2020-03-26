@@ -2,17 +2,21 @@ export const DefaultValidAttributes = [
   {
     attr_uri: '#startTime',
     attr_label: 'Start time',
-    type_info: {
-      'http://semanticscience.org/resource/hasUnit':
-        'http://www.w3.org/2001/XMLSchema#dateTime'
-    }
+    value_type: 'http://www.w3.org/2001/XMLSchema#dateTime'
   },
   {
     attr_uri: '#endTime',
     attr_label: 'End time',
-    type_info: {
-      'http://semanticscience.org/resource/hasUnit':
-        'http://www.w3.org/2001/XMLSchema#dateTime'
-    }
+    value_type: 'http://www.w3.org/2001/XMLSchema#dateTime'
+  },
+  {
+    attr_uri: '#agent',
+    attr_label: 'Agent',
+    value_type: 'http://www.w3.org/2001/XMLSchema#string'
+  },
+  {
+    attr_uri: '#location',
+    attr_label: 'Location',
+    value_type: 'http://www.w3.org/2001/XMLSchema#string'
   }
 ]

@@ -113,7 +113,7 @@ export default function AttributeEditor({
                                 index,
                                 valueIndex
                               )}
-                              typeInfo={attribute.type_info}
+                              valueType={attribute.value_type}
                             />
                           </Grid>
                           <Grid item>
