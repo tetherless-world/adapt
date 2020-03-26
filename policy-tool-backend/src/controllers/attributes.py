@@ -3,8 +3,8 @@ import logging
 from flask import Blueprint, current_app, jsonify
 from twks.client import TwksClient
 
-from ..models.Attribute import Attribute
-from ..models.AttributeResponseDTO import AttributeResponseDTO
+from ..models.attributes.Attribute import Attribute
+from ..models.attributes.AttributeResponseDTO import AttributeResponseDTO
 from .common.ClientControllerBlueprint import ClientControllerBlueprint
 
 # configure logging
