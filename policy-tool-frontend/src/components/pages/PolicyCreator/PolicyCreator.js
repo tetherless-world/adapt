@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useMemo } from 'react'
 import { Grid, Typography } from '@material-ui/core'
 import MuiDataform from 'mui-dataforms'
 
@@ -6,10 +6,8 @@ import AttributeEditor from './AttributeEditor/AttributeEditor'
 import PreviewJson from '../../common/PreviewJson'
 import LoadingWrapper from '../../common/LoadingWrapper'
 
-import useAPI from '../../../functions/useAPI'
-import { DefaultValidAttributes } from '../../../data/DefaultValidAttributes'
-
-const api = useAPI()
+import { useGetValidAttributes } from '../../../functions/useAPI'
+import { useEffectOnce } from 'react-use'
 
 export default function PolicyCreator() {
   // state vars
@@ -27,21 +25,21 @@ export default function PolicyCreator() {
     source: ''
   })
 
-  const [isLoading, setIsLoading] = useState(true)
   const [attributes, setAttributes] = useState([])
-  const [validAttributes, setValidAttributes] = useState(DefaultValidAttributes)
+  const [resGetValidAttr, getValidAttributes] = useGetValidAttributes()
 
-  // get Valid attributes
-  useEffect(() => {
-    api
-      .getValidAttributes()
-      .then(data => setValidAttributes([...validAttributes, ...data]))
-      .then(() => setIsLoading(false))
-  }, [])
+  const isLoading = useMemo(() => resGetValidAttr.loading, [resGetValidAttr])
+  const validAttributes = useMemo(() => {
+    return resGetValidAttr.value || []
+  }, [resGetValidAttr])
+
+  useEffectOnce(() => {
+    getValidAttributes()
+  })
 
   // Handling changes
-  const handleOnChange = setState => key => value => {
-    setState(prev => ({ ...prev, [key]: value }))
+  const handleOnChange = (setState) => (key) => (value) => {
+    setState((prev) => ({ ...prev, [key]: value }))
   }
 
   // Form fields
