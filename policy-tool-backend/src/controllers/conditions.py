@@ -75,9 +75,9 @@ class ConditionControllerBP(ClientControllerBlueprint):
             logger.info('GETTING ATTRIBUTES')
 
             results = {
-                'actions': _get_actions(),
-                'effects': _get_effects(),
-                'precedences': _get_precedences()
+                'action': _get_actions(),
+                'effect': _get_effects(),
+                'precedence': _get_precedences()
             }
 
             return jsonify(results)

@@ -1,9 +1,8 @@
 import React, { useState, useMemo, useEffect } from 'react'
 import { Grid, Typography } from '@material-ui/core'
-import MuiDataform from 'mui-dataforms'
-import { useHistory } from 'react-router-dom'
-import { useEffectOnce } from 'react-use'
 
+import PolicyInfoForm from './PolicyInfoForm'
+import PolicyConditionForm from './PolicyConditionForm'
 import AttributeEditor from './AttributeEditor/AttributeEditor'
 import PreviewJson from '../../common/PreviewJson'
 import LoadingWrapper from '../../common/LoadingWrapper'
@@ -14,14 +13,11 @@ import {
 } from '../../../functions/useAPI'
 
 export default function PolicyCreator() {
-  const history = useHistory()
-
   const [conditions, setConditions] = useState({
-    actions: '',
+    action: '',
     precedence: '',
     effect: '',
-    obligation: '',
-    action: ''
+    obligation: ''
   })
 
   const [info, setInfo] = useState({
@@ -36,124 +32,34 @@ export default function PolicyCreator() {
   const [resGetValidCond, getValidConditions] = useGetValidConditions()
 
   const isLoading = useMemo(() => {
-    return resGetValidAttr.loading && resGetValidCond.loding
-  }, [resGetValidAttr])
+    return resGetValidAttr.loading || resGetValidCond.loading
+  }, [resGetValidAttr, resGetValidCond])
 
   const validAttributes = useMemo(() => {
     return resGetValidAttr.value || []
   }, [resGetValidAttr])
 
+  
   const validConditons = useMemo(() => {
-    return resGetValidAttr.value || []
+    return resGetValidCond.value || {}
   }, [resGetValidCond])
 
-  useEffectOnce(() => {
+  useEffect(() => {
     getValidAttributes()
     getValidConditions()
-  })
+  }, [])
 
   // Handling changes
   const handleOnChange = (setState) => (key) => (value) => {
     setState((prev) => ({ ...prev, [key]: value }))
   }
 
-  // Form fields
-  const infoFields = [
-    {
-      title: 'Policy Information',
-      description: 'Provide some basic information about the policy',
-      fields: [
-        {
-          id: 'source',
-          title: 'Policy Source',
-          type: 'select',
-          size: { sm: 6 },
-          options: []
-        },
-        {
-          id: 'id',
-          title: 'Policy Id',
-          type: 'text',
-          size: { sm: 6 }
-        },
-        {
-          id: 'label',
-          title: 'Policy Label',
-          type: 'text',
-          size: { sm: 6 }
-        },
-        {
-          type: 'spacer',
-          size: { xs: false, sm: 6 }
-        },
-        {
-          id: 'definition',
-          title: 'Policy Definition',
-          type: 'text'
-        }
-      ]
-    }
-  ]
-
-  const conditionsFields = useMemo(() => {
-    return [
-      {
-        title: 'Conditions and Effects',
-        fields: [
-          {
-            id: 'action',
-            title: 'Policy Action',
-            type: 'select',
-            size: { sm: 6 }
-          },
-          {
-            type: 'spacer',
-            size: { xs: false, sm: 6 }
-          },
-          {
-            id: 'effect',
-            title: 'Policy Effect',
-            type: 'select',
-            size: { sm: 6 }
-          },
-          {
-            type: 'spacer',
-            size: { xs: false, sm: 6 }
-          },
-          {
-            id: 'obligations',
-            title: 'Policy Obligations',
-            type: 'select',
-            size: { sm: 6 }
-            // predefined, or user input
-          },
-          {
-            type: 'spacer',
-            size: { xs: false, sm: 6 }
-          },
-          {
-            id: 'precedence',
-            title: 'Policy Precedence',
-            type: 'select',
-            size: { sm: 6 }
-          }
-        ].map((v) =>
-          !!v.type && v.type === 'select' ? { ...v, values: [] } : v
-        )
-      }
-    ]
-  }, [resGetValidCond])
-
   return (
     <>
       <LoadingWrapper isLoading={isLoading}>
         <Grid container spacing={8}>
-          <Grid item xs={12}>
-            <MuiDataform
-              fields={infoFields}
-              values={info}
-              onChange={handleOnChange(setInfo)}
-            />
+          <Grid item container xs={12} md={6}>
+            <PolicyInfoForm values={info} onChange={handleOnChange(setInfo)} />
           </Grid>
           <Grid item xs={12}>
             <Typography variant={'h5'}>Rules</Typography>
@@ -163,14 +69,14 @@ export default function PolicyCreator() {
               validAttributes={validAttributes}
             />
           </Grid>
-          <Grid item xs={12}>
-            <MuiDataform
-              fields={conditionsFields}
+          <Grid item container xs={12} md={6}>
+            <PolicyConditionForm
               values={conditions}
+              fieldOptions={validConditons}
               onChange={handleOnChange(setConditions)}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item container xs={12} md={6}>
             <PreviewJson
               title={'Policy Preview'}
               data={{ info, attributes, conditions }}
