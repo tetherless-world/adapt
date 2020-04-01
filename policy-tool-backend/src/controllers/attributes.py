@@ -82,7 +82,6 @@ class AttributeControllerBP(ClientControllerBlueprint):
             )
 
             attributes = [Attribute(*attr) for attr in response]
-            return jsonify([*PROV_ATTR, *attributes])
 
             return jsonify([*PROV_ATTR,
                             *[AttributeResponseDTO(attr.uri,
