@@ -82,11 +82,7 @@ class AttributeControllerBP(ClientControllerBlueprint):
             )
 
             attributes = [Attribute(*attr) for attr in response]
-            results = [*PROV_ATTR, *[
-                AttributeResponseDTO(attr.uri, attr.label, attr.range)
-                for attr in attributes
-                if str(attr.propertyType) == "http://www.w3.org/2002/07/owl#DatatypeProperty"
-            ]]
+            return jsonify([*PROV_ATTR, *attributes])
 
             return jsonify([*PROV_ATTR,
                             *[AttributeResponseDTO(attr.uri,
