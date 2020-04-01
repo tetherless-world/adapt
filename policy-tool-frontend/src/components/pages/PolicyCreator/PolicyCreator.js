@@ -69,7 +69,7 @@ export default function PolicyCreator() {
               validAttributes={validAttributes}
             />
           </Grid>
-          <Grid item container xs={12} md={6}>
+          <Grid item container xs={12}>
             <PolicyConditionForm
               values={conditions}
               fieldOptions={validConditons}
