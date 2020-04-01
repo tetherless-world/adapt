@@ -74,3 +74,11 @@ def load_ontologies():
             source_uri=rdflib.URIRef(pathlib.Path(file_path).as_uri()))
         client.put_nanopublication(nanopublication)
         logging.info(f"[LOAD] {f.ljust(max_path_len)}")
+
+
+@app.after_request
+def response_handling(response):
+    if CONFIG_NAME == 'development':
+        response.headers['Access-Control-Allow-Origin'] = '*'
+
+    return response

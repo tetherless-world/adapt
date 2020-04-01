@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { Grid, Typography } from '@material-ui/core'
 import MuiDataform from 'mui-dataforms'
+import { useHistory } from 'react-router-dom'
+import { useEffectOnce } from 'react-use'
 
 import AttributeEditor from './AttributeEditor/AttributeEditor'
 import PreviewJson from '../../common/PreviewJson'
 import LoadingWrapper from '../../common/LoadingWrapper'
 
-import useAPI from '../../../functions/useAPI'
-import { DefaultValidAttributes } from '../../../data/DefaultValidAttributes'
-
-const api = useAPI()
+import {
+  useGetValidAttributes,
+  useGetValidConditions
+} from '../../../functions/useAPI'
 
 export default function PolicyCreator() {
-  // state vars
+  const history = useHistory()
 
   const [conditions, setConditions] = useState({
+    actions: '',
     precedence: '',
     effect: '',
     obligation: '',
@@ -28,33 +31,30 @@ export default function PolicyCreator() {
     source: ''
   })
 
-  const [isLoading, setIsLoading] = useState(true)
   const [attributes, setAttributes] = useState([])
-  const [validAttributes, setValidAttributes] = useState(DefaultValidAttributes)
+  const [resGetValidAttr, getValidAttributes] = useGetValidAttributes()
+  const [resGetValidCond, getValidConditions] = useGetValidConditions()
 
-  const [validActions, setValidActions] = useState([])
-  const [validEffects, setValidEffects] = useState([])
-  const [validPrecedences, setValidPrecedences] = useState([])
+  const isLoading = useMemo(() => {
+    return resGetValidAttr.loading && resGetValidCond.loding
+  }, [resGetValidAttr])
 
-  // get Valid attributes
-  useEffect(() => {
-    api
-      .getValidAttributes()
-      .then(data => setValidAttributes(v => [...v, ...data]))
-    api
-      .getConditions()
-      .then(({ actions, precedences, effects }) => {
-        console.log(actions)
-        setValidActions(v => [...v, actions])
-        setValidEffects(v => [...v, effects])
-        setValidPrecedences(v => [...v, precedences])
-      })
-      .then(() => setIsLoading(false))
-  }, [])
+  const validAttributes = useMemo(() => {
+    return resGetValidAttr.value || []
+  }, [resGetValidAttr])
+
+  const validConditons = useMemo(() => {
+    return resGetValidAttr.value || []
+  }, [resGetValidCond])
+
+  useEffectOnce(() => {
+    getValidAttributes()
+    getValidConditions()
+  })
 
   // Handling changes
-  const handleOnChange = setState => key => value => {
-    setState(prev => ({ ...prev, [key]: value }))
+  const handleOnChange = (setState) => (key) => (value) => {
+    setState((prev) => ({ ...prev, [key]: value }))
   }
 
   // Form fields
@@ -95,55 +95,54 @@ export default function PolicyCreator() {
     }
   ]
 
-  const conditionsFields = [
-    {
-      title: 'Conditions and Effects',
-      fields: [
-        {
-          id: 'action',
-          title: 'Policy Action',
-          type: 'select',
-          size: { sm: 6 },
-          options: validActions.map(v => ({ value: v.uri, label: v.label }))
-        },
-        {
-          type: 'spacer',
-          size: { xs: false, sm: 6 },
-          options: []
-        },
-        {
-          id: 'effect',
-          title: 'Policy Effect',
-          type: 'select',
-          size: { sm: 6 },
-          options: validEffects.map(v => ({ value: v.uri, label: v.label }))
-        },
-        {
-          type: 'spacer',
-          size: { xs: false, sm: 6 }
-        },
-        {
-          id: 'obligations',
-          title: 'Policy Obligations',
-          type: 'select',
-          size: { sm: 6 },
-          options: []
-          // predefined, or user input
-        },
-        {
-          type: 'spacer',
-          size: { xs: false, sm: 6 }
-        },
-        {
-          id: 'precedence',
-          title: 'Policy Precedence',
-          type: 'select',
-          size: { sm: 6 },
-          options: validPrecedences.map(v => ({ value: v.uri, label: v.label }))
-        }
-      ]
-    }
-  ]
+  const conditionsFields = useMemo(() => {
+    return [
+      {
+        title: 'Conditions and Effects',
+        fields: [
+          {
+            id: 'action',
+            title: 'Policy Action',
+            type: 'select',
+            size: { sm: 6 }
+          },
+          {
+            type: 'spacer',
+            size: { xs: false, sm: 6 }
+          },
+          {
+            id: 'effect',
+            title: 'Policy Effect',
+            type: 'select',
+            size: { sm: 6 }
+          },
+          {
+            type: 'spacer',
+            size: { xs: false, sm: 6 }
+          },
+          {
+            id: 'obligations',
+            title: 'Policy Obligations',
+            type: 'select',
+            size: { sm: 6 }
+            // predefined, or user input
+          },
+          {
+            type: 'spacer',
+            size: { xs: false, sm: 6 }
+          },
+          {
+            id: 'precedence',
+            title: 'Policy Precedence',
+            type: 'select',
+            size: { sm: 6 }
+          }
+        ].map((v) =>
+          !!v.type && v.type === 'select' ? { ...v, values: [] } : v
+        )
+      }
+    ]
+  }, [resGetValidCond])
 
   return (
     <>

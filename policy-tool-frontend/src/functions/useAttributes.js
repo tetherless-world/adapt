@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react'
-
 export default function useAttributes(attributes, setAttributes) {
   const blankAttribute = () => ({
     attr_uri: '',
     attr_label: '',
-    type_info: {}
+    value_type: '',
+    values: []
   })
 
   const resetAttributes = () => {
