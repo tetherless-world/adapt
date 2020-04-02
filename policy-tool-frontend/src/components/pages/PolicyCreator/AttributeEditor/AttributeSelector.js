@@ -11,16 +11,16 @@ export default function AttributeSelector({
       <FormControl fullWidth>
         <InputLabel>Attribute</InputLabel>
         <Select
-          value={attribute.attr_uri}
+          value={attribute.uri}
           onChange={(event) => onChange(event.target.value)}
         >
           {validAttributes &&
             validAttributes.map((option, index) => (
               <MenuItem
-                value={option.attr_uri}
-                key={`${option.attr_uri}-${index}`}
+                value={option.uri}
+                key={`${option.uri}-${index}`}
               >
-                {option.attr_label}
+                {option.label}
               </MenuItem>
             ))}
         </Select>

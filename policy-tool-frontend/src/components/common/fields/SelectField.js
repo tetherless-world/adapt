@@ -1,22 +1,16 @@
 import React from 'react'
 import { FormControl, InputLabel, Select, MenuItem } from '@material-ui/core'
 
-export default function SelectField({
-  value,
-  onChange,
-  field: { title, options },
-  ...props
-}) {
+export default function SelectField({ value, valueType, onChange, options }) {
   return (
     <FormControl fullWidth>
-      <InputLabel>{title}</InputLabel>
+      <InputLabel>Value</InputLabel>
       <Select
         value={value || ''}
-        onChange={event => onChange(event.target.value)}
-        {...props}
+        onChange={(event) => onChange(event.target.value)}
       >
         {options.map((option, index) => (
-          <MenuItem value={option.value} key={index}>
+          <MenuItem value={option.value} key={`${option.value}-${index}`}>
             {option.label}
           </MenuItem>
         ))}
