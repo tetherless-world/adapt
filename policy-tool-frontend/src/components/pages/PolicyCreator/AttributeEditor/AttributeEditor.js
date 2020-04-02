@@ -42,10 +42,12 @@ export default function AttributeEditor({
   const handleAddAttribute = () => addAttribute()
 
   const handleChangeSelectedAttribute = (index) => (uri) => {
-    updateAttribute(index, {
-      ...validAttributes.filter((a) => a.uri === uri).shift(),
-      values: []
-    })
+    if (uri !== attributes[index].uri) {
+      updateAttribute(index, {
+        ...validAttributes.filter((a) => a.uri === uri).shift(),
+        values: []
+      })
+    }
   }
 
   const handleAddAttributeValue = (index) => {
@@ -122,7 +124,7 @@ export default function AttributeEditor({
                                 !!attribute.subClasses
                                   ? attribute.subClasses.map((v) => ({
                                       label: v.label,
-                                      value: v.value
+                                      value: v.uri
                                     }))
                                   : []
                               }
