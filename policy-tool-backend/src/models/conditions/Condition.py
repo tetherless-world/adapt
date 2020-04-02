@@ -1,7 +1,6 @@
 from dataclasses import dataclass
+from ..common.QueryResponse import QueryResponse
 
 @dataclass
-class Condition:
+class Condition(QueryResponse):
     """Class for representing an action"""
-    uri: str
-    label: str
