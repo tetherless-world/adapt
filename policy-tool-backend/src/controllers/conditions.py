@@ -4,9 +4,7 @@ from flask import Blueprint, current_app, jsonify
 from twks.client import TwksClient
 
 from .common.ClientControllerBlueprint import ClientControllerBlueprint
-from ..models.conditions.Action import Action
-from ..models.conditions.Effect import Effect
-from ..models.conditions.Precedence import Precedence
+from ..models.conditions.Condition import Condition
 
 # configure logging
 logger = logging.getLogger(__name__)
@@ -33,7 +31,7 @@ class ConditionControllerBP(ClientControllerBlueprint):
                 }
                 """
             )
-            return [Action(*r) for r in response]
+            return [Condition(*r) for r in response]
 
         def _get_effects():
             response = client.query_assertions(
@@ -46,7 +44,7 @@ class ConditionControllerBP(ClientControllerBlueprint):
                 }
                 """
             )
-            return [Effect(*r) for r in response]
+            return [Condition(*r) for r in response]
 
         def _get_precedences():
             response = client.query_assertions(
@@ -58,7 +56,7 @@ class ConditionControllerBP(ClientControllerBlueprint):
                 }
                 """
             )
-            return [Precedence(*r) for r in response]
+            return [Condition(*r) for r in response]
 
         #
         # still no query for obligations
