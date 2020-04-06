@@ -1,22 +1,24 @@
 import axios from 'axios'
+import { useAsyncFn } from 'react-use'
 
-const baseUrl = '/api'
+const API_URL_PREFIX = '/api'
 
-export default function useAPI() {
-  return {
-    getDomains: async () => {
-      let url = `${baseUrl}/domains`
-      let { data } = await axios.get(url)
-      return data
-    },
-    getValidAttributes: async () => {
-      let url = `${baseUrl}/attributes`
-      let { data } = await axios.get(url)
-      return data
-    },
-    constructPolicy: async data => {
-      let url = `${baseUrl}/policies`
-      axios.post(url, data)
-    }
-  }
+const makeSimpleGetRequest = (url) => async () => {
+  let { data } = await axios.get(url)
+  return data
+}
+
+export const useGetDomains = () => {
+  let url = `${API_URL_PREFIX}/domains`
+  return useAsyncFn(makeSimpleGetRequest(url))
+}
+
+export const useGetValidAttributes = () => {
+  let url = `${API_URL_PREFIX}/attributes`
+  return useAsyncFn(makeSimpleGetRequest(url))
+}
+
+export const useGetValidConditions = () => {
+  let url = `${API_URL_PREFIX}/conditions`
+  return useAsyncFn(makeSimpleGetRequest(url))
 }

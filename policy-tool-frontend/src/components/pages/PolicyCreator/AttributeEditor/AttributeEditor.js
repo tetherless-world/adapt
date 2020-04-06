@@ -7,7 +7,7 @@ import AttributeValue from './AttributeValue'
 
 import useAttributes from '../../../../functions/useAttributes'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {},
   attribute: {
     paddingTop: theme.spacing(1)
@@ -32,29 +32,24 @@ export default function AttributeEditor({
     updateValue
   } = useAttributes(attributes, setAttributes)
 
-  const handleClearAll = () => {
-    resetAttributes()
-  }
+  const handleClearAll = () => resetAttributes()
+  const handleAddAttribute = () => addAttribute()
 
-  const handleAddAttribute = () => {
-    addAttribute()
-  }
-
-  const handleChangeSelectedAttribute = index => uri => {
+  const handleChangeSelectedAttribute = (index) => (uri) => {
     updateAttribute(index, {
-      ...validAttributes.filter(a => a.attr_uri === uri).shift(),
+      ...validAttributes.filter((a) => a.attr_uri === uri).shift(),
       values: []
     })
   }
 
-  const handleAddAttributeValue = index => {
+  const handleAddAttributeValue = (index) => {
     updateAttribute(index, {
       ...attributes[index],
       values: [...attributes[index].values, null]
     })
   }
 
-  const handleChangeAttributeValue = (index, valueIndex) => value => {
+  const handleChangeAttributeValue = (index, valueIndex) => (value) => {
     updateValue(index, valueIndex, value)
   }
 
@@ -78,7 +73,7 @@ export default function AttributeEditor({
       <Grid container>
         <Grid item xs={12}>
           {attributes.map((attribute, index) => (
-            <>
+            <div key={index}>
               <Grid
                 container
                 spacing={2}
@@ -94,7 +89,10 @@ export default function AttributeEditor({
                 </Grid>
 
                 <Grid item>
-                  <Button onClick={() => handleAddAttributeValue(index)}>
+                  <Button
+                    disabled={!attribute.attr_uri}
+                    onClick={() => handleAddAttributeValue(index)}
+                  >
                     Union
                   </Button>
                 </Grid>
@@ -103,8 +101,8 @@ export default function AttributeEditor({
               <Grid container>
                 <Grid item xs={12} md={4} className={classes.values}>
                   {attribute.values &&
-                    attribute.values.map((value, valueIndex) => {
-                      return (
+                    attribute.values.map((value, valueIndex) => (
+                      <div key={`${index}-${valueIndex}`}>
                         <Grid container alignItems={'flex-end'} spacing={2}>
                           <Grid item xs={12} md={10}>
                             <AttributeValue
@@ -128,11 +126,11 @@ export default function AttributeEditor({
                             </IconButton>
                           </Grid>
                         </Grid>
-                      )
-                    })}
+                      </div>
+                    ))}
                 </Grid>
               </Grid>
-            </>
+            </div>
           ))}
         </Grid>
       </Grid>

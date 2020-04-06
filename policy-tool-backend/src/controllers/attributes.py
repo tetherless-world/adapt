@@ -3,13 +3,29 @@ import logging
 from flask import Blueprint, current_app, jsonify
 from twks.client import TwksClient
 
-from ..models.Attribute import Attribute
-from ..models.AttributeResponseDTO import AttributeResponseDTO
+from ..models.attributes.Attribute import Attribute
+from ..models.attributes.AttributeResponseDTO import AttributeResponseDTO
 from .common.ClientControllerBlueprint import ClientControllerBlueprint
 
 # configure logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+
+PROV_ATTR = [
+    AttributeResponseDTO('http://www.w3.org/ns/prov#startTime',
+                         'Start time',
+                         'http://www.w3.org/2001/XMLSchema#dateTime'),
+    AttributeResponseDTO('http://www.w3.org/ns/prov#endTime',
+                         'End time',
+                         'http://www.w3.org/2001/XMLSchema#dateTime'),
+    AttributeResponseDTO('http://www.w3.org/ns/prov#Agent',
+                         'Agent',
+                         'http://www.w3.org/2001/XMLSchema#string'),
+    AttributeResponseDTO('http://www.w3.org/ns/prov#Location',
+                         'Location',
+                         'http://www.w3.org/2001/XMLSchema#string'),
+]
 
 
 class AttributeControllerBP(ClientControllerBlueprint):
@@ -65,13 +81,14 @@ class AttributeControllerBP(ClientControllerBlueprint):
                 """
             )
 
-            results = [Attribute(*attr) for attr in response]
-            # return jsonify([Attribute(*attr) for attr in response])
+            attributes = [Attribute(*attr) for attr in response]
 
-            return jsonify([
-                AttributeResponseDTO(attr.uri, attr.label, attr.range)
-                for attr in results
-                if str(attr.propertyType) == "http://www.w3.org/2002/07/owl#DatatypeProperty"
-            ])
+            return jsonify([*PROV_ATTR,
+                            *[AttributeResponseDTO(attr.uri,
+                                                   attr.label,
+                                                   attr.range)
+                                for attr in attributes
+                                if str(attr.propertyType) == "http://www.w3.org/2002/07/owl#DatatypeProperty"
+                              ]])
 
         return controller

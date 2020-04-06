@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { TextField, FormControl } from '@material-ui/core'
 
 export default function DateTimeField({ value, onChange, field: { title } }) {
@@ -9,7 +9,7 @@ export default function DateTimeField({ value, onChange, field: { title } }) {
         label={title || 'Value'}
         type={'datetime-local'}
         InputLabelProps={{ shrink: true }}
-        onChange={event => onChange(event.target.value)}
+        onChange={(event) => onChange(event.target.value)}
       />
     </FormControl>
   )

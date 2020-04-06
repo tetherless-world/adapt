@@ -10,7 +10,7 @@ from flask import Flask, jsonify, render_template, request
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
 
-from src.controllers import attributes, domains
+from src.controllers import attributes, domains, conditions
 
 # Logging setup
 LOGGER = logging.getLogger()
@@ -45,7 +45,8 @@ client = TwksClient(server_base_url=TWKS_URL)
 # Build blueprints
 blueprints = [
     attributes.AttributeControllerBP.build(client, f'{API_URL}/attributes'),
-    domains.DomainControllerBP.build(client, f'{API_URL}/domains')
+    domains.DomainControllerBP.build(client, f'{API_URL}/domains'),
+    conditions.ConditionControllerBP.build(client, f'{API_URL}/conditions')
 ]
 
 for bp in blueprints:

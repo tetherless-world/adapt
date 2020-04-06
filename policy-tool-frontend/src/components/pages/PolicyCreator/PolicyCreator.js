@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { Grid, Typography } from '@material-ui/core'
-import MuiDataform from 'mui-dataforms'
 
+import PolicyInfoForm from './PolicyInfoForm'
+import PolicyConditionForm from './PolicyConditionForm'
 import AttributeEditor from './AttributeEditor/AttributeEditor'
 import PreviewJson from '../../common/PreviewJson'
 import LoadingWrapper from '../../common/LoadingWrapper'
 
-import useAPI from '../../../functions/useAPI'
-import { DefaultValidAttributes } from '../../../data/DefaultValidAttributes'
-
-const api = useAPI()
+import {
+  useGetValidAttributes,
+  useGetValidConditions
+} from '../../../functions/useAPI'
 
 export default function PolicyCreator() {
-  // state vars
-
   const [conditions, setConditions] = useState({
+    action: '',
     precedence: '',
     effect: '',
     obligation: ''
@@ -27,121 +27,39 @@ export default function PolicyCreator() {
     source: ''
   })
 
-  const [isLoading, setIsLoading] = useState(true)
   const [attributes, setAttributes] = useState([])
-  const [validAttributes, setValidAttributes] = useState(DefaultValidAttributes)
+  const [resGetValidAttr, getValidAttributes] = useGetValidAttributes()
+  const [resGetValidCond, getValidConditions] = useGetValidConditions()
 
-  // get Valid attributes
+  const isLoading = useMemo(() => {
+    return resGetValidAttr.loading || resGetValidCond.loading
+  }, [resGetValidAttr, resGetValidCond])
+
+  const validAttributes = useMemo(() => {
+    return resGetValidAttr.value || []
+  }, [resGetValidAttr])
+
+  
+  const validConditons = useMemo(() => {
+    return resGetValidCond.value || {}
+  }, [resGetValidCond])
+
   useEffect(() => {
-    api
-      .getValidAttributes()
-      .then(data => setValidAttributes([...validAttributes, ...data]))
-      .then(() => setIsLoading(false))
+    getValidAttributes()
+    getValidConditions()
   }, [])
 
   // Handling changes
-  const handleOnChange = setState => key => value => {
-    setState(prev => ({ ...prev, [key]: value }))
+  const handleOnChange = (setState) => (key) => (value) => {
+    setState((prev) => ({ ...prev, [key]: value }))
   }
-
-  // Form fields
-  const infoFields = [
-    {
-      title: 'Policy Information',
-      description: 'Provide some basic information about the policy',
-      fields: [
-        {
-          id: 'source',
-          title: 'Policy Source',
-          type: 'select',
-          size: { sm: 6 },
-          options: []
-        },
-        {
-          id: 'id',
-          title: 'Policy Id',
-          type: 'text',
-          size: { sm: 6 }
-        },
-        {
-          id: 'label',
-          title: 'Policy Label',
-          type: 'text',
-          size: { sm: 6 }
-        },
-        {
-          type: 'spacer',
-          size: { xs: false, sm: 6 }
-        },
-        {
-          id: 'definition',
-          title: 'Policy Definition',
-          type: 'text'
-        }
-      ]
-    }
-  ]
-
-  const conditionsFields = [
-    {
-      title: 'Conditions and Effects',
-      fields: [
-        {
-          id: 'action',
-          title: 'Policy Action',
-          type: 'select',
-          size: { sm: 6 },
-          options: []
-        },
-        {
-          type: 'spacer',
-          size: { xs: false, sm: 6 },
-          options: []
-        },
-        {
-          id: 'effect',
-          title: 'Policy Effect',
-          type: 'select',
-          size: { sm: 6 },
-          options: []
-        },
-        {
-          type: 'spacer',
-          size: { xs: false, sm: 6 }
-        },
-        {
-          id: 'obligations',
-          title: 'Policy Obligations',
-          type: 'select',
-          size: { sm: 6 },
-          options: []
-          // predefined, or user input
-        },
-        {
-          type: 'spacer',
-          size: { xs: false, sm: 6 }
-        },
-        {
-          id: 'precedence',
-          title: 'Policy Precedence',
-          type: 'select',
-          size: { sm: 6 },
-          options: []
-        }
-      ]
-    }
-  ]
 
   return (
     <>
       <LoadingWrapper isLoading={isLoading}>
         <Grid container spacing={8}>
-          <Grid item xs={12}>
-            <MuiDataform
-              fields={infoFields}
-              values={info}
-              onChange={handleOnChange(setInfo)}
-            />
+          <Grid item container xs={12} md={6}>
+            <PolicyInfoForm values={info} onChange={handleOnChange(setInfo)} />
           </Grid>
           <Grid item xs={12}>
             <Typography variant={'h5'}>Rules</Typography>
@@ -151,14 +69,14 @@ export default function PolicyCreator() {
               validAttributes={validAttributes}
             />
           </Grid>
-          <Grid item xs={12}>
-            <MuiDataform
-              fields={conditionsFields}
+          <Grid item container xs={12}>
+            <PolicyConditionForm
               values={conditions}
+              fieldOptions={validConditons}
               onChange={handleOnChange(setConditions)}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item container xs={12} md={6}>
             <PreviewJson
               title={'Policy Preview'}
               data={{ info, attributes, conditions }}
