@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 
 @dataclass
-class Action:
-    """Class for representing an action"""
+class QueryResponse:
     uri: str
     label: str

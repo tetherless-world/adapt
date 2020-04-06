@@ -1,31 +1,18 @@
 import logging
+from string import Template
 
 from flask import Blueprint, current_app, jsonify
 from twks.client import TwksClient
 
 from ..models.attributes.Attribute import Attribute
 from ..models.attributes.AttributeResponseDTO import AttributeResponseDTO
+from ..models.attributes.OwlClassAttributeResponseDTO import OwlClassAttributeResponseDTO
+from ..models.common.QueryResponse import QueryResponse
 from .common.ClientControllerBlueprint import ClientControllerBlueprint
 
 # configure logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-
-
-PROV_ATTR = [
-    AttributeResponseDTO('http://www.w3.org/ns/prov#startTime',
-                         'Start time',
-                         'http://www.w3.org/2001/XMLSchema#dateTime'),
-    AttributeResponseDTO('http://www.w3.org/ns/prov#endTime',
-                         'End time',
-                         'http://www.w3.org/2001/XMLSchema#dateTime'),
-    AttributeResponseDTO('http://www.w3.org/ns/prov#Agent',
-                         'Agent',
-                         'http://www.w3.org/2001/XMLSchema#string'),
-    AttributeResponseDTO('http://www.w3.org/ns/prov#Location',
-                         'Location',
-                         'http://www.w3.org/2001/XMLSchema#string'),
-]
 
 
 class AttributeControllerBP(ClientControllerBlueprint):
@@ -35,6 +22,59 @@ class AttributeControllerBP(ClientControllerBlueprint):
         controller = Blueprint('attribute_controller',
                                __name__,
                                url_prefix=url_prefix)
+
+        PROV_ATTR = [
+            {
+                'uri': 'http://www.w3.org/ns/prov#startTime',
+                'label': 'Start time',
+                # 'property': '',
+                'range': 'http://www.w3.org/2001/XMLSchema#dateTime',
+                'propertyType': 'http://www.w3.org/2002/07/owl#DatatypeProperty',
+                # 'extent': '',
+                # 'cardinality': ''
+            },
+            {
+                'uri': 'http://www.w3.org/ns/prov#endTime',
+                'label': 'End time',
+                # 'property': '',
+                'range': 'http://www.w3.org/2001/XMLSchema#dateTime',
+                'propertyType': 'http://www.w3.org/2002/07/owl#DatatypeProperty',
+                # 'extent': '',
+                # 'cardinality': ''
+            },
+            {
+                'uri': 'http://www.w3.org/ns/prov#Agent',
+                'label': 'Agent',
+                # 'property': '',
+                'range': 'http://www.w3.org/2002/07/owl#Class',
+                # 'propertyType': '',
+                # 'extent': '',
+                # 'cardinality': ''
+            },
+            {
+                'uri': 'http://www.w3.org/ns/prov#Location',
+                'label': 'Location',
+                # 'property': '',
+                'range': 'http://www.w3.org/2002/07/owl#Class',
+                # 'propertyType': '',
+                # 'extent': '',
+                # 'cardinality': ''
+            },
+        ]
+
+        def get_subclasses(super_uri):
+            logger.info(super_uri)
+            response = client.query_assertions(
+                """
+                PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+                PREFIX prov: <http://www.w3.org/ns/prov#>
+                select ?value ?label where {
+                    ?value rdfs:subClassOf+ <""" + str(super_uri) + """>.
+                    ?value rdfs:label ?label
+                }
+                """
+            )
+            return [QueryResponse(*r) for r in response]
 
         @controller.route('/', methods=['GET'])
         def get_attributes():
@@ -81,14 +121,18 @@ class AttributeControllerBP(ClientControllerBlueprint):
                 """
             )
 
-            attributes = [Attribute(*attr) for attr in response]
+            attributes = [*[Attribute(**attr) for attr in PROV_ATTR],
+                          *[Attribute(*attr) for attr in response]]
 
-            return jsonify([*PROV_ATTR,
-                            *[AttributeResponseDTO(attr.uri,
-                                                   attr.label,
-                                                   attr.range)
-                                for attr in attributes
-                                if str(attr.propertyType) == "http://www.w3.org/2002/07/owl#DatatypeProperty"
-                              ]])
+            results = []
+            for attr in attributes:
+                if str(attr.propertyType) == "http://www.w3.org/2002/07/owl#DatatypeProperty":
+                    results.append(AttributeResponseDTO(attr))
+                elif str(attr.range) == "http://www.w3.org/2002/07/owl#Class":
+                    results.append(OwlClassAttributeResponseDTO(
+                        attr,
+                        get_subclasses(attr.uri)
+                    ))
+            return jsonify(results)
 
         return controller

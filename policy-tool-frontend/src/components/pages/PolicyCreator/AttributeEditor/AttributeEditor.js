@@ -1,5 +1,11 @@
 import React from 'react'
-import { Grid, Button, makeStyles, IconButton } from '@material-ui/core'
+import {
+  Grid,
+  Button,
+  makeStyles,
+  IconButton,
+  FormControl
+} from '@material-ui/core'
 import { Clear as ClearIcon } from '@material-ui/icons'
 
 import AttributeSelector from './AttributeSelector'
@@ -36,10 +42,12 @@ export default function AttributeEditor({
   const handleAddAttribute = () => addAttribute()
 
   const handleChangeSelectedAttribute = (index) => (uri) => {
-    updateAttribute(index, {
-      ...validAttributes.filter((a) => a.attr_uri === uri).shift(),
-      values: []
-    })
+    if (uri !== attributes[index].uri) {
+      updateAttribute(index, {
+        ...validAttributes.filter((a) => a.uri === uri).shift(),
+        values: []
+      })
+    }
   }
 
   const handleAddAttributeValue = (index) => {
@@ -90,7 +98,7 @@ export default function AttributeEditor({
 
                 <Grid item>
                   <Button
-                    disabled={!attribute.attr_uri}
+                    disabled={!attribute.uri}
                     onClick={() => handleAddAttributeValue(index)}
                   >
                     Union
@@ -104,14 +112,22 @@ export default function AttributeEditor({
                     attribute.values.map((value, valueIndex) => (
                       <div key={`${index}-${valueIndex}`}>
                         <Grid container alignItems={'flex-end'} spacing={2}>
-                          <Grid item xs={12} md={10}>
+                          <Grid item xs={10}>
                             <AttributeValue
                               value={value}
+                              valueType={attribute.value_type}
                               onChange={handleChangeAttributeValue(
                                 index,
                                 valueIndex
                               )}
-                              valueType={attribute.value_type}
+                              options={
+                                !!attribute.subClasses
+                                  ? attribute.subClasses.map((v) => ({
+                                      label: v.label,
+                                      value: v.uri
+                                    }))
+                                  : []
+                              }
                             />
                           </Grid>
                           <Grid item>

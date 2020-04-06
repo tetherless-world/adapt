@@ -1,7 +1,7 @@
 export default function useAttributes(attributes, setAttributes) {
   const blankAttribute = () => ({
-    attr_uri: '',
-    attr_label: '',
+    uri: '',
+    label: '',
     value_type: '',
     values: []
   })

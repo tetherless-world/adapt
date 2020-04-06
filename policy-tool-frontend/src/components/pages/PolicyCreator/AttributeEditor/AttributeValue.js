@@ -2,18 +2,13 @@ import React from 'react'
 
 import {
   DateTimeField,
-  // SelectField,
+  SelectField,
   TextInput,
-  UnknownField
+  UnknownField,
 } from '../../../common/fields'
 
-export default function AttributeValue({
-  value,
-  valueType,
-  onChange,
-  title = undefined
-}) {
-  let FieldComponent = null
+export default function AttributeValue({ valueType, ...props }) {
+  let FieldComponent = UnknownField
   if (!!valueType) {
     switch (valueType) {
       case 'http://www.w3.org/2001/XMLSchema#float':
@@ -25,21 +20,13 @@ export default function AttributeValue({
       case 'http://www.w3.org/2001/XMLSchema#dateTime':
         FieldComponent = DateTimeField
         break
+      case 'http://www.w3.org/2002/07/owl#Class':
+        FieldComponent = SelectField
+        break
       default:
-        //   FieldComponent = SelectField
         FieldComponent = UnknownField
     }
   }
 
-  return (
-    <FieldComponent
-      value={value}
-      field={{
-        id: title,
-        title: title || 'Value',
-        type: valueType
-      }}
-      onChange={onChange}
-    />
-  )
+  return <FieldComponent valueType={valueType} {...props} />
 }

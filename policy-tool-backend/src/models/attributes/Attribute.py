@@ -1,13 +1,12 @@
 from dataclasses import dataclass
+from ..common.QueryResponse import QueryResponse
 
 
 @dataclass
-class Attribute:
+class Attribute(QueryResponse):
     """Class for representing an attribute"""
-    uri: str
-    label: str
-    property: str
-    range: str
-    propertyType: str
-    extent: str
-    cardinality: str
+    property: str = ''
+    range: str = ''
+    propertyType: str = ''
+    extent: str = ''
+    cardinality: str = ''
