@@ -29,7 +29,11 @@
 
 ###  http://purl.org/twc/policy/example/healthcare/Drinks_Alcohol
 :Drinks_Alcohol rdf:type owl:Class ;
-                rdfs:subClassOf sio:Attribute ;
+                rdfs:subClassOf sio:Attribute ,
+                                [ rdf:type owl:Restriction ;
+                                  owl:onProperty sio:hasValue ;
+                                  owl:someValuesFrom xsd:boolean
+                                ] ;
                 rdfs:label "Drinks alcohol" .
 
 
