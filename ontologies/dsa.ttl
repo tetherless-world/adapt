@@ -13,6 +13,14 @@
                                            owl:imports <http://purl.org/twc/policy/> .
 
 #################################################################
+#    Object Properties
+#################################################################
+
+###  http://www.w3.org/1999/02/22-rdf-syntax-ns#type
+rdf:type rdf:type owl:ObjectProperty .
+
+
+#################################################################
 #    Classes
 #################################################################
 
@@ -29,10 +37,16 @@
 :Affiliation rdf:type owl:Class ;
              rdfs:subClassOf sio:Attribute ,
                              [ rdf:type owl:Restriction ;
-                               owl:onProperty sio:hasAttribute ;
-                               owl:someValuesFrom :Affiliation
+                               owl:onProperty rdf:type ;
+                               owl:someValuesFrom owl:Class
                              ] ;
              rdfs:label "Affiliation" .
+
+
+###  http://purl.org/twc/policy/example/dsa/FederalAffiliation
+:FederalAffiliation rdf:type owl:Class ;
+                    rdfs:subClassOf :Affiliation ;
+                    rdfs:label "Federal affiliation" .
 
 
 ###  http://purl.org/twc/policy/example/dsa/Frequency
@@ -97,6 +111,12 @@
                           rdfs:label "Joint tactical radio system" .
 
 
+###  http://purl.org/twc/policy/example/dsa/NonFederalAffiliation
+:NonFederalAffiliation rdf:type owl:Class ;
+                       rdfs:subClassOf :Affiliation ;
+                       rdfs:label "Non-Federal affiliation" .
+
+
 ###  http://purl.org/twc/policy/example/dsa/Priority_1
 :Priority_1 rdf:type owl:Class ;
             rdfs:subClassOf <http://purl.org/twc/policy/Precedence> ;
@@ -142,6 +162,10 @@
 ###  http://purl.org/twc/policy/example/dsa/Transmit
 :Transmit rdf:type owl:Class ;
           rdfs:subClassOf prov:Activity .
+
+
+###  http://www.w3.org/2002/07/owl#Class
+owl:Class rdf:type owl:Class .
 
 
 #################################################################
