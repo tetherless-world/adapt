@@ -4,11 +4,12 @@ import {
   CssBaseline,
   Container,
   createMuiTheme,
-  MuiThemeProvider
+  MuiThemeProvider,
+  Box
 } from '@material-ui/core'
 import Navigation from './Navigation'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     paddingBottom: theme.spacing(8)
   }
@@ -33,7 +34,7 @@ export default function Layout({ title, children }) {
         <CssBaseline />
         <Container>
           <Navigation title={title} />
-          {children}
+          <Box paddingX={4}>{children}</Box>
         </Container>
       </MuiThemeProvider>
     </div>

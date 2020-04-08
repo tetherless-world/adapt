@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react'
-import { Grid, Typography } from '@material-ui/core'
+import { Grid, Typography, Button } from '@material-ui/core'
 
 import PolicyInfoForm from './PolicyInfoForm'
 import PolicyConditionForm from './PolicyConditionForm'
@@ -39,7 +39,6 @@ export default function PolicyCreator() {
     return resGetValidAttr.value || []
   }, [resGetValidAttr])
 
-  
   const validConditons = useMemo(() => {
     return resGetValidCond.value || {}
   }, [resGetValidCond])
@@ -55,35 +54,50 @@ export default function PolicyCreator() {
   }
 
   return (
-    <>
-      <LoadingWrapper isLoading={isLoading}>
-        <Grid container spacing={8}>
-          <Grid item container xs={12} md={6}>
-            <PolicyInfoForm values={info} onChange={handleOnChange(setInfo)} />
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant={'h5'}>Rules</Typography>
-            <AttributeEditor
-              attributes={attributes}
-              setAttributes={setAttributes}
-              validAttributes={validAttributes}
-            />
-          </Grid>
-          <Grid item container xs={12}>
-            <PolicyConditionForm
-              values={conditions}
-              fieldOptions={validConditons}
-              onChange={handleOnChange(setConditions)}
-            />
-          </Grid>
-          <Grid item container xs={12} md={6}>
-            <PreviewJson
-              title={'Policy Preview'}
-              data={{ info, attributes, conditions }}
-            />
+    <LoadingWrapper isLoading={isLoading}>
+      <Grid container spacing={6}>
+        <Grid item xs={12} md={6}>
+          <PolicyInfoForm values={info} onChange={handleOnChange(setInfo)} />
+        </Grid>
+        <Grid item xs={12}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Typography variant={'h5'}>Rules</Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <AttributeEditor
+                attributes={attributes}
+                setAttributes={setAttributes}
+                validAttributes={validAttributes}
+              />
+            </Grid>
           </Grid>
         </Grid>
-      </LoadingWrapper>
-    </>
+        <Grid item xs={12} md={6}>
+          <PolicyConditionForm
+            values={conditions}
+            fieldOptions={validConditons}
+            onChange={handleOnChange(setConditions)}
+          />
+        </Grid>
+        <Grid item xs={false} md={6} />
+        <Grid item xs={12} md={6}>
+          <PreviewJson
+            title={'Preview'}
+            data={{ info, attributes, conditions }}
+            defaultState={'open'}
+          />
+        </Grid>
+        <Grid item xs={false} md={6} />
+        <Grid item container xs={12} md={6} spacing={2}>
+          <Grid item>
+            <Button variant={'contained'}>Save</Button>
+          </Grid>
+          <Grid item>
+            <Button variant={'contained'}>Cancel</Button>
+          </Grid>
+        </Grid>
+      </Grid>
+    </LoadingWrapper>
   )
 }
