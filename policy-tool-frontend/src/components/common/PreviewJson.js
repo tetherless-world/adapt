@@ -1,15 +1,15 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { Grid, Collapse, Typography, Switch } from '@material-ui/core'
+import { useToggle } from 'react-use'
 
 export default function PreviewJson({
   title,
   data,
   titleTypographyProps = { variant: 'h5' },
   toggleable = true,
-  defaultState = true
+  defaultState = 'open'
 }) {
-  const [visible, setVisibility] = useState(defaultState)
-  const handleOnToggle = () => setVisibility(!visible)
+  const [visible, toggle] = useToggle(defaultState === 'open')
   return (
     <>
       <Grid container spacing={4}>
@@ -21,7 +21,7 @@ export default function PreviewJson({
             <Switch
               value={visible}
               checked={visible}
-              onClick={handleOnToggle}
+              onClick={toggle}
             />
           </Grid>
         )}

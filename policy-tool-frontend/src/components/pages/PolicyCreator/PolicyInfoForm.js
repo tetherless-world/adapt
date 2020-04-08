@@ -11,12 +11,20 @@ export default function PolicyInfoForm({ ...props }) {
           id: 'source',
           title: 'Policy Source',
           type: 'select',
-          options: []
+          options: [],
+          size: {
+            xs: 12,
+            sm: 6
+          }
         },
         {
           id: 'id',
           title: 'Policy Id',
-          type: 'text'
+          type: 'text',
+          size: {
+            xs: 12,
+            sm: 6
+          },
         },
         {
           id: 'label',
@@ -27,7 +35,11 @@ export default function PolicyInfoForm({ ...props }) {
         {
           id: 'definition',
           title: 'Policy Definition',
-          type: 'text'
+          type: 'text',
+          props: {
+            multiline: true,
+            variant: 'outlined'
+          }
         }
       ]
     }

@@ -38,7 +38,7 @@ export default function AttributeEditor({
     updateValue
   } = useAttributes(attributes, setAttributes)
 
-  const handleClearAll = () => resetAttributes()
+  const handleClear = () => resetAttributes()
   const handleAddAttribute = () => addAttribute()
 
   const handleChangeSelectedAttribute = (index) => (uri) => {
@@ -75,7 +75,7 @@ export default function AttributeEditor({
           <Button onClick={handleAddAttribute}>Intersect</Button>
         </Grid>
         <Grid item>
-          <Button onClick={handleClearAll}>Clear All</Button>
+          <Button onClick={handleClear}>Clear</Button>
         </Grid>
       </Grid>
       <Grid container>
