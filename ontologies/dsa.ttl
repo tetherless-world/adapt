@@ -33,6 +33,12 @@ rdf:type rdf:type owl:ObjectProperty .
                                             rdfs:subClassOf <http://purl.obolibrary.org/obo/UO_0000105> .
 
 
+###  http://purl.org/twc/policy/example/dsa/AdvancedWirelessService
+:AdvancedWirelessService rdf:type owl:Class ;
+                         rdfs:subClassOf :RadioFrequencySystem ;
+                         rdfs:label "Advanced Wireless Service" .
+
+
 ###  http://purl.org/twc/policy/example/dsa/Affiliation
 :Affiliation rdf:type owl:Class ;
              rdfs:subClassOf sio:Attribute ,
@@ -47,6 +53,12 @@ rdf:type rdf:type owl:ObjectProperty .
 :FederalAffiliation rdf:type owl:Class ;
                     rdfs:subClassOf :Affiliation ;
                     rdfs:label "Federal affiliation" .
+
+
+###  http://purl.org/twc/policy/example/dsa/FixedStation
+:FixedStation rdf:type owl:Class ;
+              rdfs:subClassOf :Station ;
+              rdfs:label "Fixed station" .
 
 
 ###  http://purl.org/twc/policy/example/dsa/Frequency
@@ -111,6 +123,12 @@ rdf:type rdf:type owl:ObjectProperty .
                           rdfs:label "Joint tactical radio system" .
 
 
+###  http://purl.org/twc/policy/example/dsa/MobileStation
+:MobileStation rdf:type owl:Class ;
+               rdfs:subClassOf :Station ;
+               rdfs:label "Mobile station" .
+
+
 ###  http://purl.org/twc/policy/example/dsa/NonFederalAffiliation
 :NonFederalAffiliation rdf:type owl:Class ;
                        rdfs:subClassOf :Affiliation ;
@@ -157,6 +175,12 @@ rdf:type rdf:type owl:ObjectProperty .
 :RadioFrequencySystem rdf:type owl:Class ;
                       rdfs:subClassOf prov:Agent ;
                       rdfs:label "Radio frequency system" .
+
+
+###  http://purl.org/twc/policy/example/dsa/Station
+:Station rdf:type owl:Class ;
+         rdfs:subClassOf prov:Agent ;
+         rdfs:label "Station" .
 
 
 ###  http://purl.org/twc/policy/example/dsa/Transmit
