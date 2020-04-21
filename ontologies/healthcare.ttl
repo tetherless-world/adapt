@@ -80,6 +80,12 @@
                rdfs:label "Type 1 diabetes" .
 
 
+###  http://purl.org/twc/policy/example/healthcare/Type2Diabetes
+:Type2Diabetes rdf:type owl:Class ;
+               rdfs:subClassOf sio:Attribute ;
+               rdfs:label "Type 2 diabetes" .
+
+
 ###  http://semanticscience.org/resource/Male
 sio:Male rdf:type owl:Class ;
          rdfs:subClassOf prov:Agent ;
