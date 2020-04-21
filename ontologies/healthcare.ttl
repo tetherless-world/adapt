@@ -52,6 +52,12 @@
          rdfs:label "Obesity" .
 
 
+###  http://purl.org/twc/policy/example/healthcare/Prediabetes
+:Prediabetes rdf:type owl:Class ;
+             rdfs:subClassOf sio:Attribute ;
+             rdfs:label "Prediabetes" .
+
+
 ###  http://purl.org/twc/policy/example/healthcare/Pregnancy
 :Pregnancy rdf:type owl:Class ;
            rdfs:subClassOf sio:Attribute ,
@@ -66,6 +72,12 @@
 :Recommendation rdf:type owl:Class ;
                 rdfs:subClassOf prov:Activity ;
                 rdfs:label "Recommendation" .
+
+
+###  http://purl.org/twc/policy/example/healthcare/Type1Diabetes
+:Type1Diabetes rdf:type owl:Class ;
+               rdfs:subClassOf sio:Attribute ;
+               rdfs:label "Type 1 diabetes" .
 
 
 ###  http://semanticscience.org/resource/Male
