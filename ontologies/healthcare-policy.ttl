@@ -15,6 +15,54 @@
 #    Classes
 #################################################################
 
+###  http://purl.org/twc/policy/example/healthcare/policy/DG17
+:DG17 rdf:type owl:Class ;
+      owl:equivalentClass [ owl:intersectionOf ( <http://purl.org/twc/policy/example/healthcare/Dietary_Assessment>
+                                                 [ rdf:type owl:Class ;
+                                                   owl:unionOf ( [ rdf:type owl:Restriction ;
+                                                                   owl:onProperty prov:wasAssociatedWith ;
+                                                                   owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                                                        owl:onProperty sio:hasAttribute ;
+                                                                                        owl:someValuesFrom <http://purl.org/twc/policy/example/healthcare/Prediabetes>
+                                                                                      ]
+                                                                 ]
+                                                                 [ rdf:type owl:Restriction ;
+                                                                   owl:onProperty prov:wasAssociatedWith ;
+                                                                   owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                                                        owl:onProperty sio:hasAttribute ;
+                                                                                        owl:someValuesFrom <http://purl.org/twc/policy/example/healthcare/Type1Diabetes>
+                                                                                      ]
+                                                                 ]
+                                                               )
+                                                 ]
+                                               ) ;
+                            rdf:type owl:Class
+                          ] ;
+      rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/Dietary_Assessment> ;
+      rdfs:label "Diet guideline DG17" .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG17-Age
+:DG17-Age rdf:type owl:Class ;
+          owl:equivalentClass [ owl:intersectionOf ( :DG17
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty prov:wasAssociatedWith ;
+                                                       owl:someValuesFrom <http://purl.org/twc/policy/example/healthcare/Adult>
+                                                     ]
+                                                   ) ;
+                                rdf:type owl:Class
+                              ] ;
+          rdfs:subClassOf :DG17 ,
+                          :DG17-Recommendation ;
+          rdfs:label "Diet guideline DG17 (Age)" .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG17-Recommendation
+:DG17-Recommendation rdf:type owl:Class ;
+                     rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/Recommendation> ;
+                     rdfs:label "Consider low carbohydrate diet" .
+
+
 ###  http://purl.org/twc/policy/example/healthcare/policy/HealthCarePolicy
 :HealthCarePolicy rdf:type owl:Class ;
                   rdfs:subClassOf <http://purl.org/twc/policy/Policy> .
