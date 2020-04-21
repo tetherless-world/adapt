@@ -15,6 +15,141 @@
 #    Classes
 #################################################################
 
+###  http://purl.org/twc/policy/example/healthcare/policy/DG11
+:DG11 rdf:type owl:Class ;
+      owl:equivalentClass [ owl:intersectionOf ( :DG11-12-Obesity
+                                                 [ rdf:type owl:Restriction ;
+                                                   owl:onProperty prov:wasAssociatedWith ;
+                                                   owl:someValuesFrom <http://purl.org/twc/policy/example/healthcare/Female>
+                                                 ]
+                                               ) ;
+                            rdf:type owl:Class
+                          ] ;
+      rdfs:subClassOf :DG11-12-Obesity ,
+                      :DG11-Recommendation .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG11-12
+:DG11-12 rdf:type owl:Class ;
+         owl:equivalentClass [ owl:intersectionOf ( <http://purl.org/twc/policy/example/healthcare/Dietary_Assessment>
+                                                    [ rdf:type owl:Class ;
+                                                      owl:unionOf ( [ rdf:type owl:Restriction ;
+                                                                      owl:onProperty prov:wasAssociatedWith ;
+                                                                      owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                                                           owl:onProperty sio:hasAttribute ;
+                                                                                           owl:someValuesFrom <http://purl.org/twc/policy/example/healthcare/Prediabetes>
+                                                                                         ]
+                                                                    ]
+                                                                    [ rdf:type owl:Restriction ;
+                                                                      owl:onProperty prov:wasAssociatedWith ;
+                                                                      owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                                                           owl:onProperty sio:hasAttribute ;
+                                                                                           owl:someValuesFrom <http://purl.org/twc/policy/example/healthcare/Type1Diabetes>
+                                                                                         ]
+                                                                    ]
+                                                                    [ rdf:type owl:Restriction ;
+                                                                      owl:onProperty prov:wasAssociatedWith ;
+                                                                      owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                                                           owl:onProperty sio:hasAttribute ;
+                                                                                           owl:someValuesFrom <http://purl.org/twc/policy/example/healthcare/Type2Diabetes>
+                                                                                         ]
+                                                                    ]
+                                                                  )
+                                                    ]
+                                                  ) ;
+                               rdf:type owl:Class
+                             ] ;
+         rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/Dietary_Assessment> .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG11-12-Obesity
+:DG11-12-Obesity rdf:type owl:Class ;
+                 owl:equivalentClass [ owl:intersectionOf ( :DG11-12
+                                                            [ rdf:type owl:Restriction ;
+                                                              owl:onProperty prov:wasAssociatedWith ;
+                                                              owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                                                   owl:onProperty sio:hasAttribute ;
+                                                                                   owl:someValuesFrom <http://purl.org/twc/policy/example/healthcare/Obesity>
+                                                                                 ]
+                                                            ]
+                                                          ) ;
+                                       rdf:type owl:Class
+                                     ] ;
+                 rdfs:subClassOf :DG11-12 .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG11-Recommendation
+:DG11-Recommendation rdf:type owl:Class ;
+                     rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/Recommendation> ;
+                     rdfs:label "Weight loss can be attained with lifestyle programs that achieve a 500–750 kcal/day energy deficit or provide approximately 1,200–1,500 kcal/day" .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG12
+:DG12 rdf:type owl:Class ;
+      owl:equivalentClass [ owl:intersectionOf ( :DG11-12-Obesity
+                                                 [ rdf:type owl:Restriction ;
+                                                   owl:onProperty prov:wasAssociatedWith ;
+                                                   owl:someValuesFrom sio:Male
+                                                 ]
+                                               ) ;
+                            rdf:type owl:Class
+                          ] ;
+      rdfs:subClassOf :DG11-12-Obesity ,
+                      :DG12-Recommendation .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG12-Recommendation
+:DG12-Recommendation rdf:type owl:Class ;
+                     rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/Recommendation> ;
+                     rdfs:label "Weight loss can be attained with lifestyle programs that achieve a 500–750 kcal/day energy deficit or provide approximately 1,500–1,800 kcal/day" .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG17
+:DG17 rdf:type owl:Class ;
+      owl:equivalentClass [ owl:intersectionOf ( <http://purl.org/twc/policy/example/healthcare/Dietary_Assessment>
+                                                 [ rdf:type owl:Class ;
+                                                   owl:unionOf ( [ rdf:type owl:Restriction ;
+                                                                   owl:onProperty prov:wasAssociatedWith ;
+                                                                   owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                                                        owl:onProperty sio:hasAttribute ;
+                                                                                        owl:someValuesFrom <http://purl.org/twc/policy/example/healthcare/Prediabetes>
+                                                                                      ]
+                                                                 ]
+                                                                 [ rdf:type owl:Restriction ;
+                                                                   owl:onProperty prov:wasAssociatedWith ;
+                                                                   owl:someValuesFrom [ rdf:type owl:Restriction ;
+                                                                                        owl:onProperty sio:hasAttribute ;
+                                                                                        owl:someValuesFrom <http://purl.org/twc/policy/example/healthcare/Type1Diabetes>
+                                                                                      ]
+                                                                 ]
+                                                               )
+                                                 ]
+                                               ) ;
+                            rdf:type owl:Class
+                          ] ;
+      rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/Dietary_Assessment> .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG17-Age
+:DG17-Age rdf:type owl:Class ;
+          owl:equivalentClass [ owl:intersectionOf ( :DG17
+                                                     [ rdf:type owl:Restriction ;
+                                                       owl:onProperty prov:wasAssociatedWith ;
+                                                       owl:someValuesFrom <http://purl.org/twc/policy/example/healthcare/Adult>
+                                                     ]
+                                                   ) ;
+                                rdf:type owl:Class
+                              ] ;
+          rdfs:subClassOf :DG17 ,
+                          :DG17-Recommendation .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG17-Recommendation
+:DG17-Recommendation rdf:type owl:Class ;
+                     rdfs:subClassOf <http://purl.org/twc/policy/example/healthcare/Recommendation> ;
+                     rdfs:label "Consider low carbohydrate diet" .
+
+
 ###  http://purl.org/twc/policy/example/healthcare/policy/HealthCarePolicy
 :HealthCarePolicy rdf:type owl:Class ;
                   rdfs:subClassOf <http://purl.org/twc/policy/Policy> .
@@ -107,6 +242,36 @@
 #    Individuals
 #################################################################
 
+###  http://purl.org/twc/policy/example/healthcare/policy/DG11
+:DG11 rdf:type owl:NamedIndividual ,
+               :HealthCarePolicy .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG11-12
+:DG11-12 rdf:type owl:NamedIndividual ,
+                  :HealthCarePolicy .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG11-12-Obesity
+:DG11-12-Obesity rdf:type owl:NamedIndividual ,
+                          :HealthCarePolicy .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG12
+:DG12 rdf:type owl:NamedIndividual ,
+               :HealthCarePolicy .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG17
+:DG17 rdf:type owl:NamedIndividual ,
+               :HealthCarePolicy .
+
+
+###  http://purl.org/twc/policy/example/healthcare/policy/DG17-Age
+:DG17-Age rdf:type owl:NamedIndividual ,
+                   :HealthCarePolicy .
+
+
 ###  http://purl.org/twc/policy/example/healthcare/policy/agent0
 :agent0 rdf:type owl:NamedIndividual ,
                  <http://purl.org/twc/policy/example/healthcare/Adult> ,
@@ -181,6 +346,24 @@
 #################################################################
 #    Annotations
 #################################################################
+
+:DG11 rdfs:label "Diet guideline DG11" .
+
+
+:DG11-12 rdfs:label "Diet guideline DG11-12" .
+
+
+:DG11-12-Obesity rdfs:label "Diet guideline DG11-12 (Obesity)" .
+
+
+:DG12 rdfs:label "Diet guideline DG12" .
+
+
+:DG17 rdfs:label "Diet guideline DG17" .
+
+
+:DG17-Age rdfs:label "Diet guideline DG17 (Age)" .
+
 
 <http://purl.org/twc/policy/example/healthcare/policy/5.20-Age> rdfs:label "Diet guideline 5.20 (Age)" .
 
