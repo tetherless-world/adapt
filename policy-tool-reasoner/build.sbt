@@ -13,6 +13,6 @@ val hermitVersion = "1.4.5.519"
 
 libraryDependencies += guice
 libraryDependencies += "edu.rpi.tw.policy-tool" %% "policy-tool-models" % "1.0-SNAPSHOT"
-libraryDependencies += "edu.rpi.tw.twks" % "twks-client" % "1.0.4"
+libraryDependencies += "edu.rpi.tw.twks" % "twks-rest-client" % "1.0.4"
 libraryDependencies += "net.sourceforge.owlapi" % "owlapi-distribution" % owlapiVersion
 libraryDependencies += "net.sourceforge.owlapi" % "org.semanticweb.hermit" % hermitVersion
