@@ -13,8 +13,8 @@ import com.typesafe.config.Config;
 
 import org.apache.jena.rdf.model.Model;
 
-import edu.rpi.tw.twks.client.RestTwksClient;
-import edu.rpi.tw.twks.client.RestTwksClientConfiguration;
+import edu.rpi.tw.twks.client.rest.RestTwksClient;
+import edu.rpi.tw.twks.client.rest.RestTwksClientConfiguration;
 import edu.rpi.tw.twks.uri.Uri;
 import utils.AsyncRunner;
 import utils.ModelManager;
