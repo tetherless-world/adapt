@@ -78,13 +78,15 @@ rdf:type rdf:type owl:ObjectProperty .
 
 ###  http://purl.org/twc/policy/example/dsa/FrequencyMaximum
 :FrequencyMaximum rdf:type owl:Class ;
-                  rdfs:subClassOf :Frequency ;
+                  rdfs:subClassOf :Frequency ,
+                                  sio:MaximalValue ;
                   rdfs:label "Frequency maximum" .
 
 
 ###  http://purl.org/twc/policy/example/dsa/FrequencyMinimum
 :FrequencyMinimum rdf:type owl:Class ;
-                  rdfs:subClassOf :Frequency ;
+                  rdfs:subClassOf :Frequency ,
+                                  sio:MinimalValue ;
                   rdfs:label "Frequency minimum" .
 
 
@@ -186,6 +188,14 @@ rdf:type rdf:type owl:ObjectProperty .
 ###  http://purl.org/twc/policy/example/dsa/Transmit
 :Transmit rdf:type owl:Class ;
           rdfs:subClassOf prov:Activity .
+
+
+###  http://semanticscience.org/resource/MaximalValue
+sio:MaximalValue rdf:type owl:Class .
+
+
+###  http://semanticscience.org/resource/MinimalValue
+sio:MinimalValue rdf:type owl:Class .
 
 
 ###  http://www.w3.org/2002/07/owl#Class
