@@ -7,7 +7,7 @@ export default function Home() {
     <>
       <Grid container spacing={8}>
         <Grid container item justify={'center'}>
-          <Typography variant={'h2'}>Welcome to the Policy Creator</Typography>
+          <Typography variant={'h2'}>Welcome to the Policy Builder</Typography>
         </Grid>
         <Grid container justify={'center'} spacing={2}>
           {/* <Grid item>
@@ -25,7 +25,7 @@ export default function Home() {
               variant={'outlined'}
               color={'primary'}
               component={Link}
-              to={'/creator'}
+              to={'/builder'}
             >
               Create from scratch
             </Button>
