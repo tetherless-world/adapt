@@ -14,7 +14,7 @@ from twks.nanopub import Nanopublication
 
 import prov
 from classes.Attribute import Attribute
-from PolicyPostDTO import PolicyPostDTO
+from classes.PolicyPostDTO import PolicyPostDTO
 from namespaces import assign_namespaces
 from namespaces import (RDF, RDFS, OWL, SKOS, XSD, SIO, PROV,
                         PROV_O, POL, DSA_T, DSA_POL, HEALTH_T, HEALTH_POL)
