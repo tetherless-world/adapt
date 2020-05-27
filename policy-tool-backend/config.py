@@ -4,6 +4,7 @@ class Config(object):
     ONTOLOGY_PATH = '../ontologies'
     API_URL = '/api'
 
+
 class ProductionConfig(Config):
     """
     Production environment config (default)
@@ -16,7 +17,5 @@ class DevelopmentConfig(Config):
     Development environment config
     """
     DEBUG = True
+    JSON_SORT_KEYS = False
     TWKS_URL = 'http://localhost:8080'
-
-
-
