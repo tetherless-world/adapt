@@ -3,21 +3,20 @@ import glob
 import logging
 import os
 import pathlib
-from operator import itemgetter
 from collections import defaultdict
+from operator import itemgetter
 
 import rdflib
-from rdflib import Graph, URIRef, Literal, BNode
 from flask import Flask, jsonify, request
+from rdflib import BNode, Graph, Literal, URIRef
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
 
 import prov
 from classes.Attribute import Attribute
 from classes.PolicyPostDTO import PolicyPostDTO
-from namespaces import assign_namespaces
-from namespaces import (RDF, RDFS, OWL, SKOS, XSD, SIO, PROV,
-                        PROV_O, POL, DSA_T, DSA_POL, HEALTH_T, HEALTH_POL)
+from namespaces import (DSA_POL, DSA_T, HEALTH_POL, HEALTH_T, OWL, POL, PROV,
+                        PROV_O, RDF, RDFS, SIO, SKOS, XSD, assign_namespaces)
 
 # Logging setup
 LOGGER = logging.getLogger()
