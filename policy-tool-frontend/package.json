@@ -1,5 +1,5 @@
 {
-  "name": "policy-tool-frontend-v2",
+  "name": "policy-tool-frontend",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
