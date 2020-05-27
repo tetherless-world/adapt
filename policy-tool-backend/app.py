@@ -243,7 +243,6 @@ def get_conditions():
     }
 
 
-@app.route(f'{API_URL}/agent', methods=['GET'])
 def is_subclass(uri, superClass):
     query_response = client.query_assertions(
         f"""
