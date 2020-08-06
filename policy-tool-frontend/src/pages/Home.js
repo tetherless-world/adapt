@@ -30,6 +30,18 @@ export default function Home() {
               Create from scratch
             </Button>
           </Grid>
+
+          <Grid item>
+            <Button
+              variant={'outlined'}
+              color={'primary'}
+              component={Link}
+              to={'/requestbuilder'}
+            >
+              Create request from scratch
+            </Button>
+          </Grid>
+
         </Grid>
       </Grid>
     </>
