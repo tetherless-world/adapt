@@ -10,12 +10,15 @@ import {
 import { Delete } from '@material-ui/icons'
 import ReactJson from 'react-json-view'
 
-import Attribute from '../components/Attribute'
+import RequestAttribute from '../components/RequestAttribute'
 import MenuButton from '../components/MenuButton'
+
 import useRequest from '../hooks/useRequest'
 import {
-  useGetValidAttributes,
+  useGetValidRequestAttributes,
+  useCreateRequest,
 } from '../hooks/useAPI'
+
 import AttributeOptionsContext from '../contexts/AttributeOptionsContext'
 import LoadingWrapper from '../components/LoadingWrapper'
 import SelectWrapper from '../components/SelectWrapper'
@@ -35,12 +38,11 @@ const handleChange = (setter) => (event) => setter(event.target.value)
 
 export default function RequestBuilder() {
   const classes = useStyles()
-  const request = useRequest()
-  
+  const request = useRequest() 
   const [showOutput, setShowOutput] = useState(false)
 
-  const [validAttrResponse, getValidAttributes] = useGetValidAttributes()
-  //const [createRequestResponse, createRequest] = useCreateRequest()
+  const [validAttrResponse, getValidAttributes] = useGetValidRequestAttributes()
+  const [createRequestResponse, createRequest] = useCreateRequest()
 
   useEffect(() => {
     getValidAttributes()
@@ -51,15 +53,14 @@ export default function RequestBuilder() {
     options: validAttributeOptions,
   } = useMemo(() => validAttrResponse.value ?? {}, [validAttrResponse])
 
-  // const { output } = useMemo(() => createRequestResponse.value ?? '', [
-  //   createRequestResponse,
-  // ])
+
+  const { output } = useMemo(() => createRequestResponse.value ?? '', [
+    createRequestResponse,
+  ])
   
   return (
-
-    <form>
-      <LoadingWrapper>
-        
+    <>
+      <LoadingWrapper>        
         <FormSection label={'Information'} className={classes.section}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
@@ -121,7 +122,7 @@ export default function RequestBuilder() {
                       </IconButton>
                     </Grid>
                     <Grid item xs={11}>
-                      <Attribute keys={[i]} request={request} />
+                      <RequestAttribute keys={[i]} request={request} />
                     </Grid>
                   </Grid>
                 ))}
@@ -149,13 +150,21 @@ export default function RequestBuilder() {
           disabled={!request.isValid}
           onClick={() => {           
             setShowOutput(true)
-            //createRequest(request.state)
+            createRequest(request.state)
           }}
         >
           Save
         </Button>
-        
       </LoadingWrapper>
-    </form>
+      
+      {showOutput && (
+        <LoadingWrapper loading={createRequestResponse.loading}>
+          <Paper>
+            <pre>{output}</pre>
+          </Paper>
+        </LoadingWrapper>
+      )}
+
+    </>
   );
 }

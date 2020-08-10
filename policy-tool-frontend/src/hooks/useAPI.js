@@ -18,6 +18,11 @@ export const useGetValidAttributes = () => {
   return useAsyncFn(GET(url))
 }
 
+export const useGetValidRequestAttributes = () => {
+  let url = `${API_URL_PREFIX}/requestattributes`
+  return useAsyncFn(GET(url))
+}
+
 export const useGetValidConditions = () => {
   let url = `${API_URL_PREFIX}/conditions`
   return useAsyncFn(GET(url))
@@ -25,6 +30,14 @@ export const useGetValidConditions = () => {
 
 export const useCreatePolicy = () => {
   let url = `${API_URL_PREFIX}/policy`
+  return useAsyncFn(async (data) => {
+    let response = await axios.post(url, data)
+    return response.data
+  })
+}
+
+export const useCreateRequest = () => {
+  let url = `${API_URL_PREFIX}/request`
   return useAsyncFn(async (data) => {
     let response = await axios.post(url, data)
     return response.data

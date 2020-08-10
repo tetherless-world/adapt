@@ -15,8 +15,11 @@ from twks.nanopub import Nanopublication
 import prov
 from classes.Attribute import Attribute
 from classes.PolicyPostDTO import PolicyPostDTO
+from classes.RequestPostDTO import RequestPostDTO
 from namespaces import (DSA_POL, DSA_T, HEALTH_POL, HEALTH_T, OWL, POL, PROV,
                         PROV_O, RDF, RDFS, SIO, SKOS, XSD, assign_namespaces)
+
+import json
 
 # Logging setup
 LOGGER = logging.getLogger()
@@ -205,6 +208,21 @@ def get_attributes():
         'options': options_map
     })
 
+@app.route(f'{API_URL}/requestattributes', methods=['GET'])
+def get_request_attributes():
+    logging.info('Getting request attributes')
+
+    attributes = get_attributes()
+
+    response_data = json.loads(attributes.get_data())
+
+    response_data['attributes'].append(prov.Action)
+    response_data['options'][prov.Action['@id']] = get_actions()
+
+    return jsonify({
+        'attributes': response_data['attributes'],
+        'options': response_data['options']
+    })
 
 @app.route(f'{API_URL}/actions', methods=['GET'])
 def get_actions():
@@ -354,5 +372,101 @@ def create_policy():
                                                        format="ttl")
     client.put_nanopublication(nanopublication)
     logging.info(f'{POL[policy_req.id]} loaded into TWKS')
+
+    return {'output': output}
+
+@app.route(f'{API_URL}/request', methods=['POST'])
+def create_request():
+    logging.info('Received Request')
+
+    data = request.json
+    request_req = RequestPostDTO(data)
+
+    graph = assign_namespaces(Graph())
+
+    # definition and labeling
+    root = POL[request_req.id]
+    graph.add((root, RDF['type'], OWL['class']))
+    graph.add((root, RDFS['label'], Literal(request_req.label)))
+    graph.add((root, SKOS['definition'], Literal(request_req.definition)))
+
+
+    def construct_attribute_tree(attribute: dict, graph: Graph):
+        base = BNode()
+        children = graph.collection(BNode())
+        children.append(URIRef(attribute['@id']))
+        if 'attributes' in attribute:
+            for child in attribute['attributes']:
+                c = BNode()
+                graph.add((c, RDF['type'], OWL['Restriction']))
+                graph.add((c, OWL['onProperty'], SIO['hasAttribute']))
+                graph.add((c, OWL['someValuesFrom'],
+                           construct_attribute_tree(child, graph)))
+                children.append(c)
+
+            graph.add((base, RDF['type', OWL['Class']]))
+
+        elif 'values' in attribute:
+            is_agent = is_subclass(attribute['@id'], PROV['Agent'])
+            is_maximum = is_subclass(attribute['@id'], SIO['MaximalValue'])
+            is_minimum = is_subclass(attribute['@id'], SIO['MinimalValue'])
+
+            for value in attribute['values']:
+                v = BNode()
+                graph.add((v, RDF['type'], OWL['Restriction']))
+                if is_agent:
+                    graph.add((v,
+                               OWL['onProperty'],
+                               PROV['wasAssociatedWith']))
+                    graph.add((v,
+                               OWL['someValuesFrom'],
+                               URIRef(value['@value'])))
+                else:
+                    _, namespace, _ = graph.namespace_manager.compute_qname(
+                        value['@type'])
+                    if namespace == XSD:
+                        graph.add((v,
+                                   OWL['onDatatype'],
+                                   URIRef(value['@type'])))
+                        restrictions = graph.collection(BNode())
+                        if not is_maximum:
+                            p = BNode()
+                            graph.add((p,
+                                       XSD['minInclusive'],
+                                       Literal(value['@value'],
+                                               datatype=value['@type'])))
+                            restrictions.append(p)
+                        if not is_minimum:
+                            p = BNode()
+                            graph.add((p,
+                                       XSD['maxInclusive'],
+                                       Literal(value['@value'],
+                                               datatype=value['@type'])))
+                            restrictions.append(p)
+                        graph.add((v,
+                                   OWL['withRestrictions'],
+                                   restrictions))
+
+                children.append(v)
+
+        graph.add((base, OWL['intersectionOf'], children.uri))
+
+        return base
+
+    attr_list = graph.collection(BNode())
+    for attribute in request_req.attributes:
+        attr_list.append(construct_attribute_tree(attribute, graph))
+
+    attr_root = BNode()
+    graph.add((root, OWL['equivalentClass'], attr_root))
+    graph.add((attr_root, OWL['intersectionOf'], attr_list.uri))
+
+    output = graph.serialize(format='turtle').decode('utf-8')
+
+    logging.info(output)
+    # nanopublication = Nanopublication.parse_assertions(data=output,
+    #                                                    format="ttl")
+    # client.put_nanopublication(nanopublication)
+    # logging.info(f'{POL[request_req.id]} loaded into TWKS')
 
     return {'output': output}
