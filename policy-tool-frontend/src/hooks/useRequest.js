@@ -61,7 +61,7 @@ export default function useRequest() {
 
   const attributesAreValid = ({ attributes, values }) => {
     if (!!values?.length) {
-      return values?.every((v) => !!v['@value'])
+      return values?.every((v) => v['@value']!==null)
     } else if (!!attributes?.length) {
       return attributes?.every(attributesAreValid)
     }
