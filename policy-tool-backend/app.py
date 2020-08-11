@@ -16,7 +16,7 @@ import prov
 from classes.Attribute import Attribute
 from classes.PolicyPostDTO import PolicyPostDTO
 from classes.RequestPostDTO import RequestPostDTO
-from namespaces import (DSA_POL, DSA_T, HEALTH_POL, HEALTH_T, OWL, POL, PROV,
+from namespaces import (DSA_POL, DSA_T, HEALTH_POL, HEALTH_T, OWL, POL, REQ, PROV,
                         PROV_O, RDF, RDFS, SIO, SKOS, XSD, assign_namespaces)
 
 import json
@@ -368,10 +368,10 @@ def create_policy():
     output = graph.serialize(format='turtle').decode('utf-8')
 
     logging.info(output)
-    nanopublication = Nanopublication.parse_assertions(data=output,
-                                                       format="ttl")
-    client.put_nanopublication(nanopublication)
-    logging.info(f'{POL[policy_req.id]} loaded into TWKS')
+    # nanopublication = Nanopublication.parse_assertions(data=output,
+    #                                                    format="ttl")
+    # client.put_nanopublication(nanopublication)
+    # logging.info(f'{POL[policy_req.id]} loaded into TWKS')
 
     return {'output': output}
 
@@ -385,13 +385,14 @@ def create_request():
     graph = assign_namespaces(Graph())
 
     # definition and labeling
-    root = POL[request_req.id]
+    root = REQ[request_req.id]
     graph.add((root, RDF['type'], OWL['class']))
     graph.add((root, RDFS['label'], Literal(request_req.label)))
     graph.add((root, SKOS['definition'], Literal(request_req.definition)))
 
 
     def construct_attribute_tree(attribute: dict, graph: Graph):
+
         base = BNode()
         children = graph.collection(BNode())
         children.append(URIRef(attribute['@id']))
@@ -404,17 +405,30 @@ def create_request():
                            construct_attribute_tree(child, graph)))
                 children.append(c)
 
-            graph.add((base, RDF['type', OWL['Class']]))
+            #graph.add((base, RDF['type', OWL['Class']]))
+            graph.add((base, OWL['intersectionOf'], children.uri))
 
-        elif 'values' in attribute:
-            is_agent = is_subclass(attribute['@id'], PROV['Agent'])
-            is_maximum = is_subclass(attribute['@id'], SIO['MaximalValue'])
-            is_minimum = is_subclass(attribute['@id'], SIO['MinimalValue'])
+            return base
+
+        else:
+            # is_agent = is_subclass(attribute['@id'], PROV['Agent'])
+            # is_action = is_subclass(attribute['@id'], PROV['Action'])
+            # is_affiliation = is_subclass(attribute['@id'], OWL['Affiliation'])
+            # is_maximum = is_subclass(attribute['@id'], SIO['MaximalValue'])
+            # is_minimum = is_subclass(attribute['@id'], SIO['MinimalValue'])
+            
+            is_agent = 1 if (attribute['label']=="Agent") else 0
+            is_action = 1 if (attribute['label']=="Action") else 0
+            is_affiliation = 1 if (attribute['label']=="Affiliation") else 0
+            is_maximum = 1 if (attribute['label']=="Frequency maximum" or attribute['label']=="End time") else 0
+            is_minimum = 1 if (attribute['label']=="Frequency minimum" or attribute['label']=="Start time") else 0
 
             for value in attribute['values']:
                 v = BNode()
                 graph.add((v, RDF['type'], OWL['Restriction']))
-                if is_agent:
+                
+                if is_agent or is_action or is_affiliation:
+                
                     graph.add((v,
                                OWL['onProperty'],
                                PROV['wasAssociatedWith']))
@@ -422,31 +436,48 @@ def create_request():
                                OWL['someValuesFrom'],
                                URIRef(value['@value'])))
                 else:
-                    _, namespace, _ = graph.namespace_manager.compute_qname(
+                    namespace, uri, data = graph.namespace_manager.compute_qname(
                         value['@type'])
-                    if namespace == XSD:
+
+                    logging.info(namespace)
+                    logging.info(uri)
+                    logging.info(data)
+
+                    if namespace=="xsd":
+
                         graph.add((v,
                                    OWL['onDatatype'],
                                    URIRef(value['@type'])))
                         restrictions = graph.collection(BNode())
-                        if not is_maximum:
-                            p = BNode()
-                            graph.add((p,
-                                       XSD['minInclusive'],
-                                       Literal(value['@value'],
-                                               datatype=value['@type'])))
-                            restrictions.append(p)
-                        if not is_minimum:
+                        if is_maximum:
                             p = BNode()
                             graph.add((p,
                                        XSD['maxInclusive'],
                                        Literal(value['@value'],
                                                datatype=value['@type'])))
                             restrictions.append(p)
-                        graph.add((v,
-                                   OWL['withRestrictions'],
-                                   restrictions))
+                        elif is_minimum:
+                            p = BNode()
+                            graph.add((p,
+                                       XSD['minInclusive'],
+                                       Literal(value['@value'],
+                                               datatype=value['@type'])))
+                            restrictions.append(p)
+                        else:
+                            p = BNode()
+                            logging.info(value['@type'])
+                            logging.info(value['@value'])
+                            graph.add((p,
+                                       XSD['enumeration'],
+                                       Literal(value['@value'],
+                                               datatype=value['@type'])))
+                            restrictions.append(p)
 
+
+                        for r in restrictions:
+                            graph.add((v,
+                                       OWL['withRestrictions'],
+                                       r))
                 children.append(v)
 
         graph.add((base, OWL['intersectionOf'], children.uri))
@@ -455,7 +486,7 @@ def create_request():
 
     attr_list = graph.collection(BNode())
     for attribute in request_req.attributes:
-        attr_list.append(construct_attribute_tree(attribute, graph))
+        attr_list.append(construct_attribute_tree(attribute, graph)) 
 
     attr_root = BNode()
     graph.add((root, OWL['equivalentClass'], attr_root))
@@ -467,6 +498,6 @@ def create_request():
     # nanopublication = Nanopublication.parse_assertions(data=output,
     #                                                    format="ttl")
     # client.put_nanopublication(nanopublication)
-    # logging.info(f'{POL[request_req.id]} loaded into TWKS')
+    # logging.info(f'{REQ[request_req.id]} loaded into TWKS')
 
     return {'output': output}
