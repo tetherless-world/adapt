@@ -368,10 +368,10 @@ def create_policy():
     output = graph.serialize(format='turtle').decode('utf-8')
 
     logging.info(output)
-    # nanopublication = Nanopublication.parse_assertions(data=output,
-    #                                                    format="ttl")
-    # client.put_nanopublication(nanopublication)
-    # logging.info(f'{POL[policy_req.id]} loaded into TWKS')
+    nanopublication = Nanopublication.parse_assertions(data=output,
+                                                       format="ttl")
+    client.put_nanopublication(nanopublication)
+    logging.info(f'{POL[policy_req.id]} loaded into TWKS')
 
     return {'output': output}
 
@@ -405,18 +405,12 @@ def create_request():
                            construct_attribute_tree(child, graph)))
                 children.append(c)
 
-            #graph.add((base, RDF['type', OWL['Class']]))
             graph.add((base, OWL['intersectionOf'], children.uri))
 
             return base
 
         else:
-            # is_agent = is_subclass(attribute['@id'], PROV['Agent'])
-            # is_action = is_subclass(attribute['@id'], PROV['Action'])
-            # is_affiliation = is_subclass(attribute['@id'], OWL['Affiliation'])
-            # is_maximum = is_subclass(attribute['@id'], SIO['MaximalValue'])
-            # is_minimum = is_subclass(attribute['@id'], SIO['MinimalValue'])
-            
+
             is_agent = 1 if (attribute['label']=="Agent") else 0
             is_action = 1 if (attribute['label']=="Action") else 0
             is_affiliation = 1 if (attribute['label']=="Affiliation") else 0
@@ -436,19 +430,16 @@ def create_request():
                                OWL['someValuesFrom'],
                                URIRef(value['@value'])))
                 else:
-                    namespace, uri, data = graph.namespace_manager.compute_qname(
+                    _, namespace, _ = graph.namespace_manager.compute_qname(
                         value['@type'])
 
-                    logging.info(namespace)
-                    logging.info(uri)
-                    logging.info(data)
-
-                    if namespace=="xsd":
+                    if str(namespace)==str(XSD):
 
                         graph.add((v,
                                    OWL['onDatatype'],
                                    URIRef(value['@type'])))
                         restrictions = graph.collection(BNode())
+                        
                         if is_maximum:
                             p = BNode()
                             graph.add((p,
@@ -465,14 +456,11 @@ def create_request():
                             restrictions.append(p)
                         else:
                             p = BNode()
-                            logging.info(value['@type'])
-                            logging.info(value['@value'])
                             graph.add((p,
                                        XSD['enumeration'],
                                        Literal(value['@value'],
                                                datatype=value['@type'])))
                             restrictions.append(p)
-
 
                         for r in restrictions:
                             graph.add((v,
@@ -495,9 +483,9 @@ def create_request():
     output = graph.serialize(format='turtle').decode('utf-8')
 
     logging.info(output)
-    # nanopublication = Nanopublication.parse_assertions(data=output,
-    #                                                    format="ttl")
-    # client.put_nanopublication(nanopublication)
-    # logging.info(f'{REQ[request_req.id]} loaded into TWKS')
+    nanopublication = Nanopublication.parse_assertions(data=output,
+                                                       format="ttl")
+    client.put_nanopublication(nanopublication)
+    logging.info(f'{REQ[request_req.id]} loaded into TWKS')
 
     return {'output': output}

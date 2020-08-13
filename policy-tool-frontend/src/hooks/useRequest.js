@@ -20,12 +20,12 @@ export default function useRequest() {
     })
   }
 
-  // POLICY INFORMATION
+  // REQUEST INFORMATION
   const setId = set(['id'])
   const setLabel = set(['label'])
   const setDefinition = set(['definition'])
 
-  // POLICY ATTRIBUTES
+  // REQUEST ATTRIBUTES
   const attributes = {
     set: set(['attributes']),
     add: (attribute) => {
