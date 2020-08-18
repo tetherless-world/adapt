@@ -386,106 +386,59 @@ def create_request():
 
     # definition and labeling
     root = REQ[request_req.id]
-    graph.add((root, RDF['type'], OWL['class']))
+    #graph.add((root, RDF['type'], OWL['class']))
     graph.add((root, RDFS['label'], Literal(request_req.label)))
     graph.add((root, SKOS['definition'], Literal(request_req.definition)))
 
-
-    def construct_attribute_tree(attribute: dict, graph: Graph):
-
-        base = BNode()
-        children = graph.collection(BNode())
-        children.append(URIRef(attribute['@id']))
-        if 'attributes' in attribute:
-            for child in attribute['attributes']:
-                c = BNode()
-                graph.add((c, RDF['type'], OWL['Restriction']))
-                graph.add((c, OWL['onProperty'], SIO['hasAttribute']))
-                graph.add((c, OWL['someValuesFrom'],
-                           construct_attribute_tree(child, graph)))
-                children.append(c)
-
-            graph.add((base, OWL['intersectionOf'], children.uri))
-
-            return base
-
-        else:
-
-            is_agent = 1 if (attribute['label']=="Agent") else 0
-            is_action = 1 if (attribute['label']=="Action") else 0
-            is_affiliation = 1 if (attribute['label']=="Affiliation") else 0
-            is_maximum = 1 if (attribute['label']=="Frequency maximum" or attribute['label']=="End time") else 0
-            is_minimum = 1 if (attribute['label']=="Frequency minimum" or attribute['label']=="Start time") else 0
-
-            for value in attribute['values']:
-                v = BNode()
-                graph.add((v, RDF['type'], OWL['Restriction']))
-                
-                if is_agent or is_action or is_affiliation:
-                
-                    graph.add((v,
-                               OWL['onProperty'],
-                               PROV['wasAssociatedWith']))
-                    graph.add((v,
-                               OWL['someValuesFrom'],
-                               URIRef(value['@value'])))
-                else:
-                    _, namespace, _ = graph.namespace_manager.compute_qname(
-                        value['@type'])
-
-                    if str(namespace)==str(XSD):
-
-                        graph.add((v,
-                                   OWL['onDatatype'],
-                                   URIRef(value['@type'])))
-                        restrictions = graph.collection(BNode())
-                        
-                        if is_maximum:
-                            p = BNode()
-                            graph.add((p,
-                                       XSD['maxInclusive'],
-                                       Literal(value['@value'],
-                                               datatype=value['@type'])))
-                            restrictions.append(p)
-                        elif is_minimum:
-                            p = BNode()
-                            graph.add((p,
-                                       XSD['minInclusive'],
-                                       Literal(value['@value'],
-                                               datatype=value['@type'])))
-                            restrictions.append(p)
-                        else:
-                            p = BNode()
-                            graph.add((p,
-                                       XSD['enumeration'],
-                                       Literal(value['@value'],
-                                               datatype=value['@type'])))
-                            restrictions.append(p)
-
-                        for r in restrictions:
-                            graph.add((v,
-                                       OWL['withRestrictions'],
-                                       r))
-                children.append(v)
-
-        graph.add((base, OWL['intersectionOf'], children.uri))
-
-        return base
-
-    attr_list = graph.collection(BNode())
+    agent_node = BNode() 
+        
     for attribute in request_req.attributes:
-        attr_list.append(construct_attribute_tree(attribute, graph)) 
-
-    attr_root = BNode()
-    graph.add((root, OWL['equivalentClass'], attr_root))
-    graph.add((attr_root, OWL['intersectionOf'], attr_list.uri))
-
+        is_agent = 1 if (attribute['label']=="Agent") else 0
+        is_action = 1 if (attribute['label']=="Action") else 0
+        is_affiliation = 1 if (attribute['label']=="Affiliation") else 0
+        is_starttime = 1 if (attribute['label']=="Start time") else 0
+        is_endtime = 1 if (attribute['label']=="End time") else 0
+       
+        if is_action:
+            for value in attribute['values']:
+                graph.add((root, RDF['type'], URIRef(value['@value'])))
+        elif is_starttime:
+            for value in attribute['values']:
+                graph.add((root, PROV['startedAtTime'], Literal(value['@value'], datatype=value['@type'])))
+        elif is_endtime:
+            for value in attribute['values']:
+                graph.add((root, PROV['endedAtTime'], Literal(value['@value'], datatype=value['@type'])))
+        elif is_agent:   
+            for value in attribute['values']:
+                graph.add((root,PROV['wasAssociatedWith'],agent_node))  
+                graph.add((agent_node,RDF['type'],URIRef(value['@value'])))  
+        else:
+            if 'attributes' in attribute:
+                c = BNode()
+                graph.add((c,RDF['type'],URIRef(attribute['@id'])))
+                for attributes in attribute['attributes']:
+                    for value in attributes['values']:
+                        v = BNode()
+                        graph.add((c,SIO['hasAttribute'],v))
+                        graph.add((v,RDF['type'],URIRef(attributes['@id'])))
+                        graph.add((v,SIO['hasValue'],Literal(value['@value'],datatype=value['@type'])))
+                graph.add((agent_node, SIO['hasAttribute'], c))
+            else:
+                for value in attribute['values']:
+                    v = BNode()
+                    graph.add((agent_node,SIO['hasAttribute'],v))
+                    graph.add((v,RDF['type'],URIRef(attribute['@id'])))
+                    if is_affiliation:
+                        graph.add((v,SIO['hasValue'],URIRef(value['@value'])))
+                    else:
+                        graph.add((v,SIO['hasValue'],Literal(value['@value'],datatype=value['@type'])))
+                    
     output = graph.serialize(format='turtle').decode('utf-8')
 
     logging.info(output)
-    nanopublication = Nanopublication.parse_assertions(data=output,
-                                                       format="ttl")
-    client.put_nanopublication(nanopublication)
-    logging.info(f'{REQ[request_req.id]} loaded into TWKS')
+    # nanopublication = Nanopublication.parse_assertions(data=output,
+    #                                                    format="ttl")
+    # client.put_nanopublication(nanopublication)
+    # logging.info(f'{REQ[request_req.id]} loaded into TWKS')
 
     return {'output': output}

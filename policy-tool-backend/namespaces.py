@@ -19,6 +19,7 @@ def assign_namespaces(graph: Graph) -> Graph:
     graph.bind('owl', OWL)
     graph.bind('skos', SKOS)
     graph.bind('xsd', XSD)
+    graph.bind('sio', SIO)
     graph.bind('prov', PROV)
     graph.bind('prov-o', PROV_O)
     graph.bind('pol', POL)
