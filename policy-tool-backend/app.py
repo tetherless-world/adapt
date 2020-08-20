@@ -208,6 +208,7 @@ def get_attributes():
         'options': options_map
     })
 
+#get request attributes, including action
 @app.route(f'{API_URL}/requestattributes', methods=['GET'])
 def get_request_attributes():
     logging.info('Getting request attributes')
@@ -375,6 +376,7 @@ def create_policy():
 
     return {'output': output}
 
+#create .ttl file for request
 @app.route(f'{API_URL}/request', methods=['POST'])
 def create_request():
     logging.info('Received Request')
@@ -384,9 +386,7 @@ def create_request():
 
     graph = assign_namespaces(Graph())
 
-    # definition and labeling
     root = REQ[request_req.id]
-    #graph.add((root, RDF['type'], OWL['class']))
     graph.add((root, RDFS['label'], Literal(request_req.label)))
     graph.add((root, SKOS['definition'], Literal(request_req.definition)))
 
@@ -436,9 +436,9 @@ def create_request():
     output = graph.serialize(format='turtle').decode('utf-8')
 
     logging.info(output)
-    # nanopublication = Nanopublication.parse_assertions(data=output,
-    #                                                    format="ttl")
-    # client.put_nanopublication(nanopublication)
-    # logging.info(f'{REQ[request_req.id]} loaded into TWKS')
+    nanopublication = Nanopublication.parse_assertions(data=output,
+                                                       format="ttl")
+    client.put_nanopublication(nanopublication)
+    logging.info(f'{REQ[request_req.id]} loaded into TWKS')
 
     return {'output': output}

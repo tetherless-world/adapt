@@ -34,8 +34,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
+// CHANGE REQUEST INFORMATION
 const handleChange = (setter) => (event) => setter(event.target.value)
 
+// REQUEST BUILDER
 export default function RequestBuilder() {
   const classes = useStyles()
   const request = useRequest() 

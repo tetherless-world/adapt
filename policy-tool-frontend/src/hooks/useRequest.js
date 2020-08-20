@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import _ from 'lodash'
 
-
+// REQUEST OBJECT
 const newRequest = () => ({
   id: '',
   label: '',
@@ -12,6 +12,7 @@ const newRequest = () => ({
 export default function useRequest() {
   const [state, setState] = useState(newRequest())
 
+  // SET VALUES
   const set = (keys) => (value) => {
     setState((prev) => {
       let copy = { ...prev }
@@ -59,6 +60,7 @@ export default function useRequest() {
     },
   }
 
+  // CHECK ATTRIBUTES VALIDITY
   const attributesAreValid = ({ attributes, values }) => {
     if (!!values?.length) {
       return values?.every((v) => v['@value']!==null)
@@ -67,6 +69,7 @@ export default function useRequest() {
     }
   }
 
+  // CHECK REQUEST VALIDITY
   const isValid = useMemo(
     () =>
       [
