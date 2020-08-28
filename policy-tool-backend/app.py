@@ -15,8 +15,11 @@ from twks.nanopub import Nanopublication
 import prov
 from classes.Attribute import Attribute
 from classes.PolicyPostDTO import PolicyPostDTO
-from namespaces import (DSA_POL, DSA_T, HEALTH_POL, HEALTH_T, OWL, POL, PROV,
+from classes.RequestPostDTO import RequestPostDTO
+from namespaces import (DSA_POL, DSA_T, HEALTH_POL, HEALTH_T, OWL, POL, REQ, PROV,
                         PROV_O, RDF, RDFS, SIO, SKOS, XSD, assign_namespaces)
+
+import json
 
 # Logging setup
 LOGGER = logging.getLogger()
@@ -205,6 +208,22 @@ def get_attributes():
         'options': options_map
     })
 
+#get request attributes, including action
+@app.route(f'{API_URL}/requestattributes', methods=['GET'])
+def get_request_attributes():
+    logging.info('Getting request attributes')
+
+    attributes = get_attributes()
+
+    response_data = json.loads(attributes.get_data())
+
+    response_data['attributes'].append(prov.Action)
+    response_data['options'][prov.Action['@id']] = get_actions()
+
+    return jsonify({
+        'attributes': response_data['attributes'],
+        'options': response_data['options']
+    })
 
 @app.route(f'{API_URL}/actions', methods=['GET'])
 def get_actions():
@@ -354,5 +373,72 @@ def create_policy():
                                                        format="ttl")
     client.put_nanopublication(nanopublication)
     logging.info(f'{POL[policy_req.id]} loaded into TWKS')
+
+    return {'output': output}
+
+#create .ttl file for request
+@app.route(f'{API_URL}/request', methods=['POST'])
+def create_request():
+    logging.info('Received Request')
+
+    data = request.json
+    request_req = RequestPostDTO(data)
+
+    graph = assign_namespaces(Graph())
+
+    root = REQ[request_req.id]
+    graph.add((root, RDFS['label'], Literal(request_req.label)))
+    graph.add((root, SKOS['definition'], Literal(request_req.definition)))
+
+    agent_node = BNode() 
+        
+    for attribute in request_req.attributes:
+        is_agent = 1 if (attribute['label']=="Agent") else 0
+        is_action = 1 if (attribute['label']=="Action") else 0
+        is_affiliation = 1 if (attribute['label']=="Affiliation") else 0
+        is_starttime = 1 if (attribute['label']=="Start time") else 0
+        is_endtime = 1 if (attribute['label']=="End time") else 0
+       
+        if is_action:
+            for value in attribute['values']:
+                graph.add((root, RDF['type'], URIRef(value['@value'])))
+        elif is_starttime:
+            for value in attribute['values']:
+                graph.add((root, PROV['startedAtTime'], Literal(value['@value'], datatype=value['@type'])))
+        elif is_endtime:
+            for value in attribute['values']:
+                graph.add((root, PROV['endedAtTime'], Literal(value['@value'], datatype=value['@type'])))
+        elif is_agent:   
+            for value in attribute['values']:
+                graph.add((root,PROV['wasAssociatedWith'],agent_node))  
+                graph.add((agent_node,RDF['type'],URIRef(value['@value'])))  
+        else:
+            if 'attributes' in attribute:
+                c = BNode()
+                graph.add((c,RDF['type'],URIRef(attribute['@id'])))
+                for attributes in attribute['attributes']:
+                    for value in attributes['values']:
+                        v = BNode()
+                        graph.add((c,SIO['hasAttribute'],v))
+                        graph.add((v,RDF['type'],URIRef(attributes['@id'])))
+                        graph.add((v,SIO['hasValue'],Literal(value['@value'],datatype=value['@type'])))
+                graph.add((agent_node, SIO['hasAttribute'], c))
+            else:
+                for value in attribute['values']:
+                    v = BNode()
+                    graph.add((agent_node,SIO['hasAttribute'],v))
+                    graph.add((v,RDF['type'],URIRef(attribute['@id'])))
+                    if is_affiliation:
+                        graph.add((v,SIO['hasValue'],URIRef(value['@value'])))
+                    else:
+                        graph.add((v,SIO['hasValue'],Literal(value['@value'],datatype=value['@type'])))
+                    
+    output = graph.serialize(format='turtle').decode('utf-8')
+
+    logging.info(output)
+    nanopublication = Nanopublication.parse_assertions(data=output,
+                                                       format="ttl")
+    client.put_nanopublication(nanopublication)
+    logging.info(f'{REQ[request_req.id]} loaded into TWKS')
 
     return {'output': output}

@@ -42,3 +42,18 @@ Agent = {
         ]
     }
 }
+
+Action = {
+    '@id': 'http://www.w3.org/ns/prov#Action',
+    'label': 'Action',
+    'default': {
+        '@id': 'http://www.w3.org/ns/prov#Action',
+        'label': 'Action',
+        'values': [
+            {
+                '@type': 'http://www.w3.org/2002/07/owl#Class',
+                '@value': None
+            }
+        ]
+    }
+}
