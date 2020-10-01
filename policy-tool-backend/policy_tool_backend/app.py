@@ -411,7 +411,8 @@ def create_request():
         elif is_agent:
             for value in attribute['values']:
                 graph.add((root, ns.PROV['wasAssociatedWith'], agent_node))
-                graph.add((agent_node, ns.RDF['type'], URIRef(value['@value'])))
+                graph.add(
+                    (agent_node, ns.RDF['type'], URIRef(value['@value'])))
         else:
             if 'attributes' in attribute:
                 c = BNode()
@@ -420,7 +421,8 @@ def create_request():
                     for value in attributes['values']:
                         v = BNode()
                         graph.add((c, ns.SIO['hasAttribute'], v))
-                        graph.add((v, ns.RDF['type'], URIRef(attributes['@id'])))
+                        graph.add(
+                            (v, ns.RDF['type'], URIRef(attributes['@id'])))
                         graph.add((v, ns.SIO['hasValue'], Literal(
                             value['@value'], datatype=value['@type'])))
                 graph.add((agent_node, ns.SIO['hasAttribute'], c))
