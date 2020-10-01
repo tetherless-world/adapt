@@ -12,36 +12,29 @@ from rdflib import BNode, Graph, Literal, URIRef
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
 
-import prov
-from classes.Attribute import Attribute
-from classes.PolicyPostDTO import PolicyPostDTO
-from classes.RequestPostDTO import RequestPostDTO
-from namespaces import (DSA_POL, DSA_T, HEALTH_POL, HEALTH_T, OWL, POL, REQ, PROV,
-                        PROV_O, RDF, RDFS, SIO, SKOS, XSD, assign_namespaces)
+from .models.data import Attribute
+from .models.dtos import PolicyPostDTO, RequestPostDTO
+from .rdf import namespaces as ns, prov
+from . import config
 
 import json
-
-# Logging setup
-LOGGER = logging.getLogger()
-LOGGER.setLevel(logging.INFO)
 
 # ==============================================================================
 # SETUP
 # ==============================================================================
 
-CONFIG_MAP = {
-    'development': 'config.DevelopmentConfig',
-    'production': 'config.ProductionConfig',
-    'default': 'config.ProductionConfig'
-}
-CONFIG_NAME = os.getenv('FLASK_ENV', 'default')
-
+# Logging setup
+LOGGER = logging.getLogger()
+LOGGER.setLevel(logging.INFO)
 
 # Create Flask app
 app = Flask(__name__)
 
 # load configuration
-app.config.from_object(CONFIG_MAP[CONFIG_NAME])
+if os.getenv('FLASK_ENV', 'default') == 'development':
+    app.config.from_object(config.DevelopmentConfig)
+else:
+    app.config.from_object(config.ProductionConfig)
 
 # get config values
 API_URL = app.config['API_URL']
@@ -283,21 +276,21 @@ def create_policy():
     data = request.json
     policy_req = PolicyPostDTO(data)
 
-    graph = assign_namespaces(Graph())
+    graph = ns.assign_namespaces(Graph())
 
     # definition and labeling
-    root = POL[policy_req.id]
-    graph.add((root, RDF['type'], OWL['class']))
-    graph.add((root, RDFS['label'], Literal(policy_req.label)))
-    graph.add((root, SKOS['definition'], Literal(policy_req.definition)))
+    root = ns.POL[policy_req.id]
+    graph.add((root, ns.RDF['type'], ns.OWL['class']))
+    graph.add((root, ns.RDFS['label'], Literal(policy_req.label)))
+    graph.add((root, ns.SKOS['definition'], Literal(policy_req.definition)))
 
     # conditions & effects
-    graph.add((root, RDFS['subClassOf'], URIRef(policy_req.action)))
-    graph.add((root, RDFS['subClassOf'], URIRef(policy_req.precedence)))
+    graph.add((root, ns.RDFS['subClassOf'], URIRef(policy_req.action)))
+    graph.add((root, ns.RDFS['subClassOf'], URIRef(policy_req.precedence)))
     for effect in policy_req.effects:
-        graph.add((root, RDFS['subClassOf'], URIRef(effect['@value'])))
+        graph.add((root, ns.RDFS['subClassOf'], URIRef(effect['@value'])))
     for obligation in policy_req.obligations:
-        graph.add((root, RDFS['subClassOf'], URIRef(obligation['@value'])))
+        graph.add((root, ns.RDFS['subClassOf'], URIRef(obligation['@value'])))
 
     def construct_attribute_tree(attribute: dict, graph: Graph):
         base = BNode()
@@ -306,58 +299,58 @@ def create_policy():
         if 'attributes' in attribute:
             for child in attribute['attributes']:
                 c = BNode()
-                graph.add((c, RDF['type'], OWL['Restriction']))
-                graph.add((c, OWL['onProperty'], SIO['hasAttribute']))
-                graph.add((c, OWL['someValuesFrom'],
+                graph.add((c, ns.RDF['type'], ns.OWL['Restriction']))
+                graph.add((c, ns.OWL['onProperty'], ns.SIO['hasAttribute']))
+                graph.add((c, ns.OWL['someValuesFrom'],
                            construct_attribute_tree(child, graph)))
                 children.append(c)
 
-            graph.add((base, RDF['type', OWL['Class']]))
+            graph.add((base, ns.RDF['type', ns.OWL['Class']]))
 
         elif 'values' in attribute:
-            is_agent = is_subclass(attribute['@id'], PROV['Agent'])
-            is_maximum = is_subclass(attribute['@id'], SIO['MaximalValue'])
-            is_minimum = is_subclass(attribute['@id'], SIO['MinimalValue'])
+            is_agent = is_subclass(attribute['@id'], ns.PROV['Agent'])
+            is_maximum = is_subclass(attribute['@id'], ns.SIO['MaximalValue'])
+            is_minimum = is_subclass(attribute['@id'], ns.SIO['MinimalValue'])
 
             for value in attribute['values']:
                 v = BNode()
-                graph.add((v, RDF['type'], OWL['Restriction']))
+                graph.add((v, ns.RDF['type'], ns.OWL['Restriction']))
                 if is_agent:
                     graph.add((v,
-                               OWL['onProperty'],
-                               PROV['wasAssociatedWith']))
+                               ns.OWL['onProperty'],
+                               ns.PROV['wasAssociatedWith']))
                     graph.add((v,
-                               OWL['someValuesFrom'],
+                               ns.OWL['someValuesFrom'],
                                URIRef(value['@value'])))
                 else:
                     _, namespace, _ = graph.namespace_manager.compute_qname(
                         value['@type'])
-                    if namespace == XSD:
+                    if namespace == ns.XSD:
                         graph.add((v,
-                                   OWL['onDatatype'],
+                                   ns.OWL['onDatatype'],
                                    URIRef(value['@type'])))
                         restrictions = graph.collection(BNode())
                         if not is_maximum:
                             p = BNode()
                             graph.add((p,
-                                       XSD['minInclusive'],
+                                       ns.XSD['minInclusive'],
                                        Literal(value['@value'],
                                                datatype=value['@type'])))
                             restrictions.append(p)
                         if not is_minimum:
                             p = BNode()
                             graph.add((p,
-                                       XSD['maxInclusive'],
+                                       ns.XSD['maxInclusive'],
                                        Literal(value['@value'],
                                                datatype=value['@type'])))
                             restrictions.append(p)
                         graph.add((v,
-                                   OWL['withRestrictions'],
+                                   ns.OWL['withRestrictions'],
                                    restrictions))
 
                 children.append(v)
 
-        graph.add((base, OWL['intersectionOf'], children.uri))
+        graph.add((base, ns.OWL['intersectionOf'], children.uri))
 
         return base
 
@@ -366,8 +359,8 @@ def create_policy():
         attr_list.append(construct_attribute_tree(attribute, graph))
 
     attr_root = BNode()
-    graph.add((root, OWL['equivalentClass'], attr_root))
-    graph.add((attr_root, OWL['intersectionOf'], attr_list.uri))
+    graph.add((root, ns.OWL['equivalentClass'], attr_root))
+    graph.add((attr_root, ns.OWL['intersectionOf'], attr_list.uri))
 
     output = graph.serialize(format='turtle').decode('utf-8')
 
@@ -375,7 +368,7 @@ def create_policy():
     nanopublication = Nanopublication.parse_assertions(data=output,
                                                        format="ttl")
     client.put_nanopublication(nanopublication)
-    logging.info(f'{POL[policy_req.id]} loaded into TWKS')
+    logging.info(f'{ns.POL[policy_req.id]} loaded into TWKS')
 
     return {'output': output}
 
@@ -389,11 +382,11 @@ def create_request():
     data = request.json
     request_req = RequestPostDTO(data)
 
-    graph = assign_namespaces(Graph())
+    graph = ns.assign_namespaces(Graph())
 
-    root = REQ[request_req.id]
-    graph.add((root, RDFS['label'], Literal(request_req.label)))
-    graph.add((root, SKOS['definition'], Literal(request_req.definition)))
+    root = ns.REQ[request_req.id]
+    graph.add((root, ns.RDFS['label'], Literal(request_req.label)))
+    graph.add((root, ns.SKOS['definition'], Literal(request_req.definition)))
 
     agent_node = BNode()
 
@@ -406,41 +399,41 @@ def create_request():
 
         if is_action:
             for value in attribute['values']:
-                graph.add((root, RDF['type'], URIRef(value['@value'])))
+                graph.add((root, ns.RDF['type'], URIRef(value['@value'])))
         elif is_starttime:
             for value in attribute['values']:
-                graph.add((root, PROV['startedAtTime'], Literal(
+                graph.add((root, ns.PROV['startedAtTime'], Literal(
                     value['@value'], datatype=value['@type'])))
         elif is_endtime:
             for value in attribute['values']:
-                graph.add((root, PROV['endedAtTime'], Literal(
+                graph.add((root, ns.PROV['endedAtTime'], Literal(
                     value['@value'], datatype=value['@type'])))
         elif is_agent:
             for value in attribute['values']:
-                graph.add((root, PROV['wasAssociatedWith'], agent_node))
-                graph.add((agent_node, RDF['type'], URIRef(value['@value'])))
+                graph.add((root, ns.PROV['wasAssociatedWith'], agent_node))
+                graph.add((agent_node, ns.RDF['type'], URIRef(value['@value'])))
         else:
             if 'attributes' in attribute:
                 c = BNode()
-                graph.add((c, RDF['type'], URIRef(attribute['@id'])))
+                graph.add((c, ns.RDF['type'], URIRef(attribute['@id'])))
                 for attributes in attribute['attributes']:
                     for value in attributes['values']:
                         v = BNode()
-                        graph.add((c, SIO['hasAttribute'], v))
-                        graph.add((v, RDF['type'], URIRef(attributes['@id'])))
-                        graph.add((v, SIO['hasValue'], Literal(
+                        graph.add((c, ns.SIO['hasAttribute'], v))
+                        graph.add((v, ns.RDF['type'], URIRef(attributes['@id'])))
+                        graph.add((v, ns.SIO['hasValue'], Literal(
                             value['@value'], datatype=value['@type'])))
-                graph.add((agent_node, SIO['hasAttribute'], c))
+                graph.add((agent_node, ns.SIO['hasAttribute'], c))
             else:
                 for value in attribute['values']:
                     v = BNode()
-                    graph.add((agent_node, SIO['hasAttribute'], v))
-                    graph.add((v, RDF['type'], URIRef(attribute['@id'])))
+                    graph.add((agent_node, ns.SIO['hasAttribute'], v))
+                    graph.add((v, ns.RDF['type'], URIRef(attribute['@id'])))
                     if is_affiliation:
                         graph.add(
-                            (v, SIO['hasValue'], URIRef(value['@value'])))
+                            (v, ns.SIO['hasValue'], URIRef(value['@value'])))
                     else:
-                        graph.add((v, SIO['hasValue'], Literal(
+                        graph.add((v, ns.SIO['hasValue'], Literal(
                             value['@value'], datatype=value['@type'])))
 
     output = graph.serialize(format='turtle').decode('utf-8')
@@ -449,6 +442,6 @@ def create_request():
     nanopublication = Nanopublication.parse_assertions(data=output,
                                                        format="ttl")
     client.put_nanopublication(nanopublication)
-    logging.info(f'{REQ[request_req.id]} loaded into TWKS')
+    logging.info(f'{ns.REQ[request_req.id]} loaded into TWKS')
 
     return {'output': output}
