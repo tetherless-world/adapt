@@ -10,6 +10,8 @@ class ProductionConfig(Config):
     Production environment config (default)
     """
     TWKS_URL = 'http://twks-server:8080'
+    HOST = '0.0.0.0'
+    PORT = 5000
 
 
 class DevelopmentConfig(Config):
@@ -19,3 +21,5 @@ class DevelopmentConfig(Config):
     DEBUG = True
     JSON_SORT_KEYS = False
     TWKS_URL = 'http://localhost:8080'
+    HOST = '127.0.0.1'
+    PORT = 5000
