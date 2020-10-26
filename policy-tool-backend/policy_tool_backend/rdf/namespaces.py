@@ -1,9 +1,8 @@
 from rdflib import Graph
 from rdflib.namespace import RDF, RDFS, OWL, XSD, SKOS
-from rdflib.namespace import Namespace
+from rdflib.namespace import Namespace, NamespaceManager
 
 PROV = Namespace('http://www.w3.org/ns/prov#')
-PROV_O = Namespace('http://www.w3.org/ns/prov-o#')
 SIO = Namespace('http://semanticscience.org/resource/')
 POL = Namespace('http://purl.org/twc/policy/')
 REQ = Namespace('http://purl.org/twc/request/')
@@ -12,20 +11,18 @@ DSA_POL = Namespace('http://purl.org/twc/policy/example/dsa/policy/')
 HEALTH_T = Namespace('http://purl.org/twc/policy/example/healthcare/')
 HEALTH_POL = Namespace('http://purl.org/twc/policy/example/healthcare/policy/')
 
+namespace_manager = NamespaceManager(Graph())
 
-def assign_namespaces(graph: Graph) -> Graph:
-    graph.bind('rdf', RDF)
-    graph.bind('rdfs', RDFS)
-    graph.bind('owl', OWL)
-    graph.bind('skos', SKOS)
-    graph.bind('xsd', XSD)
-    graph.bind('sio', SIO)
-    graph.bind('prov', PROV)
-    graph.bind('prov-o', PROV_O)
-    graph.bind('pol', POL)
-    graph.bind('req', REQ)
-    graph.bind('dsa-t', DSA_T)
-    graph.bind('dsa-pol', DSA_POL)
-    graph.bind('health-t', HEALTH_T)
-    graph.bind('health-pol', HEALTH_POL)
-    return graph
+namespace_manager.bind('rdf', RDF)
+namespace_manager.bind('rdfs', RDFS)
+namespace_manager.bind('owl', OWL)
+namespace_manager.bind('skos', SKOS)
+namespace_manager.bind('xsd', XSD)
+namespace_manager.bind('sio', SIO)
+namespace_manager.bind('prov', PROV)
+namespace_manager.bind('pol', POL)
+namespace_manager.bind('req', REQ)
+namespace_manager.bind('dsa-t', DSA_T)
+namespace_manager.bind('dsa-pol', DSA_POL)
+namespace_manager.bind('health-t', HEALTH_T)
+namespace_manager.bind('health-pol', HEALTH_POL)

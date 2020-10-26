@@ -1,5 +1,6 @@
 # policy-tool-backend/app.py
 import glob
+import json
 import logging
 import os
 import pathlib
@@ -12,12 +13,16 @@ from rdflib import BNode, Graph, Literal, URIRef
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
 
+from . import config
 from .models.data import Attribute
 from .models.dtos import PolicyPostDTO, RequestPostDTO
-from .rdf import namespaces as ns, prov
-from . import config
-
-import json
+from .rdf import namespaces as ns
+from .rdf import prov
+from .rdf.classes import (AgentRestriction, AttributeRestriction, BooleanClass,
+                          BooleanOp, Class, Graphable, RestrictedDatatype,
+                          Restriction, RestrictionKind, ValueRestriction)
+from .rdf.common import graph_factory
+from .rdf.namespaces import OWL, POL, PROV, RDF, SIO, XSD
 
 # ==============================================================================
 # SETUP
@@ -269,6 +274,65 @@ def is_subclass(uri, superClass):
     return query_response
 
 
+def build_policy(source: str,
+                 id: str,
+                 label: str,
+                 definition: str,
+                 action,
+                 attributes):
+
+    if source != None:
+        identifier = URIRef(f'{source}#{id}')
+    else:
+        identifier = URIRef(POL[id])
+
+    eq_class = BooleanClass(operation=BooleanOp.INTERSECTION,
+                            members=[URIRef(action)])
+
+    def dfs(a: dict) -> Graphable:
+        if 'attributes' in a:
+            children = [dfs(c) for c in a['attributes']]
+            rest_val = BooleanClass(BooleanOp.INTERSECTION,
+                                    [URIRef(a['@id']), *children])
+            return AttributeRestriction(RestrictionKind.SOME_VALUES_FROM,
+                                        rest_val)
+        elif 'values' in a and len(a['values']) == 1:
+            v = a['values'][0]
+            if a['@id'] == 'http://www.w3.org/ns/prov#Agent':
+                return AgentRestriction(RestrictionKind.SOME_VALUES_FROM,
+                                        URIRef(v['@value']))
+            elif v['@type'] == OWL.Class:
+                return AttributeRestriction(RestrictionKind.SOME_VALUES_FROM,
+                                            URIRef(v['@value']))
+            else:
+                # assumes xsd datatype from here on
+                with_rest = []
+                if not is_subclass(a['@id'], SIO.MaximalValue):
+                    with_rest.append((XSD.minInclusive,
+                                      Literal(v['@value'], datatype=v['@type'])))
+                if not is_subclass(a['@id'], SIO.MinimalValue):
+                    with_rest.append((XSD.maxInclusive,
+                                      Literal(v['@value'], datatype=v['@type'])))
+
+                rest_val = RestrictedDatatype(on_datatype=v['@type'],
+                                              with_restrictions=with_rest)
+                return ValueRestriction(RestrictionKind.SOME_VALUES_FROM,
+                                        rest_val)
+        else:
+            raise RuntimeError('Invalid attribute structure.')
+
+    for a in attributes:
+        eq_class.members.append(dfs(a))
+
+    root = Class(identifier=identifier,
+                 label=label,
+                 equivalent_class=eq_class,
+                 subclass_of=[URIRef(action)])
+
+    graph, _ = root.to_graph()
+    return graph
+
+
 @app.route(f'{API_URL}/policy', methods=['POST'])
 def create_policy():
     logging.info('Received Policy')
@@ -276,99 +340,16 @@ def create_policy():
     data = request.json
     policy_req = PolicyPostDTO(data)
 
-    graph = ns.assign_namespaces(Graph())
-
-    # definition and labeling
-    root = ns.POL[policy_req.id]
-    graph.add((root, ns.RDF['type'], ns.OWL['class']))
-    graph.add((root, ns.RDFS['label'], Literal(policy_req.label)))
-    graph.add((root, ns.SKOS['definition'], Literal(policy_req.definition)))
-
-    # conditions & effects
-    graph.add((root, ns.RDFS['subClassOf'], URIRef(policy_req.action)))
-    graph.add((root, ns.RDFS['subClassOf'], URIRef(policy_req.precedence)))
-    for effect in policy_req.effects:
-        graph.add((root, ns.RDFS['subClassOf'], URIRef(effect['@value'])))
-    for obligation in policy_req.obligations:
-        graph.add((root, ns.RDFS['subClassOf'], URIRef(obligation['@value'])))
-
-    def construct_attribute_tree(attribute: dict, graph: Graph):
-        base = BNode()
-        children = graph.collection(BNode())
-        children.append(URIRef(attribute['@id']))
-        if 'attributes' in attribute:
-            for child in attribute['attributes']:
-                c = BNode()
-                graph.add((c, ns.RDF['type'], ns.OWL['Restriction']))
-                graph.add((c, ns.OWL['onProperty'], ns.SIO['hasAttribute']))
-                graph.add((c, ns.OWL['someValuesFrom'],
-                           construct_attribute_tree(child, graph)))
-                children.append(c)
-
-            graph.add((base, ns.RDF['type', ns.OWL['Class']]))
-
-        elif 'values' in attribute:
-            is_agent = is_subclass(attribute['@id'], ns.PROV['Agent'])
-            is_maximum = is_subclass(attribute['@id'], ns.SIO['MaximalValue'])
-            is_minimum = is_subclass(attribute['@id'], ns.SIO['MinimalValue'])
-
-            for value in attribute['values']:
-                v = BNode()
-                graph.add((v, ns.RDF['type'], ns.OWL['Restriction']))
-                if is_agent:
-                    graph.add((v,
-                               ns.OWL['onProperty'],
-                               ns.PROV['wasAssociatedWith']))
-                    graph.add((v,
-                               ns.OWL['someValuesFrom'],
-                               URIRef(value['@value'])))
-                else:
-                    _, namespace, _ = graph.namespace_manager.compute_qname(
-                        value['@type'])
-                    if namespace == ns.XSD:
-                        graph.add((v,
-                                   ns.OWL['onDatatype'],
-                                   URIRef(value['@type'])))
-                        restrictions = graph.collection(BNode())
-                        if not is_maximum:
-                            p = BNode()
-                            graph.add((p,
-                                       ns.XSD['minInclusive'],
-                                       Literal(value['@value'],
-                                               datatype=value['@type'])))
-                            restrictions.append(p)
-                        if not is_minimum:
-                            p = BNode()
-                            graph.add((p,
-                                       ns.XSD['maxInclusive'],
-                                       Literal(value['@value'],
-                                               datatype=value['@type'])))
-                            restrictions.append(p)
-                        graph.add((v,
-                                   ns.OWL['withRestrictions'],
-                                   restrictions))
-
-                children.append(v)
-
-        graph.add((base, ns.OWL['intersectionOf'], children.uri))
-
-        return base
-
-    attr_list = graph.collection(BNode())
-    for attribute in policy_req.attributes:
-        attr_list.append(construct_attribute_tree(attribute, graph))
-
-    attr_root = BNode()
-    graph.add((root, ns.OWL['equivalentClass'], attr_root))
-    graph.add((attr_root, ns.OWL['intersectionOf'], attr_list.uri))
+    graph = build_policy(policy_req.source, policy_req.id, policy_req.label,
+                         policy_req.definition, policy_req.action, policy_req.attributes)
 
     output = graph.serialize(format='turtle').decode('utf-8')
 
     logging.info(output)
-    nanopublication = Nanopublication.parse_assertions(data=output,
-                                                       format="ttl")
-    client.put_nanopublication(nanopublication)
-    logging.info(f'{ns.POL[policy_req.id]} loaded into TWKS')
+    # nanopublication = Nanopublication.parse_assertions(data=output,
+    #                                                    format="ttl")
+    # client.put_nanopublication(nanopublication)
+    # logging.info(f'{POL[policy_req.id]} loaded into TWKS')
 
     return {'output': output}
 
@@ -382,7 +363,7 @@ def create_request():
     data = request.json
     request_req = RequestPostDTO(data)
 
-    graph = ns.assign_namespaces(Graph())
+    graph = graph_factory()
 
     root = ns.REQ[request_req.id]
     graph.add((root, ns.RDFS['label'], Literal(request_req.label)))
