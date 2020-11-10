@@ -5,43 +5,81 @@ from typing import List, Tuple, Union
 from rdflib import Graph
 from rdflib.term import BNode, Identifier, Literal, URIRef
 
-from .common import graph_factory
-from .namespaces import OWL, POL, PROV, RDF, RDFS, SIO
+from .common import OWL, POL, PROV, RDF, RDFS, SIO, graph_factory
 
 
 class Graphable(ABC):
+    """
+    Graphable interface.
+    Subclasses of this class must be capable of representing as a RDFLib Graph
+    """
+
     @abstractmethod
     def to_graph(self) -> Tuple[Graph, Identifier]:
+        """
+        Converts the class into a RDFLib Graph representation
+
+        Returns
+        -------
+        Tuple[Graph, Identifier]
+            (RDFLib Graph representing the object, RDFLib Identifier corresponding to the root node of the Graph)
+
+        Raises
+        ------
+        Exception
+            [description]
+        """
         ...
 
 
-# class BlankNodePropertyList(Graphable):
-#     def __init__(self, members: List[Tuple[Identifier, Identifier]]):
-#         self.members = members
-
-#     def to_graph(self):
-#         graph = graph_factory()
-
-#         root = Resource(graph, BNode())
-#         for p, o in self.members:
-#             root.add(p, o)
-
-#         return (graph, root)
-
-
-class BooleanOp(Enum):
+class BooleanOperation(Enum):
+    """Enum representing boolean operations in OWL2"""
     INTERSECTION = OWL.intersectionOf
     UNION = OWL.unionOf
 
 
 class BooleanClass(Graphable):
-    def __init__(self,
-                 operation: BooleanOp,
-                 members: List[Union[Identifier, Graphable]] = []):
+    """
+    A class representing the owl:intersectionOf or owl:unionOf entities [Identifier or Graphable]
+
+    Attributes
+    ----------
+    operation : BooleanOperation
+        Operation represented by this class.
+
+    members : List[Union[Identifier, Graphable]], optional
+        List of RDF entities [Identifier or Graphable] contained in the intersection/union, by default []
+    """
+
+    def __init__(self, operation: BooleanOperation, members: List[Union[Identifier, Graphable]] = []):
+        """
+        A class representing the owl:intersectionOf or owl:unionOf entities [Identifier or Graphable]
+
+        Parameters
+        ----------
+        operation : BooleanOperation
+            Operation represented by this class (owl:intersectionOf or owl:unionOf)
+
+        members : List[Union[Identifier, Graphable]], optional
+            List of RDF entities [Identifier or Graphable] contained in the intersection/union, by default []
+        """
         self.operation = operation
         self.members = members
 
     def to_graph(self):
+        """
+        Converts the class into a RDFLib Graph representation
+
+        Returns
+        -------
+        Tuple[Graph, Identifier]
+            (RDFLib Graph representing the object, RDFLib Identifier corresponding to the root node of the Graph)
+
+        Raises
+        ------
+        Exception
+            [description]
+        """
         graph = graph_factory()
 
         # construct intersectionOf/unionOf structure
@@ -53,6 +91,8 @@ class BooleanClass(Graphable):
                 subgraph, subroot = member.to_graph()
                 graph += subgraph
                 c.append(subroot)
+            else:
+                raise Exception
 
         # construct the root node in the graph
         root = graph.resource(BNode())
@@ -63,12 +103,45 @@ class BooleanClass(Graphable):
 
 
 class Class(Graphable):
+    """
+    An `owl:Class` object
+
+    Attributes
+    ----------
+    identifier : Identifier, optional
+        Identifier corresponding to root node of this object, by default BNode()
+    label : str, optional
+        `rdf:label` corresponding to this object, by default None
+    rdf_type : Identifier, optional
+        `rdf:type` corresponding to this object, by default OWL.Class
+    equivalent_class : Graphable, optional
+        `owl:equivalentClass` corresponding to this object, by default None
+    subclass_of : List[Union[Identifier, Graphable]], optional
+        List of RDF entities [Identifier or Graphable] for which this object is `rdfs:subClassOf`, by default []
+    """
+
     def __init__(self,
                  identifier: Identifier = BNode(),
                  label: str = None,
                  rdf_type: Identifier = OWL.Class,
-                 equivalent_class: Graphable = None,
+                 equivalent_class: Union[Identifier, Graphable] = None,
                  subclass_of: List[Union[Identifier, Graphable]] = []):
+        """
+        An owl:Class object
+
+        Parameters
+        ----------
+        identifier : Identifier, optional
+            Identifier corresponding to root node of this object, by default BNode()
+        label : str, optional
+            `rdf:label` corresponding to this object, by default None
+        rdf_type : Identifier, optional
+            `rdf:type` corresponding to this object, by default OWL.Class
+        equivalent_class : Graphable, optional
+            `owl:equivalentClass` corresponding to this object, by default None
+        subclass_of : List[Union[Identifier, Graphable]], optional
+            List of RDF entities [Identifier or Graphable] for which this object is `rdfs:subClassOf`, by default []
+        """
         self.identifier = identifier
         self.label = label
         self.equivalent_class = equivalent_class
@@ -87,9 +160,14 @@ class Class(Graphable):
             root.add(RDFS.label, Literal(self.label))
 
         if self.equivalent_class != None:
-            subgraph, subroot = self.equivalent_class.to_graph()
-            graph += subgraph
-            root.add(OWL.equivalentClass, subroot)
+            if isinstance(self.equivalent_class, Identifier):
+                root.add(OWL.equivalentClass, self.equivalent_class)
+            elif isinstance(self.equivalent_class, Graphable):
+                subgraph, subroot = self.equivalent_class.to_graph()
+                graph += subgraph
+                root.add(OWL.equivalentClass, subroot)
+            else:
+                raise Exception
 
         for super_class in self.subclass_of:
             if isinstance(super_class, Identifier):
@@ -98,6 +176,8 @@ class Class(Graphable):
                 subgraph, subroot = super_class.to_graph()
                 graph += subgraph
                 root.add(RDFS.subClassOf, subroot)
+            else:
+                raise Exception
 
         return (graph, root.identifier)
 
@@ -111,16 +191,53 @@ class RestrictionKind(Enum):
 
 
 class Restriction(Graphable):
+    """
+    An owl:Restriction object
+
+    Attributes
+    ----------
+    on_property : Identifier
+        Identifier of propert which is restricted by this object 
+    restriction_kind : RestrictionKind
+        Type of restriction on the property
+    restriction_value : Union[Identifier, Graphable]
+        Value of the restriction
+    """
 
     def __init__(self,
                  on_property: Identifier,
                  restriction_kind: RestrictionKind,
                  restriction_value: Union[Identifier, Graphable]):
+        """
+        An owl:Restriction object
+
+        Parameters
+        ----------
+        on_property : Identifier
+            Identifier of propert which is restricted by this object 
+        restriction_kind : RestrictionKind
+            Type of restriction on the property
+        restriction_value : Union[Identifier, Graphable]
+            Value of the restriction
+        """
         self.on_property = on_property
         self.restriction_kind = restriction_kind
         self.restriction_value = restriction_value
 
     def to_graph(self):
+        """
+        Converts the class into a RDFLib Graph representation
+
+        Returns
+        -------
+        Tuple[Graph, Identifier]
+            (RDFLib Graph representing the object, RDFLib Identifier corresponding to the root node of the Graph)
+
+        Raises
+        ------
+        Exception
+            [description]
+        """
         graph = graph_factory()
 
         root = graph.resource(BNode())
@@ -133,6 +250,8 @@ class Restriction(Graphable):
             root.add(self.restriction_kind.value, subroot)
         elif isinstance(self.restriction_value, Identifier):
             root.add(self.restriction_kind.value, self.restriction_value)
+        else:
+            raise Exception
 
         return (graph, root.identifier)
 
@@ -173,6 +292,19 @@ class RestrictedDatatype(Graphable):
         self.with_restrictions = with_restrictions
 
     def to_graph(self):
+        """
+        Converts the class into a RDFLib Graph representation
+
+        Returns
+        -------
+        Tuple[Graph, Identifier]
+            (RDFLib Graph representing the object, RDFLib Identifier corresponding to the root node of the Graph)
+
+        Raises
+        ------
+        Exception
+            [description]
+        """
         graph = graph_factory()
         c = graph.collection(BNode())
 

@@ -16,13 +16,12 @@ from twks.nanopub import Nanopublication
 from . import config
 from .models.data import Attribute
 from .models.dtos import PolicyPostDTO, RequestPostDTO
-from .rdf import namespaces as ns
 from .rdf import prov
 from .rdf.classes import (AgentRestriction, AttributeRestriction, BooleanClass,
-                          BooleanOp, Class, Graphable, RestrictedDatatype,
-                          Restriction, RestrictionKind, ValueRestriction)
-from .rdf.common import graph_factory
-from .rdf.namespaces import OWL, POL, PROV, RDF, SIO, XSD
+                          BooleanOperation, Class, Graphable,
+                          RestrictedDatatype, Restriction, RestrictionKind,
+                          ValueRestriction)
+from .rdf.common import OWL, POL, PROV, RDF, REQ, SIO, SKOS, XSD, RDFS, graph_factory
 
 # ==============================================================================
 # SETUP
@@ -286,13 +285,13 @@ def build_policy(source: str,
     else:
         identifier = URIRef(POL[id])
 
-    eq_class = BooleanClass(operation=BooleanOp.INTERSECTION,
+    eq_class = BooleanClass(operation=BooleanOperation.INTERSECTION,
                             members=[URIRef(action)])
 
     def dfs(a: dict) -> Graphable:
         if 'attributes' in a:
             children = [dfs(c) for c in a['attributes']]
-            rest_val = BooleanClass(BooleanOp.INTERSECTION,
+            rest_val = BooleanClass(BooleanOperation.INTERSECTION,
                                     [URIRef(a['@id']), *children])
             return AttributeRestriction(RestrictionKind.SOME_VALUES_FROM,
                                         rest_val)
@@ -365,9 +364,9 @@ def create_request():
 
     graph = graph_factory()
 
-    root = ns.REQ[request_req.id]
-    graph.add((root, ns.RDFS['label'], Literal(request_req.label)))
-    graph.add((root, ns.SKOS['definition'], Literal(request_req.definition)))
+    root = REQ[request_req.id]
+    graph.add((root, RDFS['label'], Literal(request_req.label)))
+    graph.add((root, SKOS['definition'], Literal(request_req.definition)))
 
     agent_node = BNode()
 
@@ -380,43 +379,43 @@ def create_request():
 
         if is_action:
             for value in attribute['values']:
-                graph.add((root, ns.RDF['type'], URIRef(value['@value'])))
+                graph.add((root, RDF['type'], URIRef(value['@value'])))
         elif is_starttime:
             for value in attribute['values']:
-                graph.add((root, ns.PROV['startedAtTime'], Literal(
+                graph.add((root, PROV['startedAtTime'], Literal(
                     value['@value'], datatype=value['@type'])))
         elif is_endtime:
             for value in attribute['values']:
-                graph.add((root, ns.PROV['endedAtTime'], Literal(
+                graph.add((root, PROV['endedAtTime'], Literal(
                     value['@value'], datatype=value['@type'])))
         elif is_agent:
             for value in attribute['values']:
-                graph.add((root, ns.PROV['wasAssociatedWith'], agent_node))
+                graph.add((root, PROV['wasAssociatedWith'], agent_node))
                 graph.add(
-                    (agent_node, ns.RDF['type'], URIRef(value['@value'])))
+                    (agent_node, RDF['type'], URIRef(value['@value'])))
         else:
             if 'attributes' in attribute:
                 c = BNode()
-                graph.add((c, ns.RDF['type'], URIRef(attribute['@id'])))
+                graph.add((c, RDF['type'], URIRef(attribute['@id'])))
                 for attributes in attribute['attributes']:
                     for value in attributes['values']:
                         v = BNode()
-                        graph.add((c, ns.SIO['hasAttribute'], v))
+                        graph.add((c, SIO['hasAttribute'], v))
                         graph.add(
-                            (v, ns.RDF['type'], URIRef(attributes['@id'])))
-                        graph.add((v, ns.SIO['hasValue'], Literal(
+                            (v, RDF['type'], URIRef(attributes['@id'])))
+                        graph.add((v, SIO['hasValue'], Literal(
                             value['@value'], datatype=value['@type'])))
-                graph.add((agent_node, ns.SIO['hasAttribute'], c))
+                graph.add((agent_node, SIO['hasAttribute'], c))
             else:
                 for value in attribute['values']:
                     v = BNode()
-                    graph.add((agent_node, ns.SIO['hasAttribute'], v))
-                    graph.add((v, ns.RDF['type'], URIRef(attribute['@id'])))
+                    graph.add((agent_node, SIO['hasAttribute'], v))
+                    graph.add((v, RDF['type'], URIRef(attribute['@id'])))
                     if is_affiliation:
                         graph.add(
-                            (v, ns.SIO['hasValue'], URIRef(value['@value'])))
+                            (v, SIO['hasValue'], URIRef(value['@value'])))
                     else:
-                        graph.add((v, ns.SIO['hasValue'], Literal(
+                        graph.add((v, SIO['hasValue'], Literal(
                             value['@value'], datatype=value['@type'])))
 
     output = graph.serialize(format='turtle').decode('utf-8')
@@ -425,6 +424,6 @@ def create_request():
     nanopublication = Nanopublication.parse_assertions(data=output,
                                                        format="ttl")
     client.put_nanopublication(nanopublication)
-    logging.info(f'{ns.REQ[request_req.id]} loaded into TWKS')
+    logging.info(f'{REQ[request_req.id]} loaded into TWKS')
 
     return {'output': output}
