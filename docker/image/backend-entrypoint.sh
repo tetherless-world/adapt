@@ -1,2 +1,2 @@
 #!/bin/sh
-python run-server.py
+python -m policy_tool_backend

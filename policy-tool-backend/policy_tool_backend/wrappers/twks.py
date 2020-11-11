@@ -4,10 +4,10 @@ from pathlib import Path
 
 from rdflib import RDFS, Graph, URIRef
 
-
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
 
+from ..models.data import Attribute
 from ..rdf.common import OWL, RDF, RDFS, SIO
 
 logger = logging.getLogger(__name__)
@@ -24,32 +24,35 @@ class TwksClientWrapper:
         logger.info('Loading ontologies.')
         files = Path(ontology_path).glob('*.ttl')
         for f in files:
-            pub = Nanopublication.parse(source=f.absolute(), format='ttl')
+            pub = Nanopublication.parse_assertions(source=f.open(),
+                                                   format='ttl')
             self.client.put_nanopublication(pub)
             logger.info(f'Loaded {f.name}')
 
-    def query_rdfs_subclasses(self, super_class: URIRef) -> list:
-        return self.client.query_assertions(
+    def query_rdfs_subclasses(self, super_class: str) -> list:
+        res = self.client.query_assertions(
             '''
             SELECT ?val ?label WHERE { 
                 ?val rdfs:subClassOf+ ?super_class.
                 ?val rdfs:label ?label. 
             }''',
             initNs={'rdfs': RDFS},
-            initBindings={'super_class': super_class})
+            initBindings={'super_class': URIRef(super_class)})
+        return [{'value': str(a), 'label': str(b)} for (a, b) in res]
 
     def query_rdf_type(self, rdf_type: URIRef):
-        return self.client.query_assertions(
+        res = self.client.query_assertions(
             '''
             SELECT ?val ?label WHERE {
                 ?val rdf:type ?rdf_type.
                 ?val rdfs:label ?label.
             }''',
             initNs={'rdf': RDF, 'rdfs': RDFS},
-            initBindings={'rdf_type': rdf_type})
+            initBindings={'rdf_type': URIRef(rdf_type)})
+        return [{'value': str(a), 'label': str(b)} for (a, b) in res]
 
     def query_attributes(self):
-        return self.client.query_assertions(
+        res = self.client.query_assertions(
             '''
             SELECT DISTINCT ?attribute ?label ?property ?range ?propertyType ?extent ?cardinality 
             WHERE {
@@ -85,11 +88,10 @@ class TwksClientWrapper:
                 }
             }''',
             initNs={'rdfs': RDFS, 'rdf': RDF, 'sio': SIO, 'owl': OWL})
+        return [Attribute(*r) for r in res]
 
-    def query_is_subclass(self, uri: URIRef, super_class: URIRef):
+    def query_is_subclass(self, uri: str, super_class: str):
         return self.client.query_assertions(
             'ASK { ?uri rdfs:subClassOf+ ?super_class}',
             initNs={'rdfs': RDFS},
-            initBindings={'uri': uri, 'super_class': super_class})
-    
-    
+            initBindings={'uri': URIRef(uri), 'super_class': URIRef(super_class)})

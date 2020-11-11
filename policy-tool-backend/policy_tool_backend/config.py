@@ -1,3 +1,6 @@
+import os
+
+
 class Config(object):
     DEBUG = False
     TESTING = False
@@ -23,3 +26,11 @@ class DevelopmentConfig(Config):
     TWKS_URL = 'http://localhost:8080'
     HOST = '127.0.0.1'
     PORT = 5000
+
+
+def get_current_config():
+    if os.getenv('FLASK_ENV', 'default') == 'development':
+        current_config = DevelopmentConfig
+    else:
+        current_config = ProductionConfig
+    return current_config
