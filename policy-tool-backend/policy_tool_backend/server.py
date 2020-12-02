@@ -171,32 +171,44 @@ def app_factory(config):
         def dfs(a: dict) -> Graphable:
             if 'attributes' in a:
                 children = [dfs(c) for c in a['attributes']]
-                rest_val = BooleanClass(BooleanOperation.INTERSECTION,
-                                        [URIRef(a['@id']), *children])
-                return AttributeRestriction(RestrictionKind.SOME_VALUES_FROM,
-                                            rest_val)
-            elif 'values' in a and len(a['values']) == 1:
+                rest_val = BooleanClass(BooleanOperation.INTERSECTION, [
+                                        URIRef(a['@id']), *children])
+                return AttributeRestriction(RestrictionKind.SOME_VALUES_FROM, rest_val)
+
+            if 'values' in a and len(a['values']) == 1:
                 v = a['values'][0]
                 if a['@id'] == 'http://www.w3.org/ns/prov#Agent':
                     return AgentRestriction(RestrictionKind.SOME_VALUES_FROM,
                                             URIRef(v['@value']))
-                elif v['@type'] == OWL.Class:
-                    return AttributeRestriction(RestrictionKind.SOME_VALUES_FROM,
-                                                URIRef(v['@value']))
+
+                rest_val_members = [URIRef(a['@id'])]
+                if v['@type'] == OWL.Class:
+                    rest_val_members.append(AttributeRestriction(RestrictionKind.SOME_VALUES_FROM,
+                                                                 URIRef(v['@value'])))
                 else:
                     # assumes xsd datatype from here on
-                    with_rest = []
-                    if not twks.query_is_subclass(a['@id'], SIO.MaximalValue):
-                        with_rest.append((XSD.minInclusive,
-                                          Literal(v['@value'], datatype=v['@type'])))
-                    if not twks.query_is_subclass(a['@id'], SIO.MinimalValue):
-                        with_rest.append((XSD.maxInclusive,
-                                          Literal(v['@value'], datatype=v['@type'])))
+                    is_maximal = twks.query_is_subclass(
+                        a['@id'], SIO.MaximalValue)
+                    is_minimal = twks.query_is_subclass(
+                        a['@id'], SIO.MinimalValue)
 
-                    rest_val = RestrictedDatatype(on_datatype=v['@type'],
-                                                  with_restrictions=with_rest)
-                    return ValueRestriction(RestrictionKind.SOME_VALUES_FROM,
-                                            rest_val)
+                    if not is_maximal and not is_minimal:
+                        rest_val_members.append(ValueRestriction(RestrictionKind.HAS_VALUE,
+                                                                 Literal(v['@value'], datatype=v['@type'])))
+
+                    if is_maximal:
+                        with_rest = [(XSD.maxInclusive, Literal(v['@value'],
+                                                                datatype=v['@type']))]
+
+                    if is_minimal:
+                        with_rest = [(XSD.minInclusive, Literal(v['@value'],
+                                                                datatype=v['@type']))]
+
+                    rest_val_members.append(ValueRestriction(RestrictionKind.SOME_VALUES_FROM,
+                                                             RestrictedDatatype(v['@type'], with_rest)))
+
+                return AttributeRestriction(RestrictionKind.SOME_VALUES_FROM,
+                                            BooleanClass(BooleanOperation.INTERSECTION, rest_val_members))
             else:
                 raise RuntimeError('Invalid attribute structure.')
 
