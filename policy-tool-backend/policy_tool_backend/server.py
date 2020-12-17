@@ -19,8 +19,8 @@ from .models.dtos import PolicyPostDTO, RequestPostDTO
 from .rdf import prov
 from .rdf.classes import (AgentRestriction, AttributeRestriction, BooleanClass,
                           BooleanOperation, Class, Graphable,
-                          RestrictedDatatype, Restriction, RestrictionKind,
-                          ValueRestriction)
+                          RestrictedDatatype, Restriction, RestrictionKind, 
+                          StartTimeRestriction, ValueRestriction, EndTimeRestriction)
 from .rdf.common import OWL, POL, PROV, RDF, REQ, SIO, SKOS, XSD, RDFS, graph_factory
 
 # ==============================================================================
@@ -44,6 +44,10 @@ def app_factory(config):
     @app.route('/')
     def index():
         return 'Hello there!'
+
+    @app.route('/test')
+    def test():
+        return jsonify([a.__dict__ for a in twks.query_attributes()])
 
     @app.route(f'{api_url}/attributes', methods=['GET'])
     def get_attributes():
@@ -153,68 +157,70 @@ def app_factory(config):
             'obligations': get_obligations()
         }
 
-    def build_policy(source: str,
-                     id: str,
-                     label: str,
-                     definition: str,
-                     action,
-                     attributes):
-
-        if source != None:
+    def build_policy(source: str, id: str, label: str, definition: str, action, attributes):
+        print(source)
+        if source != "":
             identifier = URIRef(f'{source}#{id}')
         else:
-            identifier = URIRef(POL[id])
+            identifier = URIRef(f'http://purl.org/twc/policy#{id}')
 
-        eq_class = BooleanClass(operation=BooleanOperation.INTERSECTION,
-                                members=[URIRef(action)])
+
 
         def dfs(a: dict) -> Graphable:
+            id_ = URIRef(a['@id'])
             if 'attributes' in a:
                 children = [dfs(c) for c in a['attributes']]
-                rest_val = BooleanClass(BooleanOperation.INTERSECTION, [
-                                        URIRef(a['@id']), *children])
+                rest_val = BooleanClass(BooleanOperation.INTERSECTION, [id_, *children])
                 return AttributeRestriction(RestrictionKind.SOME_VALUES_FROM, rest_val)
 
             if 'values' in a and len(a['values']) == 1:
-                v = a['values'][0]
-                if a['@id'] == 'http://www.w3.org/ns/prov#Agent':
-                    return AgentRestriction(RestrictionKind.SOME_VALUES_FROM,
-                                            URIRef(v['@value']))
+                value_, type_ = [a['values'][0][k] for k in ['@value', '@type']]
 
-                rest_val_members = [URIRef(a['@id'])]
-                if v['@type'] == OWL.Class:
-                    rest_val_members.append(AttributeRestriction(RestrictionKind.SOME_VALUES_FROM,
-                                                                 URIRef(v['@value'])))
+                # prov values
+                if id_ == PROV.Agent:
+                    return AgentRestriction(RestrictionKind.SOME_VALUES_FROM, URIRef(value_))
+
+                if id_ == PROV.startTime:
+                    return StartTimeRestriction(RestrictionKind.HAS_VALUE, Literal(value_, datatype=type_))
+
+                if id_ == PROV.endTime:
+                    return EndTimeRestriction(RestrictionKind.HAS_VALUE, Literal(value_, datatype=type_))
+
+                rest_val_members = [id_]
+                if type_ == OWL.Class:
+                    rest_val_members.append(AttributeRestriction(RestrictionKind.SOME_VALUES_FROM, URIRef(value_)))
                 else:
                     # assumes xsd datatype from here on
-                    is_maximal = twks.query_is_subclass(
-                        a['@id'], SIO.MaximalValue)
-                    is_minimal = twks.query_is_subclass(
-                        a['@id'], SIO.MinimalValue)
+                    is_maximal = twks.query_is_subclass(id_, SIO.MaximalValue)
+                    is_minimal = twks.query_is_subclass(id_, SIO.MinimalValue)
 
-                    if not is_maximal and not is_minimal:
-                        rest_val_members.append(ValueRestriction(RestrictionKind.HAS_VALUE,
-                                                                 Literal(v['@value'], datatype=v['@type'])))
-
-                    if is_maximal:
-                        with_rest = [(XSD.maxInclusive, Literal(v['@value'],
-                                                                datatype=v['@type']))]
+                    with_rest = []
 
                     if is_minimal:
-                        with_rest = [(XSD.minInclusive, Literal(v['@value'],
-                                                                datatype=v['@type']))]
+                        with_rest.append((XSD.minInclusive, Literal(value_, datatype=type_)))
+                    
+                    if is_maximal:
+                        with_rest.append((XSD.maxInclusive, Literal(value_, datatype=type_)))
 
-                    rest_val_members.append(ValueRestriction(RestrictionKind.SOME_VALUES_FROM,
-                                                             RestrictedDatatype(v['@type'], with_rest)))
+                    if len(with_rest) == 0:
+                        rest_val_members.append(ValueRestriction(RestrictionKind.HAS_VALUE,
+                                                                 Literal(value_, datatype=type_)))
+                    else:
+                        rest_val_members.append(ValueRestriction(RestrictionKind.SOME_VALUES_FROM,
+                                                                 RestrictedDatatype(type_, with_rest)))
 
                 return AttributeRestriction(RestrictionKind.SOME_VALUES_FROM,
                                             BooleanClass(BooleanOperation.INTERSECTION, rest_val_members))
             else:
                 raise RuntimeError('Invalid attribute structure.')
-
+        
+        was_assoc_val = BooleanClass(BooleanOperation.INTERSECTION, [])
         for a in attributes:
-            eq_class.members.append(dfs(a))
+            was_assoc_val.add_member(dfs(a))
 
+        eq_agent = AgentRestriction(RestrictionKind.SOME_VALUES_FROM, was_assoc_val)
+
+        eq_class = BooleanClass(operation=BooleanOperation.INTERSECTION, members=[URIRef(action), eq_agent])
         root = Class(identifier=identifier,
                      label=label,
                      equivalent_class=eq_class,

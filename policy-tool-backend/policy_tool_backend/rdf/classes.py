@@ -66,6 +66,9 @@ class BooleanClass(Graphable):
         self.operation = operation
         self.members = members
 
+    def add_member(self, member: [Union[Identifier, Graphable]]):
+        self.members.append(member)
+
     def to_graph(self):
         """
         Converts the class into a RDFLib Graph representation
@@ -186,8 +189,6 @@ class RestrictionKind(Enum):
     HAS_VALUE = OWL.hasValue
     SOME_VALUES_FROM = OWL.someValuesFrom
     ALL_VALUES_FROM = OWL.allValuesFrom
-    MAX_CARDINALITY = OWL.maxCardinality
-    MIN_CARDINALITY = OWL.minCardinality
 
 
 class Restriction(Graphable):
@@ -262,6 +263,22 @@ class AgentRestriction(Restriction):
                  restriction_kind: RestrictionKind,
                  restriction_value: Union[Identifier, Graphable]):
         super().__init__(on_property=PROV.wasAssociatedWith,
+                         restriction_kind=restriction_kind,
+                         restriction_value=restriction_value)
+
+class StartTimeRestriction(Restriction):
+    def __init__(self,
+                 restriction_kind: RestrictionKind,
+                 restriction_value: Union[Identifier, Graphable]):
+        super().__init__(on_property=PROV.startedAtTime, 
+                         restriction_kind=restriction_kind,
+                         restriction_value=restriction_value)
+
+class EndTimeRestriction(Restriction):
+    def __init__(self,
+                 restriction_kind: RestrictionKind,
+                 restriction_value: Union[Identifier, Graphable]):
+        super().__init__(on_property=PROV.endedAtTime, 
                          restriction_kind=restriction_kind,
                          restriction_value=restriction_value)
 
