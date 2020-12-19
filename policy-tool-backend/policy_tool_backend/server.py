@@ -234,7 +234,7 @@ def app_factory(config):
         graph = build_policy(req.source, req.id, req.label,
                              req.definition, req.action, req.attributes)
 
-        output = graph.serialize(format='turtle').decode('utf-8')
+        output = graph.serialize(format='pretty-xml').decode('utf-8')
 
         logging.info(output)
 
