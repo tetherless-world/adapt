@@ -158,13 +158,8 @@ def app_factory(config):
         }
 
     def build_policy(source: str, id: str, label: str, definition: str, action, attributes):
-        print(source)
-        if source != "":
-            identifier = URIRef(f'{source}#{id}')
-        else:
-            identifier = URIRef(f'http://purl.org/twc/policy#{id}')
 
-
+        identifier =  f'{source}#{id}' if source != '' else f'http://purl.org/twc/policy#{id}'
 
         def dfs(a: dict) -> Graphable:
             id_ = URIRef(a['@id'])
@@ -214,14 +209,14 @@ def app_factory(config):
             else:
                 raise RuntimeError('Invalid attribute structure.')
         
-        was_assoc_val = BooleanClass(BooleanOperation.INTERSECTION, [])
-        for a in attributes:
-            was_assoc_val.add_member(dfs(a))
+        was_assoc_members = [dfs(a) for a in attributes]
+        eq_agent = AgentRestriction(RestrictionKind.SOME_VALUES_FROM, 
+                                    BooleanClass(BooleanOperation.INTERSECTION, 
+                                                 was_assoc_members))
 
-        eq_agent = AgentRestriction(RestrictionKind.SOME_VALUES_FROM, was_assoc_val)
-
-        eq_class = BooleanClass(operation=BooleanOperation.INTERSECTION, members=[URIRef(action), eq_agent])
-        root = Class(identifier=identifier,
+        eq_class = BooleanClass(BooleanOperation.INTERSECTION, 
+                                members=[URIRef(action), eq_agent])
+        root = Class(identifier=URIRef(identifier),
                      label=label,
                      equivalent_class=eq_class,
                      subclass_of=[URIRef(action)])
