@@ -238,9 +238,9 @@ def app_factory(config):
 
         logging.info(output)
 
-        # nanopublication = Nanopublication.parse_assertions(data=output,
-        #                                                    format="ttl")
-        # client.put_nanopublication(nanopublication)
+        nanopublication = Nanopublication.parse_assertions(data=output,
+                                                           format="ttl")
+        twks.save(nanopublication)
 
         return {'output': output}
 

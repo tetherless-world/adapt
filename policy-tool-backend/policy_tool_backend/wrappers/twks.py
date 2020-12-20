@@ -29,6 +29,9 @@ class TwksClientWrapper:
             self.client.put_nanopublication(pub)
             logger.info(f'Loaded {f.name}')
 
+    def save(self, pub: Nanopublication):
+        self.client.put_nanopublication(pub)
+
     def query_rdfs_subclasses(self, super_class: str) -> list:
         res = self.client.query_assertions(
             '''
