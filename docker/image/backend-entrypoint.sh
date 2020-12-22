@@ -1,3 +1,2 @@
 #!/bin/sh
-# /load-ontologies.sh &
-env FLASK_APP=app.py flask run --host 0.0.0.0
+python -m policy_tool_backend

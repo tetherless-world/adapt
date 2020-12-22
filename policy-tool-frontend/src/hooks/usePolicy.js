@@ -163,7 +163,7 @@ export default function usePolicy() {
 
   const attributesAreValid = ({ attributes, values }) => {
     if (!!values?.length) {
-      return values?.every((v) => !!v['@value'])
+      return values?.every((v) => v !== null && v !== undefined)
     } else if (!!attributes?.length) {
       return attributes?.every(attributesAreValid)
     }
@@ -173,13 +173,13 @@ export default function usePolicy() {
     () =>
       [
         !!state.id,
-        //!!state.source,
+        //!!state.source, disabled for now
         !!state.label,
         !!state.definition,
         !!state.action,
         !!state.precedence,
-        !!state.effects.every((v) => !!v['@value']),
-        !!state.obligations.every((v) => !!v['@value']),
+        !!state.effects.every((v) => v !== null && v !== undefined),
+        // !!state.obligations.every((v) => !!v['@value']), disabled for now
         !!state.attributes.every(attributesAreValid),
       ].every((v) => !!v),
     [state]
