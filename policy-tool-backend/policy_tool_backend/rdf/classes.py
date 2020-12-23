@@ -5,7 +5,7 @@ from typing import List, Tuple, Union
 from rdflib import Graph
 from rdflib.term import BNode, Identifier, Literal, URIRef
 
-from .common import OWL, POL, PROV, RDF, RDFS, SIO, graph_factory
+from .common import OWL, POL, PROV, RDF, RDFS, SIO, SKOS, graph_factory
 
 
 class Graphable(ABC):
@@ -114,7 +114,9 @@ class Class(Graphable):
     identifier : Identifier, optional
         Identifier corresponding to root node of this object, by default BNode()
     label : str, optional
-        `rdf:label` corresponding to this object, by default None
+        `rdf:label` corresponding to this object, by default None    
+    definition : str, optional
+        `skos:definition` corresponding to this object, by default None
     rdf_type : Identifier, optional
         `rdf:type` corresponding to this object, by default OWL.Class
     equivalent_class : Graphable, optional
@@ -126,6 +128,7 @@ class Class(Graphable):
     def __init__(self,
                  identifier: Identifier = BNode(),
                  label: str = None,
+                 definition: str = None,
                  rdf_type: Identifier = OWL.Class,
                  equivalent_class: Union[Identifier, Graphable] = None,
                  subclass_of: List[Union[Identifier, Graphable]] = []):
@@ -138,6 +141,8 @@ class Class(Graphable):
             Identifier corresponding to root node of this object, by default BNode()
         label : str, optional
             `rdf:label` corresponding to this object, by default None
+        definition : str, optional
+            `skos:definition` corresponding to this object, by default None
         rdf_type : Identifier, optional
             `rdf:type` corresponding to this object, by default OWL.Class
         equivalent_class : Graphable, optional
@@ -147,6 +152,7 @@ class Class(Graphable):
         """
         self.identifier = identifier
         self.label = label
+        self.definition = definition
         self.equivalent_class = equivalent_class
         self.subclass_of = subclass_of
         self.rdf_type = rdf_type
@@ -156,13 +162,16 @@ class Class(Graphable):
 
         root = graph.resource(self.identifier)
 
-        if self.rdf_type != None:
+        if self.rdf_type:
             root.add(RDF.type, self.rdf_type)
 
-        if self.label != None:
+        if self.label:
             root.add(RDFS.label, Literal(self.label))
+        
+        if self.definition:
+            root.add(SKOS.definition, Literal(self.definition))
 
-        if self.equivalent_class != None:
+        if self.equivalent_class:
             if isinstance(self.equivalent_class, Identifier):
                 root.add(OWL.equivalentClass, self.equivalent_class)
             elif isinstance(self.equivalent_class, Graphable):
@@ -171,16 +180,16 @@ class Class(Graphable):
                 root.add(OWL.equivalentClass, subroot)
             else:
                 raise Exception
-
-        for super_class in self.subclass_of:
-            if isinstance(super_class, Identifier):
-                root.add(RDFS.subClassOf, super_class)
-            elif isinstance(super_class, Graphable):
-                subgraph, subroot = super_class.to_graph()
-                graph += subgraph
-                root.add(RDFS.subClassOf, subroot)
-            else:
-                raise Exception
+        if self.subclass_of:
+            for super_class in self.subclass_of:
+                if isinstance(super_class, Identifier):
+                    root.add(RDFS.subClassOf, super_class)
+                elif isinstance(super_class, Graphable):
+                    subgraph, subroot = super_class.to_graph()
+                    graph += subgraph
+                    root.add(RDFS.subClassOf, subroot)
+                else:
+                    raise Exception
 
         return (graph, root.identifier)
 

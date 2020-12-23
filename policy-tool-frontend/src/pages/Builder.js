@@ -6,6 +6,7 @@ import {
   IconButton,
   Paper,
   makeStyles,
+  Box,
 } from '@material-ui/core'
 import { Delete } from '@material-ui/icons'
 import ReactJson from 'react-json-view'
@@ -335,11 +336,17 @@ export default function Builder() {
         </Button>
       </LoadingWrapper>
       {showOutput && (
-        <LoadingWrapper loading={createPolicyResponse.loading}>
-          <Paper>
-            <pre>{output}</pre>
-          </Paper>
-        </LoadingWrapper>
+        <Box marginTop={2}>
+          <LoadingWrapper loading={createPolicyResponse.loading}>
+            <Paper
+              variant={'outlined'}
+              component={'pre'}
+              style={{ padding: 8, overflow: 'auto', maxHeight: 800 }}
+            >
+              {output}
+            </Paper>
+          </LoadingWrapper>
+        </Box>
       )}
     </>
   )

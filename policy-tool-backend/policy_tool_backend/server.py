@@ -157,9 +157,7 @@ def app_factory(config):
             'obligations': get_obligations()
         }
 
-    def build_policy(source: str, id: str, label: str, definition: str, action, attributes):
-
-        identifier =  f'{source}#{id}' if source != '' else f'http://purl.org/twc/policy#{id}'
+    def build_policy(policy: PolicyPostDTO):
 
         def dfs(a: dict) -> Graphable:
             id_ = URIRef(a['@id'])
@@ -209,17 +207,29 @@ def app_factory(config):
             else:
                 raise RuntimeError('Invalid attribute structure.')
         
-        was_assoc_members = [dfs(a) for a in attributes]
+        source = policy.source if policy.source else 'http://purl.org/twc/policy'
+        identifier = f'{source}#{policy.id}'
+        
+        was_assoc_members = [dfs(a) for a in policy.attributes]
         eq_agent = AgentRestriction(RestrictionKind.SOME_VALUES_FROM, 
                                     BooleanClass(BooleanOperation.INTERSECTION, 
                                                  was_assoc_members))
 
         eq_class = BooleanClass(BooleanOperation.INTERSECTION, 
-                                members=[URIRef(action), eq_agent])
+                                members=[URIRef(policy.action), eq_agent])
+
+        super_classes = [URIRef(policy.action)]
+        for effect in policy.effects:
+            super_classes.append(URIRef(effect['@value']))
+
+        for obligation in policy.obligations:
+            super_classes.append(URIRef(obligation['@value']))
+        
         root = Class(identifier=URIRef(identifier),
-                     label=label,
+                     label=policy.label,
+                     definition=policy.definition,
                      equivalent_class=eq_class,
-                     subclass_of=[URIRef(action)])
+                     subclass_of=super_classes)
 
         graph, _ = root.to_graph()
         return graph
@@ -229,17 +239,15 @@ def app_factory(config):
         logging.info('Received Policy')
 
         data = request.json
-        req = PolicyPostDTO(data)
+        policy = PolicyPostDTO(data)
 
-        graph = build_policy(req.source, req.id, req.label,
-                             req.definition, req.action, req.attributes)
+        graph = build_policy(policy)
 
-        output = graph.serialize(format='turtle').decode('utf-8')
+        output = graph.serialize(format='pretty-xml').decode()
 
         logging.info(output)
 
-        nanopublication = Nanopublication.parse_assertions(data=output,
-                                                           format="ttl")
+        nanopublication = Nanopublication.parse_assertions(data=output, format="xml")
         twks.save(nanopublication)
 
         return {'output': output}
