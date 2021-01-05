@@ -1,5 +1,5 @@
 import { TextField } from '@material-ui/core'
-import { SelectorProps, Selector } from '../Selector'
+import { SelectorProps, Selector } from './Selector'
 
 const typeMap: Record<string, string> = {
   'http://www.w3.org/2001/XMLSchema#boolean': 'boolean',
