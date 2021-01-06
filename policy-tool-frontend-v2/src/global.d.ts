@@ -26,7 +26,7 @@ export interface PolicyState {
   definition: SimpleState<string | undefined>
   action: SimpleState<string | null>
   precedence: SimpleState<string | null>
-  effects: GenericListState
-  requesterRestrictions: GenericListState
-  requestRestrictions: GenericListState
+  effects: GenericListState<any>
+  requesterRestrictions: GenericListState<any>
+  requestRestrictions: GenericListState<any>
 }
