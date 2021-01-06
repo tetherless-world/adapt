@@ -1,7 +1,8 @@
 import { TextField } from '@material-ui/core'
+import { Dictionary } from 'lodash'
 import { SelectorProps, Selector } from './Selector'
 
-const typeMap: Record<string, string> = {
+const typeMap: Dictionary<string> = {
   'http://www.w3.org/2001/XMLSchema#boolean': 'boolean',
   'http://www.w3.org/2001/XMLSchema#string': 'string',
   'http://www.w3.org/2001/XMLSchema#decimal': 'number',
@@ -11,15 +12,15 @@ const typeMap: Record<string, string> = {
   'http://www.w3.org/2001/XMLSchema#dateTime': 'dateTime-local',
 }
 
-type BaseInputProps = { typeUri: string }
-
-export type InputWrapperProps = BaseInputProps & Partial<SelectorProps>
+export interface InputWrapperProps extends Partial<SelectorProps> {
+  typeUri: string
+}
 
 export const InputWrapper: React.FC<InputWrapperProps> = ({
   typeUri,
   ...props
 }) => {
-  const inputType: string = typeMap[typeUri]
+  let inputType: string = typeMap[typeUri]
   return inputType === 'boolean' ? (
     <Selector
       options={[
