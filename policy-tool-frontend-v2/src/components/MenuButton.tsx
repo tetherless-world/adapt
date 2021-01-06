@@ -1,28 +1,12 @@
-import {
-  Button,
-  ButtonProps,
-  Menu,
-  MenuItem,
-  MenuItemProps,
-  MenuProps,
-} from '@material-ui/core'
+import { Button, ButtonProps, Menu, MenuProps } from '@material-ui/core'
 import { useState } from 'react'
-
-export interface MenuOptionProps extends MenuItemProps {
-  label: string
-}
+import { MenuOption, MenuOptionProps } from './MenuOption'
 
 export interface MenuButtonProps extends ButtonProps {
   options: MenuOptionProps[]
   onSelectOption: (i: number) => void
   menuProps?: MenuProps
 }
-
-export const MenuOption: React.FC<MenuOptionProps> = ({ label, ...props }) => (
-  <MenuItem {...props} button>
-    {label}
-  </MenuItem>
-)
 
 export const MenuButton: React.FC<MenuButtonProps> = ({
   options,
