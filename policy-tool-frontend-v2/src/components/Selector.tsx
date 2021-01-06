@@ -1,16 +1,24 @@
-import { MenuItem, TextField, TextFieldProps } from '@material-ui/core'
+import {
+  MenuItem,
+  StandardProps,
+  StandardTextFieldProps,
+  TextField,
+  TextFieldClassKey,
+  TextFieldProps,
+} from '@material-ui/core'
 
 export interface SelectorOption {
   label: string | number
   value: any
 }
 
-export interface SelectorProps {
+export interface SelectorProps
+  extends StandardProps<StandardTextFieldProps, TextFieldClassKey> {
   options?: SelectorOption[]
   displayNone?: boolean
 }
 
-export const Selector: React.FC<SelectorProps & TextFieldProps> = ({
+export const Selector: React.FC<SelectorProps> = ({
   options = [],
   displayNone = true,
   ...props

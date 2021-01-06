@@ -1,8 +1,16 @@
-import { Button, ButtonProps, Menu, MenuProps } from '@material-ui/core'
+import {
+  Button,
+  ButtonClassKey,
+  ButtonProps,
+  Menu,
+  MenuProps,
+  StandardProps,
+} from '@material-ui/core'
 import { useState } from 'react'
 import { MenuOption, MenuOptionProps } from './MenuOption'
 
-export interface MenuButtonProps extends ButtonProps {
+export interface MenuButtonProps
+  extends StandardProps<ButtonProps, ButtonClassKey> {
   options: MenuOptionProps[]
   onSelectOption: (i: number) => void
   menuProps?: MenuProps

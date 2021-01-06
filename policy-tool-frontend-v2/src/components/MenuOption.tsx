@@ -1,6 +1,12 @@
-import { MenuItem, MenuItemProps } from '@material-ui/core'
+import {
+  MenuItem,
+  MenuItemClassKey,
+  MenuItemProps,
+  StandardProps,
+} from '@material-ui/core'
 
-export interface MenuOptionProps extends MenuItemProps {
+export interface MenuOptionProps
+  extends StandardProps<MenuItemProps, MenuItemClassKey> {
   label: string
 }
 

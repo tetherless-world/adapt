@@ -7,6 +7,9 @@ import {
   Toolbar,
   Typography,
   ContainerProps,
+  ContainerClassKey,
+  StandardProps,
+  useTheme,
 } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
@@ -18,7 +21,8 @@ const useStyles = makeStyles((theme) => ({
   appTitle: { flexGrow: 1 },
 }))
 
-export interface LayoutProps extends ContainerProps {
+export interface LayoutProps
+  extends StandardProps<ContainerProps, ContainerClassKey> {
   title: string
 }
 
@@ -27,7 +31,8 @@ export const Layout: React.FC<LayoutProps> = ({
   children,
   ...props
 }) => {
-  const classes = useStyles()
+  const theme = useTheme()
+  const classes = useStyles(theme)
 
   return (
     <Container {...props}>

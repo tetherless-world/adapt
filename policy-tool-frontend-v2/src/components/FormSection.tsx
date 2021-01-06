@@ -1,23 +1,33 @@
-import { Grid, Typography, makeStyles, GridProps } from '@material-ui/core'
+import {
+  Grid,
+  Typography,
+  makeStyles,
+  GridProps,
+  GridClassKey,
+  StandardProps,
+  useTheme,
+} from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
-  label: { paddingBottom: theme.spacing(1) },
+  title: { paddingBottom: theme.spacing(1) },
 }))
 
-export interface FormSectionProps extends GridProps {
-  label: string
+export interface FormSectionProps
+  extends StandardProps<GridProps, GridClassKey> {
+  title: string
 }
 
 export const FormSection: React.FC<FormSectionProps> = ({
-  label,
+  title,
   children,
   ...props
 }) => {
-  const classes = useStyles()
+  const theme = useTheme()
+  const classes = useStyles(theme)
   return (
     <Grid container {...props}>
-      <Grid item className={classes.label}>
-        <Typography variant={'h5'}>{label}</Typography>
+      <Grid item className={classes.title}>
+        <Typography variant={'h5'}>{title}</Typography>
       </Grid>
       <Grid item xs={12}>
         {children}
