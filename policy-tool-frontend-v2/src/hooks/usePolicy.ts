@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { SimpleState, PolicyState } from '../global'
 import { useListState } from './useListState'
+import { useSimpleState } from './useSimpleState'
 
 const toSimpleState = <S>(
   state: S,
@@ -17,28 +18,28 @@ const getIdentifier = (source: string, id: string): string => {
 }
 
 export const usePolicy = (): PolicyState => {
-  const [source, setSource] = useState<string>('')
-  const [id, setId] = useState<string>('')
-  const [label, setLabel] = useState<string | null>(null)
-  const [definition, setDefinition] = useState<string | null>(null)
-  const [action, setAction] = useState<string | null>(null)
-  const [precedence, setPrecedence] = useState<string | null>(null)
-  const requesterRestrictions = useListState<any>()
-  const requestRestrictions = useListState<any>()
-  const effects = useListState<any>()
+  const source = useSimpleState<string>('')
+  const id = useSimpleState<string>('')
+  const label = useSimpleState<string | undefined>(undefined)
+  const definition = useSimpleState<string | undefined>(undefined)
+  const action = useSimpleState<string | null>(null)
+  const precedence = useSimpleState<string | null>(null)
+  const requesterRestrictions = useListState()
+  const requestRestrictions = useListState()
+  const effects = useListState()
 
-  const root = getIdentifier(source, id)
+  const root = getIdentifier(source.get(), id.get())
 
   const data = {
     [root]: {
       a: 'owl:Class',
-      'rdf:label': label,
-      'skos:definition': definition,
-      'owl:subClassOf': [precedence, ...effects.data],
+      'rdf:label': label.get() ?? id.get(),
+      'skos:definition': definition.get(),
+      'owl:subClassOf': [precedence.get(), ...effects.data],
       'owl:equivalentClass': {
         a: 'owl:Class',
         'owl:intersectionOf': [
-          action,
+          action.get(),
           ...requestRestrictions.data,
           ...requesterRestrictions.data,
         ],
@@ -48,16 +49,14 @@ export const usePolicy = (): PolicyState => {
 
   return {
     data,
-    source: toSimpleState(source, setSource),
-    id: toSimpleState(id, setId),
-    label: toSimpleState(label, setLabel),
-    definition: toSimpleState(definition, setDefinition),
-    action: toSimpleState(action, setAction),
-    precedence: toSimpleState(precedence, setPrecedence),
+    source,
+    id,
+    label,
+    definition,
+    action,
+    precedence,
     effects,
-    restrictions: {
-      request: requestRestrictions,
-      requester: requesterRestrictions,
-    },
+    requestRestrictions,
+    requesterRestrictions,
   }
 }
