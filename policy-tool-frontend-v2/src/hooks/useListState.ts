@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import _, { PropertyPath } from 'lodash'
-import { GenericListState } from '../global'
+import { ListState } from '../global'
 
-const useListState = <S>(initialState: S[] = []): GenericListState<S> => {
+const useListState = <S>(initialState: S[] = []): ListState<S> => {
   const [state, setState] = useState<S[]>(initialState)
 
   const append = (item: S) => setState((prev) => [...prev, item])

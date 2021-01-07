@@ -5,13 +5,13 @@ export interface SimpleState<S extends any> {
   set: (value: S) => void
 }
 
-export interface GenericMapState<K, V> {
+export interface MapState<K, V> {
   state: Record<K, V>
   get: (keys: PropertyPath) => V
   set: (keys: PropertyPath, value: V) => void
 }
 
-export interface GenericListState<S> extends GenericMapState<number, S> {
+export interface ListState<S> extends MapState<number, S> {
   state: S[]
   append: (item: S) => void
   remove: (index: number) => void
@@ -26,7 +26,7 @@ export interface PolicyState {
   definition: SimpleState<string | undefined>
   action: SimpleState<string | null>
   precedence: SimpleState<string | null>
-  effects: GenericListState<any>
-  requesterRestrictions: GenericListState<any>
-  requestRestrictions: GenericListState<any>
+  effects: ListState<any>
+  requesterRestrictions: ListState<any>
+  requestRestrictions: ListState<any>
 }

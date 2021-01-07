@@ -1,8 +1,8 @@
 import { PropertyName, PropertyPath } from 'lodash'
-import { GenericMapState, SimpleState } from '../global'
+import { MapState, SimpleState } from '../global'
 
 const extractState = <S extends any>(
-  state: GenericMapState<any, any>,
+  state: MapState<any, any>,
   keys: PropertyPath
 ): SimpleState<S> => {
   const get = () => state.get(keys)
