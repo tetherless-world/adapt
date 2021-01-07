@@ -1,6 +1,4 @@
 import { Grid, TextField } from '@material-ui/core'
-import { FormSection } from '../../components/FormSection/FormSection'
-import { FormSectionHeader } from '../../components/FormSection/FormSectionHeader'
 import { BuilderSection } from './common'
 
 const fields = [
@@ -10,13 +8,7 @@ const fields = [
   { value: 'definition', label: 'Definition' },
 ]
 
-export const InformationSection: React.FC<BuilderSection> = ({
-  policy,
-}) => {
-  const handleOnChange = (key: string) => (e: any) => {
-    policy?.[key].set(e.target.value)
-  }
-
+export const InformationSection: React.FC<BuilderSection> = ({ policy }) => {
   return (
     <Grid container>
       <Grid container item xs={6}>
@@ -24,21 +16,21 @@ export const InformationSection: React.FC<BuilderSection> = ({
           <TextField
             label={'Source'}
             value={policy.source.get()}
-            onChange={handleOnChange('source')}
+            onChange={(e) => policy.source.set(e.target.value)}
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
             label={'ID'}
             value={policy.id.get()}
-            onChange={handleOnChange('id')}
+            onChange={(e) => policy.id.set(e.target.value)}
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
             label={'Label'}
             value={policy.label.get()}
-            onChange={handleOnChange('label')}
+            onChange={(e) => policy.label.set(e.target.value)}
           />
         </Grid>
       </Grid>
@@ -47,7 +39,7 @@ export const InformationSection: React.FC<BuilderSection> = ({
           <TextField
             label={'Definition'}
             value={policy.definition.get()}
-            onChange={handleOnChange('definition')}
+            onChange={(e) => policy.definition.set(e.target.value)}
             multiline
           />
         </Grid>
