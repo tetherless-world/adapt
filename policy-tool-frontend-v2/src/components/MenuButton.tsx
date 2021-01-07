@@ -1,42 +1,43 @@
 import {
   Button,
-  ButtonClassKey,
   ButtonProps,
   Menu,
+  MenuItemProps,
   MenuProps,
-  StandardProps,
 } from '@material-ui/core'
 import { useState } from 'react'
 import { MenuOption, MenuOptionProps } from './MenuOption'
 
-export interface MenuButtonProps
-  extends StandardProps<ButtonProps, ButtonClassKey> {
+export interface MenuButtonProps {
   options: MenuOptionProps[]
-  onSelectOption: (i: number) => void
+  onSelectOption(index: number): void
+  buttonProps?: ButtonProps
   menuProps?: MenuProps
 }
 
 export const MenuButton: React.FC<MenuButtonProps> = ({
-  options,
+  options = [],
   onSelectOption,
-  menuProps = {},
-  ...props
+  buttonProps = {},
+  menuProps = {
+    PaperProps: { style: { maxHeight: 300 } },
+  },
 }) => {
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
-  const handleClick = (event: any) => setAnchorEl(event.currentTarget)
+  const handleClickButton = (event: any) => setAnchorEl(event.currentTarget)
   const handleClose = () => setAnchorEl(null)
-  const handleSelect = (i: number) => {
-    onSelectOption(i)
+  const handleSelect = (index: number) => {
+    onSelectOption(index)
     handleClose()
   }
 
   return (
     <>
       <Button
+        {...buttonProps}
         aria-controls={'menu'}
-        aria-aria-haspopup
-        onClick={handleClick}
-        {...props}
+        aria-haspopup
+        onClick={handleClickButton}
       />
       <Menu
         id={'menu'}
@@ -44,13 +45,17 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
         anchorEl={anchorEl}
         open={!!anchorEl}
         onClose={handleClose}
-        PaperProps={{ style: { maxHeight: 300 } }}
         {...menuProps}
       >
-        {!!options?.length &&
-          options.map((option, i) => (
-            <MenuOption key={i} onClick={() => handleSelect(i)} {...option} />
-          ))}
+        {options.map((option, i) => (
+          <MenuOption
+            label={option.label}
+            menuItemProps={{
+              ...option.menuItemProps,
+              onClick: () => handleSelect(i),
+            }}
+          />
+        ))}
       </Menu>
     </>
   )

@@ -1,17 +1,15 @@
-import {
-  MenuItem,
-  MenuItemClassKey,
-  MenuItemProps,
-  StandardProps,
-} from '@material-ui/core'
+import { MenuItem, MenuItemProps } from '@material-ui/core'
 
-export interface MenuOptionProps
-  extends StandardProps<MenuItemProps, MenuItemClassKey> {
+export interface MenuOptionProps {
   label: string
+  menuItemProps?: MenuItemProps
 }
 
-export const MenuOption: React.FC<MenuOptionProps> = ({ label, ...props }) => (
-  <MenuItem {...props} button>
+export const MenuOption: React.FC<MenuOptionProps> = ({
+  label,
+  menuItemProps = {},
+}) => (
+  <MenuItem {...menuItemProps} button>
     {label}
   </MenuItem>
 )
