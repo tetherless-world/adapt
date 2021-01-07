@@ -1,39 +1,36 @@
 import {
   MenuItem,
-  StandardProps,
-  StandardTextFieldProps,
+  MenuItemProps,
   TextField,
-  TextFieldClassKey,
   TextFieldProps,
 } from '@material-ui/core'
 
 export interface SelectorOption {
-  label: string | number
+  label: string
   value: any
+  menuItemProps?: MenuItemProps
 }
 
-export interface SelectorProps
-  extends StandardProps<StandardTextFieldProps, TextFieldClassKey> {
+export interface SelectorProps {
   options?: SelectorOption[]
   displayNone?: boolean
+  textFieldProps?: TextFieldProps
 }
 
 export const Selector: React.FC<SelectorProps> = ({
   options = [],
   displayNone = true,
-  ...props
+  textFieldProps = {},
 }) => (
-  <TextField {...props} select>
+  <TextField {...textFieldProps} select>
     {displayNone && (
       <MenuItem value={''}>
         <em>None</em>
       </MenuItem>
     )}
     {!!options?.length &&
-      options.map(({ label, value }, i) => (
-        <MenuItem key={i} value={value}>
-          {label}
-        </MenuItem>
+      options.map((option) => (
+        <MenuItem value={option.value}>{option.label}</MenuItem>
       ))}
   </TextField>
 )
