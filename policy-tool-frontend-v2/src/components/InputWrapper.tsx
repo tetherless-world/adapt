@@ -12,12 +12,15 @@ const typeMap: Dictionary<string> = {
   'http://www.w3.org/2001/XMLSchema#dateTime': 'dateTime-local',
 }
 
-export interface InputWrapperProps extends Partial<SelectorProps> {
+export interface InputWrapperProps {
   typeUri: string
+  selectorProps?: SelectorProps
+  [k: string]: any
 }
 
 export const InputWrapper: React.FC<InputWrapperProps> = ({
   typeUri,
+  selectorProps,
   ...props
 }) => {
   let inputType: string = typeMap[typeUri]
@@ -27,10 +30,11 @@ export const InputWrapper: React.FC<InputWrapperProps> = ({
         { value: true, label: 'True' },
         { value: false, label: 'False' },
       ]}
+      {...selectorProps}
       {...props}
     />
   ) : inputType === 'string' ? (
-    <Selector {...props} />
+    <Selector {...selectorProps} {...props} />
   ) : (
     <TextField type={inputType} InputLabelProps={{ shrink: true }} {...props} />
   )
