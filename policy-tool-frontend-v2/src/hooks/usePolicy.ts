@@ -3,13 +3,6 @@ import { SimpleState, PolicyState } from '../global'
 import { useListState } from './useListState'
 import { useSimpleState } from './useSimpleState'
 
-const toSimpleState = <S>(
-  state: S,
-  setState: (value: S) => void
-): SimpleState<S> => {
-  return { get: () => state, set: setState }
-}
-
 const getIdentifier = (source: string, id: string): string => {
   let lastChar = source.charAt(source.length - 1)
   return lastChar === '#' || lastChar === '/'
@@ -24,8 +17,8 @@ export const usePolicy = (): PolicyState => {
   const definition = useSimpleState<string | undefined>(undefined)
   const action = useSimpleState<string | null>(null)
   const precedence = useSimpleState<string | null>(null)
-  const requesterRestrictions = useListState()
-  const requestRestrictions = useListState()
+  const agentRestrictions = useListState()
+  const activityRestrictions = useListState()
   const effects = useListState()
 
   const root = getIdentifier(source.get(), id.get())
@@ -35,13 +28,13 @@ export const usePolicy = (): PolicyState => {
       a: 'owl:Class',
       'rdf:label': label.get() ?? id.get(),
       'skos:definition': definition.get(),
-      'owl:subClassOf': [precedence.get(), ...effects.data],
+      'owl:subClassOf': [precedence.get(), ...effects.state],
       'owl:equivalentClass': {
         a: 'owl:Class',
         'owl:intersectionOf': [
           action.get(),
-          ...requestRestrictions.data,
-          ...requesterRestrictions.data,
+          ...agentRestrictions.state,
+          ...activityRestrictions.state,
         ],
       },
     },
@@ -56,7 +49,7 @@ export const usePolicy = (): PolicyState => {
     action,
     precedence,
     effects,
-    requestRestrictions,
-    requesterRestrictions,
+    agentRestrictions,
+    activityRestrictions,
   }
 }

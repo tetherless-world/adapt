@@ -27,6 +27,6 @@ export interface PolicyState {
   action: SimpleState<string | null>
   precedence: SimpleState<string | null>
   effects: ListState<any>
-  requesterRestrictions: ListState<any>
-  requestRestrictions: ListState<any>
+  activityRestrictions: ListState<any>
+  agentRestrictions: ListState<any>
 }
