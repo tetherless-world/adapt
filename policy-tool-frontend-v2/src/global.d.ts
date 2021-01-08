@@ -1,8 +1,10 @@
+import { Draft } from 'immer'
+import { Updater } from 'use-immer'
 import { PropertyName, PropertyPath } from 'lodash'
 
 export interface SimpleState<S extends any> {
   get: () => S
-  set: (value: S) => void
+  set: Updater<S>
 }
 
 export interface MapState<K, V> {

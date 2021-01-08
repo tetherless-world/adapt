@@ -1,8 +1,8 @@
-import { useState } from 'react'
 import { SimpleState } from '../global'
+import { useImmer } from 'use-immer'
 
 const useSimpleState = <S>(initialState: S | (() => S)): SimpleState<S> => {
-  const [state, setState] = useState(initialState)
+  const [state, setState] = useImmer(initialState)
   return {
     get: () => state,
     set: setState,
