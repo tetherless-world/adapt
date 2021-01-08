@@ -8,29 +8,43 @@ const fields = [
   { value: 'definition', label: 'Definition' },
 ]
 
-export const InformationSection: React.FC<BuilderSection> = ({ policy }) => {
+export interface InformationSectionProps {
+  source: [source: string, setSource: Function]
+  id: [id: any, setId: Function]
+  label: [label: any, setLabel: Function]
+  definition: [definition: any, setDefinition: Function]
+}
+
+export const InformationSection: React.FC<InformationSectionProps> = (
+  props
+) => {
+  let [source, setSource] = props.source
+  let [id, setId] = props.id
+  let [label, setLabel] = props.source
+  let [definition, setDefinition] = props.source
+
   return (
     <Grid container>
       <Grid container item xs={6}>
         <Grid item xs={12}>
           <TextField
             label={'Source'}
-            value={policy.source.get()}
-            onChange={(e) => policy.source.set(e.target.value)}
+            value={source}
+            onChange={(e) => setSource(e.target.value)}
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
             label={'ID'}
-            value={policy.id.get()}
-            onChange={(e) => policy.id.set(e.target.value)}
+            value={id}
+            onChange={(e) => setId(e.target.value)}
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
             label={'Label'}
-            value={policy.label.get()}
-            onChange={(e) => policy.label.set(e.target.value)}
+            value={label}
+            onChange={(e) => setLabel(e.target.value)}
           />
         </Grid>
       </Grid>
@@ -38,8 +52,8 @@ export const InformationSection: React.FC<BuilderSection> = ({ policy }) => {
         <Grid item xs={12}>
           <TextField
             label={'Definition'}
-            value={policy.definition.get()}
-            onChange={(e) => policy.definition.set(e.target.value)}
+            value={definition}
+            onChange={(e) => setDefinition(e.target.value)}
             multiline
           />
         </Grid>

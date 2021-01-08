@@ -1,10 +1,21 @@
 import { Button, Grid } from '@material-ui/core'
 import { MenuButton } from '../../components/MenuButton'
-import { BuilderSection } from './common'
 
-export const ActivityRestrictionSection: React.FC<BuilderSection> = ({
-  policy,
-}) => {
+export interface ActivityRestrictionSectionProps {
+  activityRestrictions: [
+    activityRestrictions: any[],
+    updateActivityRestrictions: Function
+  ]
+}
+
+export const ActivityRestrictionSection: React.FC<ActivityRestrictionSectionProps> = (
+  props
+) => {
+  let [
+    activityRestrictions,
+    updateActivityRestrictions,
+  ] = props.activityRestrictions
+
   return (
     <>
       <Grid container spacing={2}>

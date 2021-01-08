@@ -1,10 +1,22 @@
+import { useImmer, Updater } from 'use-immer'
 import { Button, Grid } from '@material-ui/core'
 import { MenuButton } from '../../components/MenuButton'
 import { BuilderSection } from './common'
 
-export const AgentRestrictionSection: React.FC<BuilderSection> = ({
-  policy,
-}) => {
+export interface AgentRestrictionSectionProps {
+  agentRestrictions: [
+    agentRestrictions: any[],
+    updateAgentRestrictions: Updater<any[]>
+  ]
+}
+
+const clear = (draft: any[]) => []
+
+export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
+  props
+) => {
+  let [agentRestrictions, updateAgentRestrictions] = props.agentRestrictions
+
   return (
     <>
       <Grid container spacing={2}>
@@ -14,9 +26,7 @@ export const AgentRestrictionSection: React.FC<BuilderSection> = ({
           </MenuButton>
         </Grid>
         <Grid item xs={12} md={4}>
-          <Button onClick={() => policy.agentRestrictions.clear()}>
-            Clear
-          </Button>
+          <Button onClick={() => updateAgentRestrictions(clear)}>Clear</Button>
         </Grid>
       </Grid>
     </>
