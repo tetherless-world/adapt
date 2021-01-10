@@ -19,7 +19,7 @@ from .models.dtos import PolicyPostDTO, RequestPostDTO
 from .rdf import prov
 from .rdf.classes import (AgentRestriction, AttributeRestriction, BooleanClass,
                           BooleanOperation, Class, Graphable,
-                          RestrictedDatatype, Restriction, RestrictionKind, 
+                          RestrictedDatatype, Restriction, RestrictionKind,
                           StartTimeRestriction, ValueRestriction, EndTimeRestriction)
 from .rdf.common import OWL, POL, PROV, RDF, REQ, SIO, SKOS, XSD, RDFS, graph_factory
 
@@ -47,7 +47,63 @@ def app_factory(config):
 
     @app.route('/test')
     def test():
-        return jsonify([a.__dict__ for a in twks.query_attributes()])
+        results = twks.query_attributes()
+        row_dict = {row.uri: row for row in results}
+        units = {row.uri: row.range for row in results if row.property == SIO.hasUnit}
+
+        type_dict = {}
+        for row in results:
+            if row.propertyType == OWL.DatatypeProperty:
+                type_dict[row.uri] = row.range
+            if row.propertyType == OWL.ObjectProperty and row.property == RDF.type:
+                type_dict[row.uri] = row.range
+
+        choice_dict = {}
+        attr_set = set() # filter the 
+        for row in results:
+            if type_dict[row.uri] == OWL.Class:
+                choices = twks.query_rdfs_subclasses(row.uri)
+                if not choices:
+                    continue
+
+                attributes.append()
+                choice_dict[row.uri] = [c.value for c in choices]
+                attr_set.add(row.uri)
+
+            else:
+                attr_set.add(row.uri)
+
+        attribute_trees = defaultdict(list)
+        for uri in attr_set:
+            # result_row: { uri, label, property, extent, range, cardinality (optional) }
+            if row_dict[uri].property == SIO.hasAttribute:
+                attribute_tree[row.uri].append(row.range)
+
+        default_attributes = {}
+
+        def dfs(row):
+            if row.uri in attribute_trees:
+                children = [dfs()]
+            restriction = {
+                'a': OWL.Restriction,
+                OWL.onProperty: SIO.hasAttribute,
+                OWL.someValuesFrom: {
+                    'a': OWL.Class,
+                    OWL.intersectionOf: [
+                        row.uri,
+                        {
+                            'a': OWL.Restriction,
+                            OWL.onProperty: row.property,
+                            row.extent:}
+                    ]
+                }
+            }
+
+        for row in results:
+            if row.uri not in attribute_tree:
+                if type_dict[row.uri] ==
+
+        return jsonify(attributes)
 
     @app.route(f'{api_url}/attributes', methods=['GET'])
     def get_attributes():
@@ -159,17 +215,19 @@ def app_factory(config):
 
     def build_policy(source: str, id: str, label: str, definition: str, action, attributes):
 
-        identifier =  f'{source}#{id}' if source != '' else f'http://purl.org/twc/policy#{id}'
+        identifier = f'{source}#{id}' if source != '' else f'http://purl.org/twc/policy#{id}'
 
         def dfs(a: dict) -> Graphable:
             id_ = URIRef(a['@id'])
             if 'attributes' in a:
                 children = [dfs(c) for c in a['attributes']]
-                rest_val = BooleanClass(BooleanOperation.INTERSECTION, [id_, *children])
+                rest_val = BooleanClass(
+                    BooleanOperation.INTERSECTION, [id_, *children])
                 return AttributeRestriction(RestrictionKind.SOME_VALUES_FROM, rest_val)
 
             if 'values' in a and len(a['values']) == 1:
-                value_, type_ = [a['values'][0][k] for k in ['@value', '@type']]
+                value_, type_ = [a['values'][0][k]
+                                 for k in ['@value', '@type']]
 
                 # prov values
                 if id_ == PROV.Agent:
@@ -183,7 +241,8 @@ def app_factory(config):
 
                 rest_val_members = [id_]
                 if type_ == OWL.Class:
-                    rest_val_members.append(AttributeRestriction(RestrictionKind.SOME_VALUES_FROM, URIRef(value_)))
+                    rest_val_members.append(AttributeRestriction(
+                        RestrictionKind.SOME_VALUES_FROM, URIRef(value_)))
                 else:
                     # assumes xsd datatype from here on
                     is_maximal = twks.query_is_subclass(id_, SIO.MaximalValue)
@@ -192,10 +251,12 @@ def app_factory(config):
                     with_rest = []
 
                     if is_minimal:
-                        with_rest.append((XSD.minInclusive, Literal(value_, datatype=type_)))
-                    
+                        with_rest.append(
+                            (XSD.minInclusive, Literal(value_, datatype=type_)))
+
                     if is_maximal:
-                        with_rest.append((XSD.maxInclusive, Literal(value_, datatype=type_)))
+                        with_rest.append(
+                            (XSD.maxInclusive, Literal(value_, datatype=type_)))
 
                     if len(with_rest) == 0:
                         rest_val_members.append(ValueRestriction(RestrictionKind.HAS_VALUE,
@@ -208,13 +269,13 @@ def app_factory(config):
                                             BooleanClass(BooleanOperation.INTERSECTION, rest_val_members))
             else:
                 raise RuntimeError('Invalid attribute structure.')
-        
+
         was_assoc_members = [dfs(a) for a in attributes]
-        eq_agent = AgentRestriction(RestrictionKind.SOME_VALUES_FROM, 
-                                    BooleanClass(BooleanOperation.INTERSECTION, 
+        eq_agent = AgentRestriction(RestrictionKind.SOME_VALUES_FROM,
+                                    BooleanClass(BooleanOperation.INTERSECTION,
                                                  was_assoc_members))
 
-        eq_class = BooleanClass(BooleanOperation.INTERSECTION, 
+        eq_class = BooleanClass(BooleanOperation.INTERSECTION,
                                 members=[URIRef(action), eq_agent])
         root = Class(identifier=URIRef(identifier),
                      label=label,

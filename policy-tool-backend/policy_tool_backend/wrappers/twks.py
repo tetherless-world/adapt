@@ -33,35 +33,34 @@ class TwksClientWrapper:
         self.client.put_nanopublication(pub)
 
     def query_rdfs_subclasses(self, super_class: str) -> list:
-        res = self.client.query_assertions(
+        return self.client.query_assertions(
             '''
-            SELECT ?val ?label WHERE { 
-                ?val rdfs:subClassOf+ ?super_class.
-                ?val rdfs:label ?label. 
+            SELECT ?value ?label 
+            WHERE { 
+                ?value rdfs:subClassOf+ ?superClass;
+                       rdfs:label ?label . 
             }''',
             initNs={'rdfs': RDFS},
-            initBindings={'super_class': URIRef(super_class)})
-        return [{'value': str(a), 'label': str(b)} for (a, b) in res]
+            initBindings={'superClass': URIRef(super_class)})
 
     def query_rdf_type(self, rdf_type: URIRef):
-        res = self.client.query_assertions(
+        return self.client.query_assertions(
             '''
-            SELECT ?val ?label WHERE {
-                ?val rdf:type ?rdf_type.
-                ?val rdfs:label ?label.
+            SELECT ?value ?label WHERE {
+                ?value rdf:type ?type ;
+                       rdfs:label ?label.
             }''',
             initNs={'rdf': RDF, 'rdfs': RDFS},
-            initBindings={'rdf_type': URIRef(rdf_type)})
-        return [{'value': str(a), 'label': str(b)} for (a, b) in res]
+            initBindings={'type': URIRef(type_)})
 
     def query_attributes(self):
-        res = self.client.query_assertions(
+        return self.client.query_assertions(
             '''
-            SELECT DISTINCT ?attribute ?label ?property ?range ?propertyType ?extent ?cardinality 
+            SELECT DISTINCT ?uri ?label ?property ?range ?propertyType ?extent ?cardinality 
             WHERE {
-                ?attribute rdfs:label ?label; 
-                           rdfs:subClassOf+ sio:Attribute;
-                           (rdfs:subClassOf|owl:equivalentClass|(owl:intersectionOf/rdf:rest*/rdf:first))* ?superClass.
+                ?uri rdfs:label ?label; 
+                     rdfs:subClassOf+ sio:Attribute;
+                     (rdfs:subClassOf|owl:equivalentClass|(owl:intersectionOf/rdf:rest*/rdf:first))* ?superClass.
                 {
                     ?superClass owl:onProperty ?property;
                                 owl:someValuesFrom|owl:allValuesFrom ?range;
@@ -91,7 +90,6 @@ class TwksClientWrapper:
                 }
             }''',
             initNs={'rdfs': RDFS, 'rdf': RDF, 'sio': SIO, 'owl': OWL})
-        return [Attribute(*r) for r in res]
 
     def query_is_subclass(self, uri: str, super_class: str):
         return self.client.query_assertions(
