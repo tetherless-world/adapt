@@ -1,18 +1,8 @@
-import {
-  MenuItem,
-  MenuItemProps,
-  TextField,
-  TextFieldProps,
-} from '@material-ui/core'
-
-export interface SelectorOption {
-  label: string
-  value: any
-  menuItemProps?: MenuItemProps
-}
+import { MenuItem, TextField, TextFieldProps } from '@material-ui/core'
+import { Option } from '../contexts/OptionMapContext'
 
 export interface SelectorProps {
-  options?: SelectorOption[]
+  options?: Option[]
   displayNone?: boolean
   textFieldProps?: TextFieldProps
 }

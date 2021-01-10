@@ -1,9 +1,8 @@
 import { Grid, makeStyles, Typography, useTheme } from '@material-ui/core'
-import { ErrorRounded } from '@material-ui/icons'
-import _, { Dictionary, update } from 'lodash'
-import { PropertyPath } from 'lodash'
-import { useContext, useMemo } from 'react'
-import { ListState } from '../../global'
+import _, { PropertyPath } from 'lodash'
+import { Draft } from 'immer'
+import { useContext } from 'react'
+import { OptionMapContext } from '../../contexts/OptionMapContext'
 import { InputWrapper } from '../InputWrapper'
 
 const useStyles = makeStyles((theme) => {
@@ -18,139 +17,70 @@ const useStyles = makeStyles((theme) => {
   }
 })
 
-const booleanOps = ['owl:intersectionOf', 'owl:unionOf']
-const datatypeConstraints = ['xsd:minInclusive', 'xsd:maxInclusive']
-const specifiers = ['owl:someValuesFrom', 'owl:hasValue', 'owl:allValuesFrom']
-
-const getRestrictedProperty = (root: any) => root?.['owl:onProperty']
-const getValueSpecifier = (root: any) => {
-  let valueSpecifier = _.keys(root)
-    .filter((k) => specifiers.includes(k))
-    .pop()
-
-  if (valueSpecifier === undefined)
-    throw Error(`Object must have one key from ${specifiers}`)
-
-  return valueSpecifier
-}
-
-const getBooleanOperation = (root: any, valueSpecifier: string) => {
-  let booleanOp = _.keys(root[valueSpecifier])
-    .filter((k) => booleanOps.includes(k))
-    .pop()
-
-  if (booleanOp === undefined)
-    throw Error(`Object must have one key from ${booleanOps}`)
-
-  return booleanOp
-}
-
-const getDatatypeConstraint = (datatype: any) => {
-  let datatypeConstraint = _.keys(datatype['owl:withRestrictions'][0])
-    .filter((k) => booleanOps.includes(k))
-    .pop()
-
-  if (datatypeConstraint === undefined)
-    throw Error(`Object must have one key from ${datatypeConstraints}`)
-
-  return datatypeConstraint
-}
-
 export interface RestrictionProps {
   keys: PropertyPath
   restrictions: [restrictions: any[], updateRestrictions: Function]
-}
-
-const AttributeRestriction: React.FC<RestrictionProps> = (props) => {
-  const theme = useTheme()
-  const classes = useStyles(theme)
-
-  const keys = _.toPath(props.keys)
-  const [restrictions, updateRestrictions] = props.restrictions
-  const root: any = _.get(restrictions, keys)
-  const valueSpecifier = getValueSpecifier(root)
-  const booleanOp = getBooleanOperation(root, valueSpecifier)
-  const [uri, ...rest]: [string, any[]] = _.get(root, [
-    valueSpecifier,
-    booleanOp,
-  ])
-
-  const _children = useMemo<JSX.Element[]>(
-    () =>
-      rest.map((r: any, i) => {
-        let path = [...keys, valueSpecifier, booleanOp, i]
-        // Todo: check if root is rdfs:subClassOf sio:Interval
-        switch (r['owl:onProperty']) {
-          case 'sio:hasAttribute':
-            return (
-              <AttributeRestriction
-                keys={path}
-                restrictions={[restrictions, updateRestrictions]}
-              />
-            )
-          case 'sio:hasValue':
-            const valSpec = getValueSpecifier(r)
-
-            if (valSpec === 'owl:hasValue') {
-              // TODO: handle sio:hasValue
-              throw Error('sio:hasValue support not yet implemented.')
-            }
-            const restrictedDatatype = r[valSpec]
-            const typeUri = restrictedDatatype['owl:onDatatype']
-
-            const constraint = getDatatypeConstraint(restrictedDatatype)
-
-            path = [...path, valSpec, 0, constraint]
-            const onChange = (e: any) =>
-              updateRestrictions((d: any[]) => _.set(d, path, e.target.value))
-
-            return (
-              <>
-                <InputWrapper
-                  typeUri={typeUri}
-                  textFieldProps={{
-                    value: _.get(restrictions, path),
-                    onChange,
-                  }}
-                />
-              </>
-            )
-          default:
-            throw Error()
-        }
-      }),
-    [root]
-  )
-
-  return (
-    <Grid container item className={classes.root}>
-      <Typography className={classes.label}>{uri}</Typography>
-      {_children}
-    </Grid>
-  )
-}
-
-const ValueRestriction: React.FC<RestrictionProps> = (props) => {
-  let keys = _.toPath(props.keys)
-  let [restrictions, updateRestrictions] = props.restrictions
-
-  return <></>
 }
 
 export const Restriction: React.FC<RestrictionProps> = (props) => {
   let keys = _.toPath(props.keys)
   let [restrictions, updateRestrictions] = props.restrictions
 
-  let restrictedProperty = _.get(restrictions, [...keys, 'owl:onProperty'])
+  const theme = useTheme()
+  const classes = useStyles(theme)
+  const optionMap = useContext(OptionMapContext)
 
-  if (typeof restrictedProperty === undefined)
-    throw new Error(`No value found for 'owl:onProperty' at  ${keys}.`)
+  const {
+    uri,
+    label,
+    values,
+    attributes,
+  }: {
+    uri: string
+    label: string
+    values?: any[]
+    attributes?: any[]
+  } = _.get(restrictions, keys)
 
-  return restrictedProperty === 'sio:hasAttribute' ? (
-    <AttributeRestriction {...props} />
-  ) : restrictedProperty === 'sio:hasValue' ? (
-    <ValueRestriction {...props} />
-  ) : (
-    <div>Error: Restriction could not be rendered</div>
+  const options = optionMap[uri] ?? []
+
+  return (
+    <div className={classes.root}>
+      {!!attributes?.length && (
+        <Grid container spacing={1}>
+          <Grid item xs={12}>
+            <Typography className={classes.label}>{label}</Typography>
+          </Grid>
+          {attributes.map((_, i) => (
+            <Grid item xs={12}>
+              <Restriction
+                keys={[...keys, 'attributes', i]}
+                restrictions={[restrictions, updateRestrictions]}
+              />
+            </Grid>
+          ))}
+        </Grid>
+      )}
+      {!!values?.length &&
+        values.map(({ value, typeUri }: { value: any; typeUri: string }, i) => (
+          <Grid item xs={12} md={6}>
+            <InputWrapper
+              typeUri={typeUri}
+              options={options}
+              textFieldProps={{
+                value,
+                onChange: (event: any) =>
+                  updateRestrictions((draft: Draft<any[]>) =>
+                    _.set(
+                      draft,
+                      [...keys, 'values', i, 'value'],
+                      event.target.value
+                    )
+                  ),
+              }}
+            />
+          </Grid>
+        ))}
+    </div>
   )
 }
