@@ -22,7 +22,7 @@ const getIdentifier = (source: string, id: string): string => {
     : `${source}#${id}`
 }
 
-const Builder = () => {
+export const Builder = () => {
   const theme = useTheme()
   const classes = useStyles(theme)
 
