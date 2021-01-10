@@ -1,13 +1,14 @@
 import { makeStyles, useTheme } from '@material-ui/core'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useImmer } from 'use-immer'
 import { FormSection } from '../../components/FormSection/FormSection'
 import { FormSectionHeader } from '../../components/FormSection/FormSectionHeader'
 import { LoadingWrapper } from '../../components/LoadingWrapper'
-import { usePolicy } from '../../hooks/usePolicy'
 import { ActivityRestrictionSection } from './ActivityRestrictionSection'
 import { AgentRestrictionSection } from './AgentRestrictionSection'
 import { InformationSection } from './InformationSection'
+import * as api from '../../hooks/api'
+import { OptionMapContext } from '../../contexts/OptionMapContext'
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -22,7 +23,7 @@ const getIdentifier = (source: string, id: string): string => {
     : `${source}#${id}`
 }
 
-export const Builder = () => {
+export const Builder: React.FC = () => {
   const theme = useTheme()
   const classes = useStyles(theme)
 
@@ -36,60 +37,71 @@ export const Builder = () => {
   const [activityRestrictions, updateActivityRestrictions] = useImmer<any[]>([])
   const [effects, updateEffects] = useImmer<any[]>([])
 
-  const root = getIdentifier(source, id)
+  const [
+    restrictionsResponse,
+    dispatchGetRestrictions,
+  ] = api.useGetRestrictions()
 
-  const output = {
-    [root]: {
-      a: 'owl:Class',
-      'rdf:label': label ?? id,
-      'skos:definition': definition,
-      'owl:subClassOf': [precedence, ...effects],
-      'owl:equivalentClass': {
-        a: 'owl:Class',
-        'owl:intersectionOf': [
-          action,
-          ...agentRestrictions,
-          ...activityRestrictions,
-        ],
-      },
-    },
-  }
+  useEffect(() => {
+    dispatchGetRestrictions()
+  }, [])
+
+  // const root = getIdentifier(source, id)
+
+  // const output = {
+  //   [root]: {
+  //     a: 'owl:Class',
+  //     'rdf:label': label ?? id,
+  //     'skos:definition': definition,
+  //     'owl:subClassOf': [precedence, ...effects],
+  //     'owl:equivalentClass': {
+  //       a: 'owl:Class',
+  //       'owl:intersectionOf': [
+  //         action,
+  //         ...agentRestrictions,
+  //         ...activityRestrictions,
+  //       ],
+  //     },
+  //   },
+  // }
 
   return (
-    <LoadingWrapper loading={false}>
-      <FormSection
-        header={<FormSectionHeader title={'Information'} />}
-        body={
-          <InformationSection
-            id={[id, setId]}
-            source={[source, setSource]}
-            label={[label, setLabel]}
-            definition={[definition, setDefinition]}
-          />
-        }
-        gridContainerProps={{ className: classes.section }}
-      />
-      <FormSection
-        header={<FormSectionHeader title={'Activity Restrictions'} />}
-        body={
-          <ActivityRestrictionSection
-            activityRestrictions={[
-              activityRestrictions,
-              updateActivityRestrictions,
-            ]}
-          />
-        }
-        gridContainerProps={{ className: classes.section }}
-      />
-      <FormSection
-        header={<FormSectionHeader title={'Agent Restrictions'} />}
-        body={
-          <AgentRestrictionSection
-            agentRestrictions={[agentRestrictions, updateAgentRestrictions]}
-          />
-        }
-        gridContainerProps={{ className: classes.section }}
-      />
+    <LoadingWrapper loading={restrictionsResponse.loading}>
+      <OptionMapContext.Provider value={{}}>
+        <FormSection
+          header={<FormSectionHeader title={'Information'} />}
+          body={
+            <InformationSection
+              id={[id, setId]}
+              source={[source, setSource]}
+              label={[label, setLabel]}
+              definition={[definition, setDefinition]}
+            />
+          }
+          gridContainerProps={{ className: classes.section }}
+        />
+        <FormSection
+          header={<FormSectionHeader title={'Activity Restrictions'} />}
+          body={
+            <ActivityRestrictionSection
+              activityRestrictions={[
+                activityRestrictions,
+                updateActivityRestrictions,
+              ]}
+            />
+          }
+          gridContainerProps={{ className: classes.section }}
+        />
+        <FormSection
+          header={<FormSectionHeader title={'Agent Restrictions'} />}
+          body={
+            <AgentRestrictionSection
+              agentRestrictions={[agentRestrictions, updateAgentRestrictions]}
+            />
+          }
+          gridContainerProps={{ className: classes.section }}
+        />
+      </OptionMapContext.Provider>
     </LoadingWrapper>
   )
 }
