@@ -59,34 +59,34 @@ class TwksClientWrapper:
             '''
             SELECT DISTINCT ?attribute ?label ?property ?range ?propertyType ?extent ?cardinality 
             WHERE {
-                ?attribute rdfs:label ?label.
-                ?attribute rdfs:subClassOf+ sio:Attribute.
-                ?attribute (rdfs:subClassOf|owl:equivalentClass|(owl:intersectionOf/rdf:rest*/rdf:first))* ?superClass.
+                ?attribute rdfs:label ?label; 
+                           rdfs:subClassOf+ sio:Attribute;
+                           (rdfs:subClassOf|owl:equivalentClass|(owl:intersectionOf/rdf:rest*/rdf:first))* ?superClass.
                 {
-                    ?superClass owl:onProperty ?property.
-                    ?superClass owl:someValuesFrom|owl:allValuesFrom ?range.
-                    ?superClass ?extent ?range.
+                    ?superClass owl:onProperty ?property;
+                                owl:someValuesFrom|owl:allValuesFrom ?range;
+                                ?extent ?range .
                     optional { ?property rdf:type ?propertyType }
                 } UNION {
-                    ?superClass owl:onDataRange ?range.
-                    ?superClass owl:onProperty ?property.
-                    ?superClass owl:minQualifiedCardinality|owl:maxQualifiedCardinality|owl:qualifiedCardinality ?cardinality.
-                    ?superClass ?extent ?cardinality.
+                    ?superClass owl:onDataRange ?range;
+                                owl:onProperty ?property;
+                                owl:minQualifiedCardinality|owl:maxQualifiedCardinality|owl:qualifiedCardinality ?cardinality;
+                                ?extent ?cardinality .
                     bind(owl:DatatypeProperty as ?propertyType)
                 } UNION {
-                    ?superClass owl:onClass ?range.
-                    ?superClass owl:onProperty ?property.
-                    ?superClass owl:minQualifiedCardinality|owl:maxQualifiedCardinality|owl:qualifiedCardinality ?cardinality.
-                    ?superClass ?extent ?cardinality.
+                    ?superClass owl:onClass ?range;
+                                owl:onProperty ?property;
+                                owl:minQualifiedCardinality|owl:maxQualifiedCardinality|owl:qualifiedCardinality ?cardinality;
+                                ?extent ?cardinality .
                     bind(owl:ObjectProperty as ?propertyType)
                 } UNION {
-                    ?superClass owl:onProperty ?property.
-                    ?superClass owl:minCardinality|owl:maxCardinality|owl:exactCardinality ?cardinality.
-                    ?superClass ?extent ?cardinality.
+                    ?superClass owl:onProperty ?property;
+                                owl:minCardinality|owl:maxCardinality|owl:exactCardinality ?cardinality;
+                                ?extent ?cardinality.
                     optional { ?property rdf:type ?propertyType }
                 } UNION {
                     ?property rdfs:domain ?superClass;
-                            rdfs:range ?range.
+                              rdfs:range ?range .
                     optional { ?property rdf:type ?propertyType }
                 }
             }''',
