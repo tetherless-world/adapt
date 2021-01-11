@@ -3,6 +3,7 @@ import logging
 from pathlib import Path
 
 from rdflib import RDFS, Graph, URIRef
+import rdflib
 
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
@@ -10,7 +11,12 @@ from twks.nanopub import Nanopublication
 from ..models.data import Attribute
 from ..rdf.common import OWL, RDF, RDFS, SIO
 
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+remote_ontologies = [
+    'http://purl.obolibrary.org/obo/uo.owl'
+]
 
 
 class TwksClientWrapper:
@@ -21,13 +27,17 @@ class TwksClientWrapper:
         """
         Add ontologies into twks-server
         """
-        logger.info('Loading ontologies.')
-        files = Path(ontology_path).glob('*.ttl')
+        logger.info('Loading ontologies')
+        files = Path(ontology_path).glob('*')
         for f in files:
-            pub = Nanopublication.parse_assertions(source=f.open(),
-                                                   format='ttl')
+            path = f.as_posix()
+            pub = Nanopublication.parse_assertions(source=path,
+                                                   format=rdflib.util.guess_format(path))
             self.client.put_nanopublication(pub)
-            logger.info(f'Loaded {f.name}')
+        for ontology in remote_ontologies:
+            pub = Nanopublication.parse_assertions(source=ontology,
+                                                   format=rdflib.util.guess_format(ontology))
+            self.client.put_nanopublication(pub)
 
     def save(self, pub: Nanopublication):
         self.client.put_nanopublication(pub)
@@ -56,7 +66,7 @@ class TwksClientWrapper:
     def query_attributes(self):
         return self.client.query_assertions(
             '''
-            SELECT DISTINCT ?uri ?label ?property ?range ?propertyType ?extent ?cardinality 
+            SELECT DISTINCT ?uri ?label ?property ?range ?propertyType ?extent ?cardinality ?unitLabel
             WHERE {
                 ?uri rdfs:label ?label; 
                      rdfs:subClassOf+ sio:Attribute;
@@ -66,6 +76,10 @@ class TwksClientWrapper:
                                 owl:someValuesFrom|owl:allValuesFrom ?range;
                                 ?extent ?range .
                     optional { ?property rdf:type ?propertyType }
+                    optional { 
+                        ?superClass owl:onProperty sio:hasUnit . 
+                        ?range rdfs:label ?unitLabel .
+                    }
                 } UNION {
                     ?superClass owl:onDataRange ?range;
                                 owl:onProperty ?property;
