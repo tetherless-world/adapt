@@ -26,13 +26,24 @@ from .rdf.common import OWL, POL, PROV, RDF, REQ, SIO, SKOS, XSD, RDFS, graph_fa
 # ==============================================================================
 # SETUP
 # ==============================================================================
-
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 def app_factory(config):
     app = Flask(__name__)
     app.config.from_object(config)
+
+    def default(self, o):
+        try:
+            s = str(o)
+        except TypeError:
+            pass
+        else:
+            return str(o)
+        return JSONEncoder.default(self, o)
+
+    app.json_encoder.default = default
 
     api_url = app.config['API_URL']
     twks = TwksClientWrapper(server_base_url=app.config['TWKS_URL'])
@@ -47,124 +58,72 @@ def app_factory(config):
 
     @app.route('/test')
     def test():
-        results = twks.query_attributes()
-        row_dict = {row.uri: row for row in results}
-        units = {row.uri: row.range for row in results if row.property == SIO.hasUnit}
+        return get_attributes()
 
-        type_dict = {}
-        for row in results:
-            if row.propertyType == OWL.DatatypeProperty:
-                type_dict[row.uri] = row.range
-            if row.propertyType == OWL.ObjectProperty and row.property == RDF.type:
-                type_dict[row.uri] = row.range
-
-        choice_dict = {}
-        attr_set = set() # filter the 
-        for row in results:
-            if type_dict[row.uri] == OWL.Class:
-                choices = twks.query_rdfs_subclasses(row.uri)
-                if not choices:
-                    continue
-
-                attributes.append()
-                choice_dict[row.uri] = [c.value for c in choices]
-                attr_set.add(row.uri)
-
-            else:
-                attr_set.add(row.uri)
-
-        attribute_trees = defaultdict(list)
-        for uri in attr_set:
-            # result_row: { uri, label, property, extent, range, cardinality (optional) }
-            if row_dict[uri].property == SIO.hasAttribute:
-                attribute_tree[row.uri].append(row.range)
-
-        default_attributes = {}
-
-        def dfs(row):
-            if row.uri in attribute_trees:
-                children = [dfs()]
-            restriction = {
-                'a': OWL.Restriction,
-                OWL.onProperty: SIO.hasAttribute,
-                OWL.someValuesFrom: {
-                    'a': OWL.Class,
-                    OWL.intersectionOf: [
-                        row.uri,
-                        {
-                            'a': OWL.Restriction,
-                            OWL.onProperty: row.property,
-                            row.extent:}
-                    ]
-                }
-            }
-
-        for row in results:
-            if row.uri not in attribute_tree:
-                if type_dict[row.uri] ==
-
-        return jsonify(attributes)
-
-    @app.route(f'{api_url}/attributes', methods=['GET'])
+    @app.route(f'{api_url}/policy/attributes', methods=['GET'])
     def get_attributes():
-        attributes = twks.query_attributes()
-        node_dict = {}
+        results = twks.query_attributes()
 
-        for attr in attributes:
-            # format the output from query into separate attribute nodes
-            if attr.uri not in node_dict:
-                node_dict[attr.uri] = defaultdict(list)
-                node_dict[attr.uri]['@id'] = attr.uri
-                node_dict[attr.uri]['label'] = attr.label
+        nodes = defaultdict(dict)  # keep track of important node information
+        tree = defaultdict(list)  # keep track of graph structure
+        for row in results:
+            if row.uri not in nodes:
+                nodes[row.uri]['uri'] = row.uri
+                nodes[row.uri]['label'] = row.label
+                nodes[row.uri]['attributes'] = []
+                nodes[row.uri]['values'] = []
 
-            if attr.property == 'http://semanticscience.org/resource/hasAttribute':
-                node_dict[attr.uri]['attributes'].append({'@id': attr.range})
+            if row.property == SIO.hasAttribute:
+                tree[row.uri].append(row.range)
 
-            if attr.property in ['http://semanticscience.org/resource/hasValue',
-                                 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type']:
-                node_dict[attr.uri]['values'].append({
-                    '@type': attr.range,
-                    '@value': None
-                })
+            if row.property == SIO.hasValue or row.property == RDF.type:
+                nodes[row.uri]['type'] = row.range
+                nodes[row.uri]['values'].append({'value': None})
 
-        # construct a list of valid attributes and option-map
-        # for class-like attributes
-        valid_attributes = []
+            if row.property == SIO.hasUnit:
+                nodes[row.uri]['unit'] = row.range
+                nodes[row.uri]['unitLabel'] = row.unitLabel
+
         options_map = {}
+        units_map = defaultdict(set)
 
         def dfs(node):
-            # dfs for constructing the attribute tree
-            if 'values' in node:
-                if node['values'][0]['@type'] == 'http://www.w3.org/2002/07/owl#Class':
-                    options = twks.query_rdfs_subclasses(node['@id'])
-                    if not options:
+            """Depth-first search to create valid attribute structures"""
+            if node['values']:
+                if node['type'] == OWL.Class:
+                    subclasses = twks.query_rdfs_subclasses(node['uri'])
+                    if not subclasses:
                         # filter owl:Class types without options
                         return
-                    options_map[node['@id']] = options
+                    options_map[node['uri']] = [s.asdict() for s in subclasses]
 
-            elif 'attributes' in node:
-                node['attributes'] = [dfs(node_dict[n['@id']])
-                                      for n in node['attributes']
-                                      if n['@id'] in node_dict]
+            if 'unit' in node:
+                subclasses = twks.query_rdfs_subclasses(node['unit'])
+                units_map[node['unit']] = [s.asdict() for s in subclasses]
+
+            if node['uri'] in tree:
+                for child in tree[node['uri']]:
+                    if child in nodes:
+                        child_node = dfs(nodes[child])
+                        node['attributes'].append(nodes[child])
+
             return node
 
-        for node in node_dict.values():
+        valid_attributes = []
+        for node in nodes.values():
             attribute = {}
-            tree = dfs(node)
-            if tree:
-                attribute['@id'] = tree['@id']
-                attribute['label'] = tree['label']
-                attribute['default'] = tree
+            t = dfs(node)
+            if t:
+                attribute['uri'] = t['uri']
+                attribute['label'] = t['label']
+                attribute['default'] = t
                 valid_attributes.append(attribute)
 
-        # append prov attributes
-        for attr in [prov.startTime, prov.endTime, prov.Agent]:
-            valid_attributes.append(attr)
-
-        options_map[prov.Agent['@id']] = \
-            twks.query_rdfs_subclasses(prov.Agent['@id'])
-
-        return jsonify({'attributes': valid_attributes, 'options': options_map})
+        return jsonify({
+            'validAttributes': valid_attributes,
+            'optionsMap': options_map,
+            'unitsMap': units_map
+        }, )
 
     @app.route(f'{api_url}/requestattributes', methods=['GET'])
     def get_request_attributes():
@@ -304,78 +263,5 @@ def app_factory(config):
         twks.save(nanopublication)
 
         return {'output': output}
-
-    # @app.route(f'{api_url}/request', methods=['POST'])
-    # def create_request():
-    #     logging.info('Received Request')
-
-    #     data = request.json
-    #     request_req = RequestPostDTO(data)
-
-    #     graph = graph_factory()
-
-    #     root = REQ[request_req.id]
-    #     graph.add((root, RDFS['label'], Literal(request_req.label)))
-    #     graph.add((root, SKOS['definition'], Literal(request_req.definition)))
-
-    #     agent_node = BNode()
-
-    #     for attribute in request_req.attributes:
-    #         is_agent = 1 if (attribute['label'] == "Agent") else 0
-    #         is_action = 1 if (attribute['label'] == "Action") else 0
-    #         is_affiliation = 1 if (attribute['label'] == "Affiliation") else 0
-    #         is_starttime = 1 if (attribute['label'] == "Start time") else 0
-    #         is_endtime = 1 if (attribute['label'] == "End time") else 0
-
-    #         if is_action:
-    #             for value in attribute['values']:
-    #                 graph.add((root, RDF['type'], URIRef(value['@value'])))
-    #         elif is_starttime:
-    #             for value in attribute['values']:
-    #                 graph.add((root, PROV['startedAtTime'], Literal(
-    #                     value['@value'], datatype=value['@type'])))
-    #         elif is_endtime:
-    #             for value in attribute['values']:
-    #                 graph.add((root, PROV['endedAtTime'], Literal(
-    #                     value['@value'], datatype=value['@type'])))
-    #         elif is_agent:
-    #             for value in attribute['values']:
-    #                 graph.add((root, PROV['wasAssociatedWith'], agent_node))
-    #                 graph.add(
-    #                     (agent_node, RDF['type'], URIRef(value['@value'])))
-    #         else:
-    #             if 'attributes' in attribute:
-    #                 c = BNode()
-    #                 graph.add((c, RDF['type'], URIRef(attribute['@id'])))
-    #                 for attributes in attribute['attributes']:
-    #                     for value in attributes['values']:
-    #                         v = BNode()
-    #                         graph.add((c, SIO['hasAttribute'], v))
-    #                         graph.add(
-    #                             (v, RDF['type'], URIRef(attributes['@id'])))
-    #                         graph.add((v, SIO['hasValue'], Literal(
-    #                             value['@value'], datatype=value['@type'])))
-    #                 graph.add((agent_node, SIO['hasAttribute'], c))
-    #             else:
-    #                 for value in attribute['values']:
-    #                     v = BNode()
-    #                     graph.add((agent_node, SIO['hasAttribute'], v))
-    #                     graph.add((v, RDF['type'], URIRef(attribute['@id'])))
-    #                     if is_affiliation:
-    #                         graph.add(
-    #                             (v, SIO['hasValue'], URIRef(value['@value'])))
-    #                     else:
-    #                         graph.add((v, SIO['hasValue'], Literal(
-    #                             value['@value'], datatype=value['@type'])))
-
-    #     output = graph.serialize(format='turtle').decode('utf-8')
-
-    #     logging.info(output)
-    #     nanopublication = Nanopublication.parse_assertions(data=output,
-    #                                                     format="ttl")
-    #     client.put_nanopublication(nanopublication)
-    #     logging.info(f'{REQ[request_req.id]} loaded into TWKS')
-
-    #     return {'output': output}
 
     return app
