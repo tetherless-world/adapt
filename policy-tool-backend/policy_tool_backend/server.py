@@ -73,6 +73,12 @@ def app_factory(config):
                 nodes[row.uri]['attributes'] = []
                 nodes[row.uri]['values'] = []
 
+                # for identifying sio:MaximalValue, sio:MinimalValue, sio:interval
+                nodes[row.uri]['subClassOf'] = []
+                for sio_uri in [SIO.MaximalValue, SIO.MinimalValue, SIO.interval]:
+                    if twks.query_is_subclass(row.uri, sio_uri):
+                        nodes[row.uri]['subClassOf'].append(sio_uri)
+
             if row.property == SIO.hasAttribute:
                 tree[row.uri].append(row.range)
 
