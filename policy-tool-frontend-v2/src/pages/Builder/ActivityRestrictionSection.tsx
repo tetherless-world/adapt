@@ -1,11 +1,10 @@
 import { Button, Grid } from '@material-ui/core'
+import { Updater } from 'use-immer'
 import { MenuButton } from '../../components/MenuButton'
 
 export interface ActivityRestrictionSectionProps {
-  activityRestrictions: [
-    activityRestrictions: any[],
-    updateActivityRestrictions: Function
-  ]
+  activityRestrictions: any[],
+  updateActivityRestrictions: Updater<any[]>
 }
 
 export const ActivityRestrictionSection: React.FC<ActivityRestrictionSectionProps> = (

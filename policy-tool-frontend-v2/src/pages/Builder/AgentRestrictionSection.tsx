@@ -4,10 +4,8 @@ import { MenuButton } from '../../components/MenuButton'
 import { BuilderSection } from './common'
 
 export interface AgentRestrictionSectionProps {
-  agentRestrictions: [
-    agentRestrictions: any[],
-    updateAgentRestrictions: Updater<any[]>
-  ]
+  agentRestrictions: any[]
+  updateAgentRestrictions: Updater<any[]>
 }
 
 const clear = (draft: any[]) => []
@@ -15,7 +13,7 @@ const clear = (draft: any[]) => []
 export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
   props
 ) => {
-  let [agentRestrictions, updateAgentRestrictions] = props.agentRestrictions
+  let { agentRestrictions, updateAgentRestrictions } = props
 
   return (
     <>

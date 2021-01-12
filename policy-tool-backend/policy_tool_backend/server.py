@@ -64,17 +64,15 @@ def app_factory(config):
     def get_attributes():
         results = twks.query_attributes()
 
-        nodes = defaultdict(dict)  # keep track of important node information
+        # keep track of important node information
+        nodes = defaultdict(lambda: defaultdict(list))
         tree = defaultdict(list)  # keep track of graph structure
         for row in results:
             if row.uri not in nodes:
                 nodes[row.uri]['uri'] = row.uri
                 nodes[row.uri]['label'] = row.label
-                nodes[row.uri]['attributes'] = []
-                nodes[row.uri]['values'] = []
 
                 # for identifying sio:MaximalValue, sio:MinimalValue, sio:interval
-                nodes[row.uri]['subClassOf'] = []
                 for sio_uri in [SIO.MaximalValue, SIO.MinimalValue, SIO.interval]:
                     if twks.query_is_subclass(row.uri, sio_uri):
                         nodes[row.uri]['subClassOf'].append(sio_uri)
@@ -84,7 +82,10 @@ def app_factory(config):
 
             if row.property == SIO.hasValue or row.property == RDF.type:
                 nodes[row.uri]['type'] = row.range
-                nodes[row.uri]['values'].append({'value': None})
+                nodes[row.uri]['values'].append({
+                    'value': None,
+                    'type': row.range
+                })
 
             if row.property == SIO.hasUnit:
                 nodes[row.uri]['unit'] = row.range
@@ -95,7 +96,7 @@ def app_factory(config):
 
         def dfs(node):
             """Depth-first search to create valid attribute structures"""
-            if node['values']:
+            if 'values' in node:
                 if node['type'] == OWL.Class:
                     subclasses = twks.query_rdfs_subclasses(node['uri'])
                     if not subclasses:
@@ -117,19 +118,15 @@ def app_factory(config):
 
         valid_attributes = []
         for node in nodes.values():
-            attribute = {}
             t = dfs(node)
             if t:
-                attribute['uri'] = t['uri']
-                attribute['label'] = t['label']
-                attribute['default'] = t
-                valid_attributes.append(attribute)
+                valid_attributes.append(t)
 
         return jsonify({
             'validAttributes': valid_attributes,
             'optionsMap': options_map,
             'unitsMap': units_map
-        }, )
+        })
 
     @app.route(f'{api_url}/requestattributes', methods=['GET'])
     def get_request_attributes():
