@@ -1,5 +1,5 @@
 import { makeStyles, useTheme } from '@material-ui/core'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useImmer } from 'use-immer'
 import { FormSection } from '../../components/FormSection/FormSection'
 import { FormSectionHeader } from '../../components/FormSection/FormSectionHeader'
@@ -9,6 +9,9 @@ import { AgentRestrictionSection } from './AgentRestrictionSection'
 import { InformationSection } from './InformationSection'
 import * as api from '../../hooks/api'
 import { OptionMapContext } from '../../contexts/OptionMapContext'
+import { UnitMapContext } from '../../contexts/UnitsMapContext'
+import { EffectSection } from './EffectSection'
+import { Restriction, Value } from '../../global'
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -33,9 +36,11 @@ export const Builder: React.FC = () => {
   const [definition, setDefinition] = useState<string>('')
   const [action, setAction] = useState<string>('')
   const [precedence, setPrecedence] = useState<string>('')
-  const [agentRestrictions, updateAgentRestrictions] = useImmer<any[]>([])
-  const [activityRestrictions, updateActivityRestrictions] = useImmer<any[]>([])
-  const [effects, updateEffects] = useImmer<any[]>([])
+  //prettier-ignore
+  const [agentRestrictions, updateAgentRestrictions] = useImmer<Restriction[]>([])
+  //prettier-ignore
+  const [activityRestrictions, updateActivityRestrictions] = useImmer<Restriction[]>([])
+  const [effects, updateEffects] = useImmer<Value[]>([])
 
   const [attributesResponse, dispatchGetAttributes] = api.useGetAttributes()
 
@@ -43,19 +48,13 @@ export const Builder: React.FC = () => {
     dispatchGetAttributes()
   }, [])
 
-  const {
-    validAttributes,
-    optionsMap,
-    unitsMap,
-  } = attributesResponse.value ?? {
-    validAttributes: [],
-    optionsMap: {},
-    unitsMap: {},
-  }
+  const { validRestrictions, optionsMap, unitsMap } =
+    attributesResponse.value ?? {}
 
   return (
     <LoadingWrapper loading={attributesResponse.loading}>
-      <OptionMapContext.Provider value={{}}>
+      <OptionMapContext.Provider value={optionsMap ?? {}}>
+        <UnitMapContext.Provider value={unitsMap ?? {}}>
         <FormSection
           header={<FormSectionHeader title={'Information'} />}
           body={
@@ -88,6 +87,7 @@ export const Builder: React.FC = () => {
           }
           gridContainerProps={{ className: classes.section }}
         />
+        </UnitMapContext.Provider>
       </OptionMapContext.Provider>
     </LoadingWrapper>
   )

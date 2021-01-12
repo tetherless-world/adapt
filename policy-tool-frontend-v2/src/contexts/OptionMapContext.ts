@@ -1,11 +1,5 @@
 import { Dictionary } from 'lodash'
 import { createContext } from 'react'
-
-export interface Option {
-  value: any
-  label: string
-}
-
-export type OptionMap = Dictionary<Option[]>
+import { OptionMap } from '../global'
 
 export const OptionMapContext = createContext<OptionMap>({})
