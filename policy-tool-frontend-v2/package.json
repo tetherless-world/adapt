@@ -15,6 +15,7 @@
     "@types/react-dom": "^16.9.10",
     "@types/react-router-dom": "^5.1.6",
     "axios": "^0.21.1",
+    "immer": "^8.0.0",
     "lodash": "^4.17.20",
     "react": "^17.0.1",
     "react-d3-graph": "^2.6.0",
