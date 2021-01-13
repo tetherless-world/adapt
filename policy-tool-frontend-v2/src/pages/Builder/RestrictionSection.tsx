@@ -1,20 +1,21 @@
-import { Button, Grid } from '@material-ui/core'
-import { Draft } from 'immer'
-import _ from 'lodash'
-import { Updater } from 'use-immer'
+import { Button, Grid, IconButton } from '@material-ui/core'
+import { Delete } from '@material-ui/icons'
 import { MenuButton } from '../../components/MenuButton'
 import { RestrictionComponent } from '../../components/RestrictionComponent'
 import { Restriction } from '../../global'
 
 export interface RestrictionSectionProps {
   restrictions: Restriction[]
-  updateRestrictions: Updater<Restriction[]>
+  updateRestrictions: React.Dispatch<React.SetStateAction<Restriction[]>>
   validRestrictions: Restriction[]
 }
 
-const add = (attribute: Restriction) => (draft: Draft<Restriction[]>) =>
-  void draft.push(_.cloneDeep(attribute))
-const clear = (draft: any[]) => []
+const add = (r: Restriction) => (prev: Restriction[]): Restriction[] => {
+  return [...prev, r]
+}
+const clear = (prev: Restriction[]): Restriction[] => []
+const remove = (index: number) => (prev: Restriction[]): Restriction[] =>
+  prev.filter((v, i) => i != index)
 
 export const RestrictionSection: React.FC<RestrictionSectionProps> = (
   props
@@ -39,12 +40,19 @@ export const RestrictionSection: React.FC<RestrictionSectionProps> = (
         </Grid>
         <Grid container item spacing={1}>
           {restrictions.map((r, i) => (
-            <Grid container item xs={12}>
-              <RestrictionComponent
-                keys={[i]}
-                restrictions={restrictions}
-                updateRestrictions={updateRestrictions}
-              />
+            <Grid container spacing={1}>
+              <Grid item xs={1}>
+                <IconButton onClick={() => updateRestrictions(remove(i))}>
+                  <Delete />
+                </IconButton>
+              </Grid>
+              <Grid item xs={11}>
+                <RestrictionComponent
+                  keys={[i]}
+                  restrictions={restrictions}
+                  updateRestrictions={updateRestrictions}
+                />
+              </Grid>
             </Grid>
           ))}
         </Grid>

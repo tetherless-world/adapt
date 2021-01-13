@@ -1,26 +1,25 @@
 import { Button, Grid, IconButton, TextField } from '@material-ui/core'
 import { Delete } from '@material-ui/icons'
-import { Draft } from 'immer'
 import _ from 'lodash'
-import { Updater } from 'use-immer'
 import { MenuButton } from '../../components/MenuButton'
 import { Selector } from '../../components/Selector'
 import { Option, Value } from '../../global'
 
 export interface EffectSectionProps {
   effects: Value[]
-  updateEffects: Updater<Value[]>
+  updateEffects: React.Dispatch<React.SetStateAction<Value[]>>
   validEffects: Option[]
 }
 
-const add = (value: Value) => (draft: Draft<Value[]>) =>
-  void draft.push(_.cloneDeep(value))
-const clear = (draft: Draft<Value[]>) => []
-const remove = (index: number) => (draft: Draft<Value[]>) =>
-  void draft.splice(index, 1)
-const update = (index: number, value: any) => (draft: Draft<Value[]>) => {
-  draft[index].value = value
-}
+const add = (value: Value) => (prev: Value[]): Value[] => [
+  ...prev,
+  _.cloneDeep(value),
+]
+const clear = (prev: Value[]): Value[] => []
+const remove = (index: number) => (prev: Value[]): Value[] =>
+  prev.filter((v, i) => i != index)
+const update = (index: number, value: any) => (prev: Value[]): Value[] =>
+  prev.map((v, i) => (i != index ? v : { ...v, value }))
 
 export const EffectSection: React.FC<EffectSectionProps> = (props) => {
   let { effects, updateEffects, validEffects } = props

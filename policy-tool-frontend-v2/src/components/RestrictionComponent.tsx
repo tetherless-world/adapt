@@ -1,11 +1,9 @@
 import { Grid, makeStyles, Typography, useTheme } from '@material-ui/core'
 import _, { PropertyPath } from 'lodash'
-import { Draft } from 'immer'
 import { useContext } from 'react'
 import { OptionMapContext } from '../contexts/OptionMapContext'
-import { InputWrapper } from './InputWrapper'
-import { Updater } from 'use-immer'
 import { Restriction } from '../global'
+import { InputWrapper } from './InputWrapper'
 
 const useStyles = makeStyles((theme) => {
   return {
@@ -22,12 +20,12 @@ const useStyles = makeStyles((theme) => {
 export interface RestrictionProps {
   keys: PropertyPath
   restrictions: Restriction[]
-  updateRestrictions: Updater<Restriction[]>
+  updateRestrictions: React.Dispatch<React.SetStateAction<Restriction[]>>
 }
 
 const updateValue = (keys: PropertyPath, value: any) => (
-  draft: Draft<Restriction[]>
-) => void _.set(draft, keys, value)
+  prev: Restriction[]
+): Restriction[] => _.cloneDeep(_.set(prev, keys, value))
 
 export const RestrictionComponent: React.FC<RestrictionProps> = (props) => {
   let keys = _.toPath(props.keys)
