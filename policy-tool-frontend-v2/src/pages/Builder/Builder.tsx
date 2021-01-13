@@ -55,38 +55,49 @@ export const Builder: React.FC = () => {
     <LoadingWrapper loading={attributesResponse.loading}>
       <OptionMapContext.Provider value={optionsMap ?? {}}>
         <UnitMapContext.Provider value={unitsMap ?? {}}>
-        <FormSection
-          header={<FormSectionHeader title={'Information'} />}
-          body={
-            <InformationSection
-              id={[id, setId]}
-              source={[source, setSource]}
-              label={[label, setLabel]}
-              definition={[definition, setDefinition]}
-            />
-          }
-          gridContainerProps={{ className: classes.section }}
-        />
-        <FormSection
-          header={<FormSectionHeader title={'Activity Restrictions'} />}
-          body={
-            <ActivityRestrictionSection
-              activityRestrictions={activityRestrictions}
-              updateActivityRestrictions={updateActivityRestrictions}
-            />
-          }
-          gridContainerProps={{ className: classes.section }}
-        />
-        <FormSection
-          header={<FormSectionHeader title={'Agent Restrictions'} />}
-          body={
-            <AgentRestrictionSection
-              agentRestrictions={agentRestrictions}
-              updateAgentRestrictions={updateAgentRestrictions}
-            />
-          }
-          gridContainerProps={{ className: classes.section }}
-        />
+          <FormSection
+            header={<FormSectionHeader title={'Information'} />}
+            body={
+              <InformationSection
+                id={[id, setId]}
+                source={[source, setSource]}
+                label={[label, setLabel]}
+                definition={[definition, setDefinition]}
+              />
+            }
+            gridContainerProps={{ className: classes.section }}
+          />
+          <FormSection
+            header={<FormSectionHeader title={'Activity Restrictions'} />}
+            body={
+              <ActivityRestrictionSection
+                activityRestrictions={activityRestrictions}
+                updateActivityRestrictions={updateActivityRestrictions}
+              />
+            }
+            gridContainerProps={{ className: classes.section }}
+          />
+          <FormSection
+            header={<FormSectionHeader title={'Agent Restrictions'} />}
+            body={
+              <AgentRestrictionSection
+                agentRestrictions={agentRestrictions}
+                updateAgentRestrictions={updateAgentRestrictions}
+                validRestrictions={validRestrictions ?? []}
+              />
+            }
+            gridContainerProps={{ className: classes.section }}
+          />
+          <FormSection
+            header={<FormSectionHeader title={'Policy Effects'} />}
+            body={
+              <EffectSection
+                effects={effects}
+                updateEffects={updateEffects}
+                validEffects={[]}
+              />
+            }
+          />
         </UnitMapContext.Provider>
       </OptionMapContext.Provider>
     </LoadingWrapper>

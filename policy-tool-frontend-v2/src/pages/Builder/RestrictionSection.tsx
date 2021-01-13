@@ -3,11 +3,12 @@ import { Draft } from 'immer'
 import _ from 'lodash'
 import { Updater } from 'use-immer'
 import { MenuButton } from '../../components/MenuButton'
+import { RestrictionComponent } from '../../components/RestrictionComponent'
 import { Restriction } from '../../global'
 
-export interface AgentRestrictionSectionProps {
-  agentRestrictions: Restriction[]
-  updateAgentRestrictions: Updater<Restriction[]>
+export interface RestrictionSectionProps {
+  restrictions: Restriction[]
+  updateRestrictions: Updater<Restriction[]>
   validRestrictions: Restriction[]
 }
 
@@ -15,18 +16,14 @@ const add = (attribute: Restriction) => (draft: Draft<Restriction[]>) =>
   void draft.push(_.cloneDeep(attribute))
 const clear = (draft: any[]) => []
 
-export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
+export const RestrictionSection: React.FC<RestrictionSectionProps> = (
   props
 ) => {
-  let {
-    agentRestrictions: restrictions,
-    updateAgentRestrictions: updateRestrictions,
-    validRestrictions,
-  } = props
+  let { restrictions, updateRestrictions, validRestrictions } = props
 
   return (
     <>
-      <Grid container spacing={2}>
+      <Grid container item spacing={2}>
         <Grid item xs={12} md={4}>
           <MenuButton
             options={validRestrictions}
@@ -39,6 +36,17 @@ export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
         </Grid>
         <Grid item xs={12} md={4}>
           <Button onClick={() => updateRestrictions(clear)}>Clear</Button>
+        </Grid>
+        <Grid container item spacing={1}>
+          {restrictions.map((r, i) => (
+            <Grid container item xs={12}>
+              <RestrictionComponent
+                keys={[i]}
+                restrictions={restrictions}
+                updateRestrictions={updateRestrictions}
+              />
+            </Grid>
+          ))}
         </Grid>
       </Grid>
     </>
