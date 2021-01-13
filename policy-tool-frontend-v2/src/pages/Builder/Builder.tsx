@@ -1,17 +1,15 @@
 import { makeStyles, useTheme } from '@material-ui/core'
 import { useEffect, useState } from 'react'
-import { useImmer } from 'use-immer'
 import { FormSection } from '../../components/FormSection/FormSection'
 import { FormSectionHeader } from '../../components/FormSection/FormSectionHeader'
 import { LoadingWrapper } from '../../components/LoadingWrapper'
-import { ActivityRestrictionSection } from './ActivityRestrictionSection'
-import { AgentRestrictionSection } from './AgentRestrictionSection'
-import { InformationSection } from './InformationSection'
-import * as api from '../../hooks/api'
 import { OptionMapContext } from '../../contexts/OptionMapContext'
 import { UnitMapContext } from '../../contexts/UnitsMapContext'
-import { EffectSection } from './EffectSection'
 import { Restriction, Value } from '../../global'
+import * as api from '../../hooks/api'
+import { EffectSection } from './EffectSection'
+import { InformationSection } from './InformationSection'
+import { RestrictionSection } from './RestrictionSection'
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -37,10 +35,10 @@ export const Builder: React.FC = () => {
   const [action, setAction] = useState<string>('')
   const [precedence, setPrecedence] = useState<string>('')
   //prettier-ignore
-  const [agentRestrictions, updateAgentRestrictions] = useImmer<Restriction[]>([])
+  const [agentRestrictions, updateAgentRestrictions] = useState<Restriction[]>([])
   //prettier-ignore
-  const [activityRestrictions, updateActivityRestrictions] = useImmer<Restriction[]>([])
-  const [effects, updateEffects] = useImmer<Value[]>([])
+  const [activityRestrictions, updateActivityRestrictions] = useState<Restriction[]>([])
+  const [effects, updateEffects] = useState<Value[]>([])
 
   const [attributesResponse, dispatchGetAttributes] = api.useGetAttributes()
 
@@ -70,9 +68,10 @@ export const Builder: React.FC = () => {
           <FormSection
             header={<FormSectionHeader title={'Activity Restrictions'} />}
             body={
-              <ActivityRestrictionSection
-                activityRestrictions={activityRestrictions}
-                updateActivityRestrictions={updateActivityRestrictions}
+              <RestrictionSection
+                restrictions={activityRestrictions}
+                updateRestrictions={updateActivityRestrictions}
+                validRestrictions={[]}
               />
             }
             gridContainerProps={{ className: classes.section }}
@@ -80,9 +79,9 @@ export const Builder: React.FC = () => {
           <FormSection
             header={<FormSectionHeader title={'Agent Restrictions'} />}
             body={
-              <AgentRestrictionSection
-                agentRestrictions={agentRestrictions}
-                updateAgentRestrictions={updateAgentRestrictions}
+              <RestrictionSection
+                restrictions={agentRestrictions}
+                updateRestrictions={updateAgentRestrictions}
                 validRestrictions={validRestrictions ?? []}
               />
             }
