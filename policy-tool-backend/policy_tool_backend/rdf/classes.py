@@ -32,32 +32,26 @@ class Graphable(ABC):
         ...
 
 
-class BooleanOperation(Enum):
-    """Enum representing boolean operations in OWL2"""
-    INTERSECTION = OWL.intersectionOf
-    UNION = OWL.unionOf
-
-
 class BooleanClass(Graphable):
     """
     A class representing the owl:intersectionOf or owl:unionOf entities [Identifier or Graphable]
 
     Attributes
     ----------
-    operation : BooleanOperation
+    operation : OWL.intersectionOf or OWL.unionOf 
         Operation represented by this class.
 
     members : List[Union[Identifier, Graphable]], optional
         List of RDF entities [Identifier or Graphable] contained in the intersection/union, by default []
     """
 
-    def __init__(self, operation: BooleanOperation, members: List[Union[Identifier, Graphable]] = []):
+    def __init__(self, operation: URIRef, members: List[Union[Identifier, Graphable]]):
         """
         A class representing the owl:intersectionOf or owl:unionOf entities [Identifier or Graphable]
 
         Parameters
         ----------
-        operation : BooleanOperation
+        operation : OWL.intersectionOf or OWL.unionOf
             Operation represented by this class (owl:intersectionOf or owl:unionOf)
 
         members : List[Union[Identifier, Graphable]], optional
@@ -66,8 +60,11 @@ class BooleanClass(Graphable):
         self.operation = operation
         self.members = members
 
-    def add_member(self, member: [Union[Identifier, Graphable]]):
+    def append(self, member: Union[Identifier, Graphable]):
         self.members.append(member)
+
+    def extend(self, members: List[Union[Identifier, Graphable]]):
+        self.members.extend(members)
 
     def to_graph(self):
         """
@@ -100,7 +97,7 @@ class BooleanClass(Graphable):
         # construct the root node in the graph
         root = graph.resource(BNode())
         root.add(RDF.type, OWL.Class)
-        root.add(self.operation.value, c.uri)
+        root.add(self.operation, c.uri)
 
         return (graph, root.identifier)
 
@@ -185,10 +182,10 @@ class Class(Graphable):
         return (graph, root.identifier)
 
 
-class RestrictionKind(Enum):
-    HAS_VALUE = OWL.hasValue
-    SOME_VALUES_FROM = OWL.someValuesFrom
-    ALL_VALUES_FROM = OWL.allValuesFrom
+class Extent(Enum):
+    VALUE = OWL.hasValue
+    SOME = OWL.someValuesFrom
+    ALL = OWL.allValuesFrom
 
 
 class Restriction(Graphable):
@@ -199,7 +196,7 @@ class Restriction(Graphable):
     ----------
     on_property : Identifier
         Identifier of propert which is restricted by this object 
-    restriction_kind : RestrictionKind
+    restriction_kind : Extent
         Type of restriction on the property
     restriction_value : Union[Identifier, Graphable]
         Value of the restriction
@@ -207,7 +204,7 @@ class Restriction(Graphable):
 
     def __init__(self,
                  on_property: Identifier,
-                 restriction_kind: RestrictionKind,
+                 restriction_kind: Extent,
                  restriction_value: Union[Identifier, Graphable]):
         """
         An owl:Restriction object
@@ -216,7 +213,7 @@ class Restriction(Graphable):
         ----------
         on_property : Identifier
             Identifier of propert which is restricted by this object 
-        restriction_kind : RestrictionKind
+        restriction_kind : Extent
             Type of restriction on the property
         restriction_value : Union[Identifier, Graphable]
             Value of the restriction
@@ -260,32 +257,34 @@ class Restriction(Graphable):
 class AgentRestriction(Restriction):
 
     def __init__(self,
-                 restriction_kind: RestrictionKind,
+                 restriction_kind: Extent,
                  restriction_value: Union[Identifier, Graphable]):
         super().__init__(on_property=PROV.wasAssociatedWith,
                          restriction_kind=restriction_kind,
                          restriction_value=restriction_value)
 
+
 class StartTimeRestriction(Restriction):
     def __init__(self,
-                 restriction_kind: RestrictionKind,
+                 restriction_kind: Extent,
                  restriction_value: Union[Identifier, Graphable]):
-        super().__init__(on_property=PROV.startedAtTime, 
+        super().__init__(on_property=PROV.startedAtTime,
                          restriction_kind=restriction_kind,
                          restriction_value=restriction_value)
 
+
 class EndTimeRestriction(Restriction):
     def __init__(self,
-                 restriction_kind: RestrictionKind,
+                 restriction_kind: Extent,
                  restriction_value: Union[Identifier, Graphable]):
-        super().__init__(on_property=PROV.endedAtTime, 
+        super().__init__(on_property=PROV.endedAtTime,
                          restriction_kind=restriction_kind,
                          restriction_value=restriction_value)
 
 
 class AttributeRestriction(Restriction):
     def __init__(self,
-                 restriction_kind: RestrictionKind,
+                 restriction_kind: Extent,
                  restriction_value: Union[Identifier, Graphable]):
         super().__init__(on_property=SIO.hasAttribute,
                          restriction_kind=restriction_kind,
@@ -294,7 +293,7 @@ class AttributeRestriction(Restriction):
 
 class ValueRestriction(Restriction):
     def __init__(self,
-                 restriction_kind: RestrictionKind,
+                 restriction_kind: Extent,
                  restriction_value: Union[Identifier, Graphable]):
         super().__init__(on_property=SIO.hasValue,
                          restriction_kind=restriction_kind,

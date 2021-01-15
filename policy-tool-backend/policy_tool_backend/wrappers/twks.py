@@ -8,7 +8,6 @@ import rdflib
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
 
-from ..models.data import Attribute
 from ..rdf.common import OWL, RDF, RDFS, SIO
 
 logging.basicConfig(level=logging.INFO)
@@ -42,18 +41,17 @@ class TwksClientWrapper:
     def save(self, pub: Nanopublication):
         self.client.put_nanopublication(pub)
 
-    def query_rdfs_subclasses(self, super_class: str) -> list:
+    def query_rdfs_subclasses(self, super_class: str):
         return self.client.query_assertions(
             '''
-            SELECT ?value ?label 
-            WHERE { 
+            SELECT ?value ?label WHERE { 
                 ?value rdfs:subClassOf+ ?superClass;
                        rdfs:label ?label . 
             }''',
             initNs={'rdfs': RDFS},
             initBindings={'superClass': URIRef(super_class)})
 
-    def query_rdf_type(self, rdf_type: URIRef):
+    def query_rdf_type(self, type_: URIRef):
         return self.client.query_assertions(
             '''
             SELECT ?value ?label WHERE {
@@ -107,6 +105,6 @@ class TwksClientWrapper:
 
     def query_is_subclass(self, uri: str, super_class: str):
         return self.client.query_assertions(
-            'ASK { ?uri rdfs:subClassOf+ ?super_class}',
+            'ASK { ?uri rdfs:subClassOf+ ?super_class }',
             initNs={'rdfs': RDFS},
             initBindings={'uri': URIRef(uri), 'super_class': URIRef(super_class)})
