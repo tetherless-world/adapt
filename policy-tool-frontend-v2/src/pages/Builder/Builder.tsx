@@ -1,5 +1,6 @@
 import { Button, makeStyles, useTheme } from '@material-ui/core'
 import { useEffect, useMemo, useState } from 'react'
+import { useHistory } from 'react-router-dom'
 import { FormSection, FormSectionHeader, LoadingWrapper } from 'src/components'
 import { OptionMapContext, UnitMapContext } from 'src/contexts'
 import { Restriction, Value } from 'src/global'
@@ -9,6 +10,7 @@ import {
   useGetObligations,
   useGetPrecedences,
   useGetRestrictions,
+  usePostPolicy,
 } from 'src/hooks/api'
 import {
   EffectSection,
@@ -20,7 +22,11 @@ import { ConditionSection } from './sections/ConditionSection'
 
 const useStyles = makeStyles((theme) => ({
   section: {
-    paddingBottom: theme.spacing(3),
+    paddingBottom: theme.spacing(4),
+  },
+  save: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
   },
 }))
 
@@ -34,6 +40,7 @@ const useStyles = makeStyles((theme) => ({
 export const Builder: React.FC = () => {
   const theme = useTheme()
   const classes = useStyles(theme)
+  const history = useHistory()
 
   const [id, setId] = useState<string>('')
   const [source, setSource] = useState<string>('')
@@ -60,11 +67,13 @@ export const Builder: React.FC = () => {
     effects,
     obligations,
   }
+
   const [restrictionsRes, getRestrictions] = useGetRestrictions()
   const [obligationsRes, getObligations] = useGetObligations()
   const [effectsRes, getEffects] = useGetEffects()
   const [actionsRes, getActions] = useGetActions()
   const [precedencesRes, getPrecedences] = useGetPrecedences()
+  const [policyRes, postPolicy] = usePostPolicy(state)
 
   useEffect(() => {
     getRestrictions()
@@ -73,6 +82,13 @@ export const Builder: React.FC = () => {
     getActions()
     getPrecedences()
   }, [getRestrictions, getObligations, getEffects, getActions, getPrecedences])
+
+  useEffect(() => {
+    if (!policyRes.loading && !!policyRes.value) {
+      let url = `/view?uri=${policyRes.value}`
+      history.push(url)
+    }
+  }, [policyRes, history])
 
   const isLoading = useMemo(
     () =>
@@ -174,16 +190,8 @@ export const Builder: React.FC = () => {
             }
           />
           <FormSection
-            gridContainerProps={{ style: { paddingTop: 32 } }}
-            body={
-              <Button
-                onClick={() => {
-                  console.log(state)
-                }}
-              >
-                Save
-              </Button>
-            }
+            gridContainerProps={{ className: classes.save }}
+            body={<Button onClick={postPolicy}>Save</Button>}
           />
         </UnitMapContext.Provider>
       </OptionMapContext.Provider>
