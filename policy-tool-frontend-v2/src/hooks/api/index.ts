@@ -1,1 +1,1 @@
-export * from './useGetAttributes'
+export * from './useGetRestrictions'

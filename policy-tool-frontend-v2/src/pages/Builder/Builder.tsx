@@ -1,5 +1,5 @@
 import { makeStyles, useTheme } from '@material-ui/core'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { FormSection } from '../../components/FormSection/FormSection'
 import { FormSectionHeader } from '../../components/FormSection/FormSectionHeader'
 import { LoadingWrapper } from '../../components/LoadingWrapper'
@@ -39,21 +39,27 @@ export const Builder: React.FC = () => {
   //prettier-ignore
   const [activityRestrictions, updateActivityRestrictions] = useState<Restriction[]>([])
   const [effects, updateEffects] = useState<Value[]>([])
+  const [obligations, updateObligations] = useState<Value[]>([])
 
-  const [attributesResponse, dispatchGetAttributes] = api.useGetAttributes()
+  const restrictionsApi = api.useGetRestrictions()
 
   useEffect(() => {
-    dispatchGetAttributes()
+    restrictionsApi.dispatch()
   }, [])
 
+  const loading = useMemo(() => restrictionsApi.response.loading, [
+    restrictionsApi.response.loading,
+  ])
+
   const { validRestrictions, optionsMap, unitsMap } =
-    attributesResponse.value ?? {}
+    restrictionsApi.response.value ?? {}
 
   return (
-    <LoadingWrapper loading={attributesResponse.loading}>
+    <LoadingWrapper loading={loading}>
       <OptionMapContext.Provider value={optionsMap ?? {}}>
         <UnitMapContext.Provider value={unitsMap ?? {}}>
           <FormSection
+            gridContainerProps={{ className: classes.section }}
             header={<FormSectionHeader title={'Information'} />}
             body={
               <InformationSection
@@ -63,9 +69,9 @@ export const Builder: React.FC = () => {
                 definition={[definition, setDefinition]}
               />
             }
-            gridContainerProps={{ className: classes.section }}
           />
           <FormSection
+            gridContainerProps={{ className: classes.section }}
             header={<FormSectionHeader title={'Activity Restrictions'} />}
             body={
               <RestrictionSection
@@ -74,9 +80,9 @@ export const Builder: React.FC = () => {
                 validRestrictions={[]}
               />
             }
-            gridContainerProps={{ className: classes.section }}
           />
           <FormSection
+            gridContainerProps={{ className: classes.section }}
             header={<FormSectionHeader title={'Agent Restrictions'} />}
             body={
               <RestrictionSection
@@ -85,9 +91,9 @@ export const Builder: React.FC = () => {
                 validRestrictions={validRestrictions ?? []}
               />
             }
-            gridContainerProps={{ className: classes.section }}
           />
           <FormSection
+            gridContainerProps={{ className: classes.section }}
             header={<FormSectionHeader title={'Policy Effects'} />}
             body={
               <EffectSection
