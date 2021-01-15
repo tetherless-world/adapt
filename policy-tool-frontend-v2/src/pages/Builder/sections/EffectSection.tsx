@@ -39,15 +39,17 @@ export const EffectSection: React.FC<EffectSectionProps> = ({
             },
           ]}
           onSelectOption={(i) =>
-            add({
-              value: null,
-              type:
-                i === 0
-                  ? 'http://www.w3.org/2002/07/owl#Class'
-                  : 'http://www.w3.org/2001/XMLSchema#string',
-            })
+            updateEffects(
+              add({
+                value: null,
+                type:
+                  i === 0
+                    ? 'http://www.w3.org/2002/07/owl#Class'
+                    : 'http://www.w3.org/2001/XMLSchema#string',
+              })
+            )
           }
-          buttonProps={{ children: 'Add Effect' }}
+          buttonProps={{ children: 'Add' }}
         />
       </Grid>
       <Grid item xs={12} md={2}>
@@ -55,7 +57,7 @@ export const EffectSection: React.FC<EffectSectionProps> = ({
           onClick={() => updateEffects(clear)}
           disabled={!effects?.length}
         >
-          Clear
+          Reset
         </Button>
       </Grid>
     </Grid>
@@ -65,19 +67,29 @@ export const EffectSection: React.FC<EffectSectionProps> = ({
           label: `Effect ${i}`,
           onChange: (event: any) =>
             updateEffects(update(i, event?.target?.value)),
-          value: e,
+          value: e.value,
         }
         return (
           <>
-            <Grid container item xs={12}>
-              <Grid item xs={1}>
+            <Grid
+              container
+              item
+              xs={12}
+              spacing={1}
+              alignItems={'flex-start'}
+              key={i}
+            >
+              <Grid item>
                 <IconButton onClick={() => updateEffects(remove(i))}>
                   <Delete />
                 </IconButton>
               </Grid>
-              <Grid item xs={11}>
+              <Grid item xs={11} md={6}>
                 {e.type === 'http://www.w3.org/2002/07/owl#Class' && (
-                  <Selector options={validEffects} {...childProps} />
+                  <Selector
+                    options={validEffects}
+                    textFieldProps={{ ...childProps }}
+                  />
                 )}
                 {e.type === 'http://www.w3.org/2001/XMLSchema#string' && (
                   <TextField {...childProps} />

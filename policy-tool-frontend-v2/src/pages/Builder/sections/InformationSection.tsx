@@ -16,8 +16,8 @@ export const InformationSection: React.FC<InformationSectionProps> = (
   let [definition, setDefinition] = props.definition
 
   return (
-    <Grid container>
-      <Grid container item xs={6}>
+    <Grid container spacing={2}>
+      <Grid container item xs={6} spacing={1} alignContent={'flex-start'}>
         <Grid item xs={12}>
           <TextField
             label={'Source'}
@@ -47,6 +47,7 @@ export const InformationSection: React.FC<InformationSectionProps> = (
             value={definition}
             onChange={(e) => setDefinition(e.target.value)}
             multiline
+            rowsMax={10}
           />
         </Grid>
       </Grid>

@@ -39,15 +39,17 @@ export const ObligationSection: React.FC<ObligationSectionProps> = ({
             },
           ]}
           onSelectOption={(i) =>
-            add({
-              value: null,
-              type:
-                i === 0
-                  ? 'http://www.w3.org/2002/07/owl#Class'
-                  : 'http://www.w3.org/2001/XMLSchema#string',
-            })
+            updateObligations(
+              add({
+                value: null,
+                type:
+                  i === 0
+                    ? 'http://www.w3.org/2002/07/owl#Class'
+                    : 'http://www.w3.org/2001/XMLSchema#string',
+              })
+            )
           }
-          buttonProps={{ children: 'Add Obligation' }}
+          buttonProps={{ children: 'Add' }}
         />
       </Grid>
       <Grid item xs={12} md={2}>
@@ -55,37 +57,45 @@ export const ObligationSection: React.FC<ObligationSectionProps> = ({
           onClick={() => updateObligations(clear)}
           disabled={!obligations?.length}
         >
-          Clear
+          Reset
         </Button>
       </Grid>
     </Grid>
-    <Grid container item spacing={1}>
+    <Grid container item spacing={2}>
       {!!obligations?.length &&
         obligations.map((o, i) => {
           let childProps = {
             label: `Obligation ${i}`,
             onChange: (event: any) =>
               updateObligations(update(i, event?.target?.value)),
-            value: o,
+            value: o.value,
           }
           return (
-            <>
-              <Grid container item xs={12}>
-                <Grid item xs={1}>
-                  <IconButton onClick={() => updateObligations(remove(i))}>
-                    <Delete />
-                  </IconButton>
-                </Grid>
-                <Grid item xs={11}>
-                  {o.type === 'http://www.w3.org/2002/07/owl#Class' && (
-                    <Selector options={validObligations} {...childProps} />
-                  )}
-                  {o.type === 'http://www.w3.org/2001/XMLSchema#string' && (
-                    <TextField {...childProps} />
-                  )}
-                </Grid>
+            <Grid
+              container
+              item
+              xs={12}
+              spacing={1}
+              alignItems={'flex-start'}
+              key={i}
+            >
+              <Grid item>
+                <IconButton onClick={() => updateObligations(remove(i))}>
+                  <Delete />
+                </IconButton>
               </Grid>
-            </>
+              <Grid item xs={11} md={6}>
+                {o.type === 'http://www.w3.org/2002/07/owl#Class' && (
+                  <Selector
+                    options={validObligations}
+                    textFieldProps={{ ...childProps }}
+                  />
+                )}
+                {o.type === 'http://www.w3.org/2001/XMLSchema#string' && (
+                  <TextField {...childProps} />
+                )}
+              </Grid>
+            </Grid>
           )
         })}
     </Grid>

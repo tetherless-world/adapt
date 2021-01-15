@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import { Button, Grid, IconButton } from '@material-ui/core'
 import { Delete } from '@material-ui/icons'
 import { MenuButton, RestrictionComponent } from 'src/components'
@@ -10,7 +11,7 @@ export interface RestrictionSectionProps {
 }
 
 const add = (r: Restriction) => (prev: Restriction[]): Restriction[] => {
-  return [...prev, r]
+  return [...prev, _.cloneDeep(r)]
 }
 const clear = (prev: Restriction[]): Restriction[] => []
 const remove = (index: number) => (prev: Restriction[]): Restriction[] =>
@@ -30,16 +31,26 @@ export const RestrictionSection: React.FC<RestrictionSectionProps> = (
             onSelectOption={(i) =>
               updateRestrictions(add(validRestrictions[i]))
             }
-            buttonProps={{ children: 'Add' }}
+            buttonProps={{
+              children: 'Add',
+              disabled: !validRestrictions.length,
+            }}
           />
         </Grid>
         <Grid item xs={12} md={4}>
-          <Button onClick={() => updateRestrictions(clear)}>Clear</Button>
+          <Button onClick={() => updateRestrictions(clear)}>Reset</Button>
         </Grid>
-        <Grid container item spacing={1}>
+        <Grid container item spacing={2}>
           {restrictions.map((r, i) => (
-            <Grid container spacing={1}>
-              <Grid item xs={1}>
+            <Grid
+              container
+              item
+              xs={12}
+              spacing={1}
+              alignItems={'flex-start'}
+              key={i}
+            >
+              <Grid item>
                 <IconButton onClick={() => updateRestrictions(remove(i))}>
                   <Delete />
                 </IconButton>
