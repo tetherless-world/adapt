@@ -174,7 +174,7 @@ export const Builder: React.FC = () => {
             }
           />
           <FormSection
-            gridContainerProps={{ className: classes.section }}
+            gridContainerProps={{ style: { paddingTop: 32 } }}
             body={
               <Button
                 onClick={() => {
