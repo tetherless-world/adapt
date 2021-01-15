@@ -1,9 +1,10 @@
 import { Button, makeStyles, useTheme } from '@material-ui/core'
+import _ from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { FormSection, FormSectionHeader, LoadingWrapper } from 'src/components'
 import { OptionMapContext, UnitMapContext } from 'src/contexts'
-import { Restriction, Value } from 'src/global'
+import { PolicyState, Restriction, Value } from 'src/global'
 import {
   useGetActions,
   useGetEffects,
@@ -30,12 +31,31 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-// const getIdentifier = (source: string, id: string): string => {
-//   let lastChar = source.charAt(source.length - 1)
-//   return lastChar === '#' || lastChar === '/'
-//     ? `${source}${id}`
-//     : `${source}#${id}`
-// }
+const flatten = (restrictions: Restriction[]) => {
+  let entries: any[] = []
+  restrictions.reduce((r, { restrictions: subRestrictions, values }) => {
+    if (subRestrictions) {
+      r.push(...flatten(subRestrictions))
+    }
+    if (values) {
+      r.push(...values.map((v) => v.value))
+    }
+    return r
+  }, entries)
+  return entries
+}
+
+const isValidPolicy = (state: PolicyState) =>
+  !!state.id &&
+  !!state.source &&
+  !!state.label &&
+  !!state.action &&
+  !!state.precedence &&
+  !!state.effects.length &&
+  !!state.effects.every(({ value }) => value || false) &&
+  !!state.obligations.every(({ value }) => value || false) &&
+  !!flatten(state.activityRestrictions).every((v) => v || false) &&
+  !!flatten(state.agentRestrictions).every((v) => v || false)
 
 export const Builder: React.FC = () => {
   const theme = useTheme()
@@ -100,20 +120,17 @@ export const Builder: React.FC = () => {
     [restrictionsRes, obligationsRes, effectsRes, actionsRes, precedencesRes]
   )
 
-  const { validRestrictions, optionsMap, unitsMap } = useMemo(
-    () =>
-      restrictionsRes.value ?? {
-        validRestrictions: [],
-        optionsMap: {},
-        unitsMap: {},
-      },
-    [restrictionsRes]
-  )
-
+  const { validRestrictions, optionsMap, unitsMap } = restrictionsRes.value ?? {
+    validRestrictions: [],
+    optionsMap: {},
+    unitsMap: {},
+  }
   const validObligations = obligationsRes.value?.validObligations ?? []
   const validEffects = effectsRes.value?.validEffects ?? []
   const validActions = actionsRes.value?.validActions ?? []
   const validPrecedences = precedencesRes.value?.validPrecedences ?? []
+
+  const isValid = useMemo(() => isValidPolicy(state), [state])
 
   return (
     <LoadingWrapper loading={isLoading}>
@@ -191,7 +208,11 @@ export const Builder: React.FC = () => {
           />
           <FormSection
             gridContainerProps={{ className: classes.save }}
-            body={<Button onClick={postPolicy}>Save</Button>}
+            body={
+              <Button onClick={postPolicy} disabled={!isValid}>
+                Save
+              </Button>
+            }
           />
         </UnitMapContext.Provider>
       </OptionMapContext.Provider>

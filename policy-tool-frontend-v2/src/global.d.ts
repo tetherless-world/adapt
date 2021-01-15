@@ -22,3 +22,16 @@ export type Value = {
 }
 
 export type OptionMap = Dictionary<Option[]>
+
+export interface PolicyState {
+  id: string
+  source: string
+  label: string
+  definition: string
+  action: string
+  precedence: string
+  agentRestrictions: Restriction[]
+  activityRestrictions: Restriction[]
+  effects: Value[]
+  obligations: Value[]
+}
