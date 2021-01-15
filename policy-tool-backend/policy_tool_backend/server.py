@@ -40,8 +40,8 @@ def app_factory(config):
         except TypeError:
             pass
         else:
-            return str(o)
-        return JSONEncoder.default(self, o)
+            return s
+        return json.JSONEncoder.default(self, o)
 
     app.json_encoder.default = default
 
