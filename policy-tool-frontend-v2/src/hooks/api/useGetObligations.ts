@@ -11,10 +11,5 @@ const getObligations = async () => {
   return data
 }
 
-export const useGetObligations = () => {
-  let [response, dispatch] = useAsyncFn<() => Promise<GetObligationsResponse>>(
-    getObligations,
-    []
-  )
-  return { response, dispatch }
-}
+export const useGetObligations = () =>
+  useAsyncFn<() => Promise<GetObligationsResponse>>(getObligations, [])

@@ -13,10 +13,5 @@ const getRestrictions = async () => {
   return data
 }
 
-export const useGetRestrictions = () => {
-  let [response, dispatch] = useAsyncFn<() => Promise<GetRestrictionsResponse>>(
-    getRestrictions,
-    []
-  )
-  return { response, dispatch }
-}
+export const useGetRestrictions = () =>
+  useAsyncFn<() => Promise<GetRestrictionsResponse>>(getRestrictions, [])

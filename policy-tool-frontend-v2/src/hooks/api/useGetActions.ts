@@ -11,10 +11,5 @@ const getActions = async () => {
   return data
 }
 
-export const useGetActions = () => {
-  let [response, dispatch] = useAsyncFn<() => Promise<GetActionsResponse>>(
-    getActions,
-    []
-  )
-  return { response, dispatch }
-}
+export const useGetActions = () =>
+  useAsyncFn<() => Promise<GetActionsResponse>>(getActions, [])

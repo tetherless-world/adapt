@@ -1,14 +1,20 @@
 import { Grid, makeStyles, useTheme } from '@material-ui/core'
 import { useEffect, useMemo, useState } from 'react'
+import { OptionMapContext, UnitMapContext } from 'src/contexts'
+import { Restriction, Value } from 'src/global'
 import {
   FormSection,
   FormSectionHeader,
   LoadingWrapper,
   Selector,
 } from 'src/components'
-import { OptionMapContext, UnitMapContext } from 'src/contexts'
-import { Restriction, Value } from 'src/global'
-import * as api from 'src/hooks/api'
+import {
+  useGetActions,
+  useGetEffects,
+  useGetObligations,
+  useGetPrecedences,
+  useGetRestrictions,
+} from 'src/hooks/api'
 import {
   EffectSection,
   InformationSection,
@@ -22,12 +28,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-const getIdentifier = (source: string, id: string): string => {
-  let lastChar = source.charAt(source.length - 1)
-  return lastChar === '#' || lastChar === '/'
-    ? `${source}${id}`
-    : `${source}#${id}`
-}
+// const getIdentifier = (source: string, id: string): string => {
+//   let lastChar = source.charAt(source.length - 1)
+//   return lastChar === '#' || lastChar === '/'
+//     ? `${source}${id}`
+//     : `${source}#${id}`
+// }
 
 export const Builder: React.FC = () => {
   const theme = useTheme()
@@ -46,43 +52,37 @@ export const Builder: React.FC = () => {
   const [effects, updateEffects] = useState<Value[]>([])
   const [obligations, updateObligations] = useState<Value[]>([])
 
-  const restrictionsApi = api.useGetRestrictions()
-  const obligationsApi = api.useGetObligations()
-  const effectsApi = api.useGetEffects()
-  const actionsApi = api.useGetActions()
-  const precedencesApi = api.useGetPrecedences()
+  const [restrictionsRes, getRestrictions] = useGetRestrictions()
+  const [obligationsRes, getObligations] = useGetObligations()
+  const [effectsRes, getEffects] = useGetEffects()
+  const [actionsRes, getActions] = useGetActions()
+  const [precedencesRes, getPrecedences] = useGetPrecedences()
 
   useEffect(() => {
-    restrictionsApi.dispatch()
-    obligationsApi.dispatch()
-    effectsApi.dispatch()
-    actionsApi.dispatch()
-    precedencesApi.dispatch()
-  }, [])
+    getRestrictions()
+    getObligations()
+    getEffects()
+    getActions()
+    getPrecedences()
+  }, [getRestrictions, getObligations, getEffects, getActions, getPrecedences])
 
   const isLoading = useMemo(
     () =>
-      restrictionsApi.response.loading &&
-      obligationsApi.response.loading &&
-      effectsApi.response.loading &&
-      actionsApi.response.loading &&
-      precedencesApi.response.loading,
-    [
-      restrictionsApi.response,
-      obligationsApi.response,
-      effectsApi.response,
-      actionsApi.response,
-      precedencesApi.response,
-    ]
+      restrictionsRes.loading &&
+      obligationsRes.loading &&
+      effectsRes.loading &&
+      actionsRes.loading &&
+      precedencesRes.loading,
+    [restrictionsRes, obligationsRes, effectsRes, actionsRes, precedencesRes]
   )
 
   const { validRestrictions, optionsMap, unitsMap } =
-    restrictionsApi.response.value ?? {}
+    restrictionsRes.value ?? {}
 
-  const validObligations = obligationsApi.response.value?.validObligations ?? []
-  const validEffects = effectsApi.response.value?.validEffects ?? []
-  const validActions = actionsApi.response.value?.validActions ?? []
-  const validPrecedences = precedencesApi.response.value?.validPrecedences ?? []
+  const validObligations = obligationsRes.value?.validObligations ?? []
+  const validEffects = effectsRes.value?.validEffects ?? []
+  const validActions = actionsRes.value?.validActions ?? []
+  const validPrecedences = precedencesRes.value?.validPrecedences ?? []
 
   return (
     <LoadingWrapper loading={isLoading}>

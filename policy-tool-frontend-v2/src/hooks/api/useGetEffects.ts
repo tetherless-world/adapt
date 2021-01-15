@@ -11,10 +11,5 @@ const getEffects = async () => {
   return data
 }
 
-export const useGetEffects = () => {
-  let [response, dispatch] = useAsyncFn<() => Promise<GetEffectsResponse>>(
-    getEffects,
-    []
-  )
-  return { response, dispatch }
-}
+export const useGetEffects = () =>
+  useAsyncFn<() => Promise<GetEffectsResponse>>(getEffects, [])

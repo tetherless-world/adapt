@@ -11,10 +11,5 @@ const getPrecedences = async () => {
   return data
 }
 
-export const useGetPrecedences = () => {
-  let [response, dispatch] = useAsyncFn<() => Promise<GetPrecedencesResponse>>(
-    getPrecedences,
-    []
-  )
-  return { response, dispatch }
-}
+export const useGetPrecedences = () =>
+  useAsyncFn<() => Promise<GetPrecedencesResponse>>(getPrecedences, [])
