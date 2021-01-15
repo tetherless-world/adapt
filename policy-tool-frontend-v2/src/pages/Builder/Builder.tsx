@@ -76,8 +76,15 @@ export const Builder: React.FC = () => {
     [restrictionsRes, obligationsRes, effectsRes, actionsRes, precedencesRes]
   )
 
-  const { validRestrictions, optionsMap, unitsMap } =
-    restrictionsRes.value ?? {}
+  const { validRestrictions, optionsMap, unitsMap } = useMemo(
+    () =>
+      restrictionsRes.value ?? {
+        validRestrictions: [],
+        optionsMap: {},
+        unitsMap: {},
+      },
+    [restrictionsRes]
+  )
 
   const validObligations = obligationsRes.value?.validObligations ?? []
   const validEffects = effectsRes.value?.validEffects ?? []
@@ -128,7 +135,7 @@ export const Builder: React.FC = () => {
             body={
               <>
                 <Grid container spacing={2}>
-                  <Grid item>
+                  <Grid item xs={12} md={6}>
                     <Selector
                       options={validActions}
                       textFieldProps={{
@@ -138,7 +145,7 @@ export const Builder: React.FC = () => {
                       }}
                     />
                   </Grid>
-                  <Grid item>
+                  <Grid item xs={12} md={6}>
                     <Selector
                       options={validPrecedences}
                       textFieldProps={{
@@ -166,7 +173,7 @@ export const Builder: React.FC = () => {
           />
           <FormSection
             gridContainerProps={{ className: classes.section }}
-            header={<FormSectionHeader title={'Policy Effects'} />}
+            header={<FormSectionHeader title={'Policy Obligations'} />}
             body={
               <ObligationSection
                 obligations={obligations}

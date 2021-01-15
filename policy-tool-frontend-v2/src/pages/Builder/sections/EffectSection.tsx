@@ -26,7 +26,7 @@ export const EffectSection: React.FC<EffectSectionProps> = (props) => {
   return (
     <Grid container spacing={2}>
       <Grid container item spacing={1}>
-        <Grid item xs={12} sm={2}>
+        <Grid item xs={12} md={2}>
           <MenuButton
             options={[
               {
@@ -46,17 +46,16 @@ export const EffectSection: React.FC<EffectSectionProps> = (props) => {
                     : 'http://www.w3.org/2001/XMLSchema#string',
               })
             }
+            buttonProps={{ children: 'Add Effect' }}
+          />
+        </Grid>
+        <Grid item xs={12} md={2}>
+          <Button
+            onClick={() => updateEffects(clear)}
+            disabled={!effects?.length}
           >
-            Add Effect
-          </MenuButton>
-          <Grid item xs={12} sm={1}>
-            <Button
-              onClick={() => updateEffects(clear)}
-              disabled={!effects?.length}
-            >
-              Clear
-            </Button>
-          </Grid>
+            Clear
+          </Button>
         </Grid>
       </Grid>
       <Grid container item spacing={1}>

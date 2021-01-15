@@ -30,9 +30,8 @@ export const RestrictionSection: React.FC<RestrictionSectionProps> = (
             onSelectOption={(i) =>
               updateRestrictions(add(validRestrictions[i]))
             }
-          >
-            Add
-          </MenuButton>
+            buttonProps={{ children: 'Add' }}
+          />
         </Grid>
         <Grid item xs={12} md={4}>
           <Button onClick={() => updateRestrictions(clear)}>Clear</Button>
