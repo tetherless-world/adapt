@@ -3,7 +3,7 @@ import { Dictionary, PropertyName, PropertyPath } from 'lodash'
 export interface Restriction {
   uri: string
   label: string
-  attributes?: Restriction[]
+  restrictions?: Restriction[]
   values?: Value[]
   subClassOf?: string[]
   unit?: string
