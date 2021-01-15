@@ -41,7 +41,7 @@ export const ObligationSection: React.FC<ObligationSectionProps> = ({
           onSelectOption={(i) =>
             updateObligations(
               add({
-                value: null,
+                value: '',
                 type:
                   i === 0
                     ? 'http://www.w3.org/2002/07/owl#Class'

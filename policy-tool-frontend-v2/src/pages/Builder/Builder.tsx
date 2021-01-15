@@ -1,13 +1,8 @@
-import { Grid, makeStyles, useTheme } from '@material-ui/core'
+import { Button, makeStyles, useTheme } from '@material-ui/core'
 import { useEffect, useMemo, useState } from 'react'
+import { FormSection, FormSectionHeader, LoadingWrapper } from 'src/components'
 import { OptionMapContext, UnitMapContext } from 'src/contexts'
 import { Restriction, Value } from 'src/global'
-import {
-  FormSection,
-  FormSectionHeader,
-  LoadingWrapper,
-  Selector,
-} from 'src/components'
 import {
   useGetActions,
   useGetEffects,
@@ -21,6 +16,7 @@ import {
   ObligationSection,
   RestrictionSection,
 } from './sections'
+import { ConditionSection } from './sections/ConditionSection'
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -52,6 +48,18 @@ export const Builder: React.FC = () => {
   const [effects, updateEffects] = useState<Value[]>([])
   const [obligations, updateObligations] = useState<Value[]>([])
 
+  const state = {
+    id,
+    source,
+    label,
+    definition,
+    action,
+    precedence,
+    agentRestrictions,
+    activityRestrictions,
+    effects,
+    obligations,
+  }
   const [restrictionsRes, getRestrictions] = useGetRestrictions()
   const [obligationsRes, getObligations] = useGetObligations()
   const [effectsRes, getEffects] = useGetEffects()
@@ -133,31 +141,14 @@ export const Builder: React.FC = () => {
             gridContainerProps={{ className: classes.section }}
             header={<FormSectionHeader title={'Conditions'} />}
             body={
-              <>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <Selector
-                      options={validActions}
-                      textFieldProps={{
-                        label: 'Action',
-                        value: action,
-                        onChange: (event: any) => setAction(event.target.value),
-                      }}
-                    />
-                  </Grid>
-                  <Grid item xs={12} md={6}>
-                    <Selector
-                      options={validPrecedences}
-                      textFieldProps={{
-                        label: 'Precedence',
-                        value: precedence,
-                        onChange: (event: any) =>
-                          setPrecedence(event.target.value),
-                      }}
-                    />
-                  </Grid>
-                </Grid>
-              </>
+              <ConditionSection
+                action={action}
+                setAction={setAction}
+                validActions={validActions}
+                precedence={precedence}
+                setPrecedence={setPrecedence}
+                validPrecedences={validPrecedences}
+              />
             }
           />
           <FormSection
@@ -180,6 +171,18 @@ export const Builder: React.FC = () => {
                 updateObligations={updateObligations}
                 validObligations={validObligations}
               />
+            }
+          />
+          <FormSection
+            gridContainerProps={{ className: classes.section }}
+            body={
+              <Button
+                onClick={() => {
+                  console.log(state)
+                }}
+              >
+                Save
+              </Button>
             }
           />
         </UnitMapContext.Provider>

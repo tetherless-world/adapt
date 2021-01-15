@@ -41,7 +41,7 @@ export const EffectSection: React.FC<EffectSectionProps> = ({
           onSelectOption={(i) =>
             updateEffects(
               add({
-                value: null,
+                value: '',
                 type:
                   i === 0
                     ? 'http://www.w3.org/2002/07/owl#Class'
@@ -70,33 +70,31 @@ export const EffectSection: React.FC<EffectSectionProps> = ({
           value: e.value,
         }
         return (
-          <>
-            <Grid
-              container
-              item
-              xs={12}
-              spacing={1}
-              alignItems={'flex-start'}
-              key={i}
-            >
-              <Grid item>
-                <IconButton onClick={() => updateEffects(remove(i))}>
-                  <Delete />
-                </IconButton>
-              </Grid>
-              <Grid item xs={11} md={6}>
-                {e.type === 'http://www.w3.org/2002/07/owl#Class' && (
-                  <Selector
-                    options={validEffects}
-                    textFieldProps={{ ...childProps }}
-                  />
-                )}
-                {e.type === 'http://www.w3.org/2001/XMLSchema#string' && (
-                  <TextField {...childProps} />
-                )}
-              </Grid>
+          <Grid
+            container
+            item
+            xs={12}
+            spacing={1}
+            alignItems={'flex-start'}
+            key={i}
+          >
+            <Grid item>
+              <IconButton onClick={() => updateEffects(remove(i))}>
+                <Delete />
+              </IconButton>
             </Grid>
-          </>
+            <Grid item xs={11} md={6}>
+              {e.type === 'http://www.w3.org/2002/07/owl#Class' && (
+                <Selector
+                  options={validEffects}
+                  textFieldProps={{ ...childProps }}
+                />
+              )}
+              {e.type === 'http://www.w3.org/2001/XMLSchema#string' && (
+                <TextField {...childProps} />
+              )}
+            </Grid>
+          </Grid>
         )
       })}
     </Grid>
