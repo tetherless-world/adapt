@@ -1,9 +1,9 @@
 import { Button, Grid, IconButton, TextField } from '@material-ui/core'
 import { Delete } from '@material-ui/icons'
+import { MenuButton } from 'components/MenuButton'
+import { Selector } from 'components/Selector'
+import { Option, Value } from 'global'
 import _ from 'lodash'
-import { MenuButton } from '../../components/MenuButton'
-import { Selector } from '../../components/Selector'
-import { Option, Value } from '../../global'
 
 export interface EffectSectionProps {
   effects: Value[]

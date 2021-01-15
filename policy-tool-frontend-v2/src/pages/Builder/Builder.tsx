@@ -8,10 +8,10 @@ import { OptionMapContext } from '../../contexts/OptionMapContext'
 import { UnitMapContext } from '../../contexts/UnitsMapContext'
 import { Restriction, Value } from '../../global'
 import * as api from '../../hooks/api'
-import { EffectSection } from './EffectSection'
-import { InformationSection } from './InformationSection'
-import { RestrictionSection } from './RestrictionSection'
-import { ObligationSection } from './ObligationSection'
+import { EffectSection } from './sections/EffectSection'
+import { InformationSection } from './sections/InformationSection'
+import { RestrictionSection } from './sections/RestrictionSection'
+import { ObligationSection } from './sections/ObligationSection'
 
 const useStyles = makeStyles((theme) => ({
   section: {

@@ -1,8 +1,8 @@
 import { Button, Grid, IconButton } from '@material-ui/core'
 import { Delete } from '@material-ui/icons'
-import { MenuButton } from '../../components/MenuButton'
-import { RestrictionComponent } from '../../components/RestrictionComponent'
-import { Restriction } from '../../global'
+import { MenuButton } from 'components/MenuButton'
+import { RestrictionComponent } from 'components/RestrictionComponent'
+import { Restriction } from 'global'
 
 export interface RestrictionSectionProps {
   restrictions: Restriction[]

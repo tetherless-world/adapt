@@ -1,12 +1,5 @@
 import { Grid, TextField } from '@material-ui/core'
 
-const fields = [
-  { value: 'source', label: 'Source' },
-  { value: 'id', label: 'ID' },
-  { value: 'label', label: 'Label' },
-  { value: 'definition', label: 'Definition' },
-]
-
 export interface InformationSectionProps {
   source: [source: string, setSource: Function]
   id: [id: any, setId: Function]
