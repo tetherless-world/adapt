@@ -14,7 +14,7 @@ const add = (r: Restriction) => (prev: Restriction[]): Restriction[] => {
 }
 const clear = (prev: Restriction[]): Restriction[] => []
 const remove = (index: number) => (prev: Restriction[]): Restriction[] =>
-  prev.filter((v, i) => i != index)
+  prev.filter((v, i) => i !== index)
 
 export const RestrictionSection: React.FC<RestrictionSectionProps> = (
   props

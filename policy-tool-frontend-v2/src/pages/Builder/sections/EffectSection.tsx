@@ -16,9 +16,9 @@ const add = (value: Value) => (prev: Value[]): Value[] => [
 ]
 const clear = (prev: Value[]): Value[] => []
 const remove = (index: number) => (prev: Value[]): Value[] =>
-  prev.filter((v, i) => i != index)
+  prev.filter((v, i) => i !== index)
 const update = (index: number, value: any) => (prev: Value[]): Value[] =>
-  prev.map((v, i) => (i != index ? v : { ...v, value }))
+  prev.map((v, i) => (i !== index ? v : { ...v, value }))
 
 export const EffectSection: React.FC<EffectSectionProps> = (props) => {
   let { effects, updateEffects, validEffects } = props
@@ -41,7 +41,7 @@ export const EffectSection: React.FC<EffectSectionProps> = (props) => {
               add({
                 value: null,
                 type:
-                  i == 0
+                  i === 0
                     ? 'http://www.w3.org/2002/07/owl#Class'
                     : 'http://www.w3.org/2001/XMLSchema#string',
               })
@@ -76,10 +76,10 @@ export const EffectSection: React.FC<EffectSectionProps> = (props) => {
                   </IconButton>
                 </Grid>
                 <Grid item xs={11}>
-                  {e.type == 'http://www.w3.org/2002/07/owl#Class' && (
+                  {e.type === 'http://www.w3.org/2002/07/owl#Class' && (
                     <Selector options={validEffects} {...childProps} />
                   )}
-                  {e.type == 'http://www.w3.org/2001/XMLSchema#string' && (
+                  {e.type === 'http://www.w3.org/2001/XMLSchema#string' && (
                     <TextField {...childProps} />
                   )}
                 </Grid>
