@@ -1,16 +1,16 @@
-import React from 'react'
 import {
-  makeStyles,
-  Container,
-  Box,
   AppBar,
+  Box,
+  Container,
+  ContainerClassKey,
+  ContainerProps,
+  makeStyles,
+  StandardProps,
   Toolbar,
   Typography,
-  ContainerProps,
-  ContainerClassKey,
-  StandardProps,
   useTheme,
 } from '@material-ui/core'
+import React from 'react'
 
 const useStyles = makeStyles((theme) => ({
   root: { paddingBottom: theme.spacing(8) },

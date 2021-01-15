@@ -1,6 +1,6 @@
 import { TextField } from '@material-ui/core'
 import { Dictionary } from 'lodash'
-import { SelectorProps, Selector } from './Selector'
+import { Selector, SelectorProps } from './Selector'
 
 const typeMap: Dictionary<string> = {
   'http://www.w3.org/2001/XMLSchema#boolean': 'boolean',

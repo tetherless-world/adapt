@@ -1,10 +1,4 @@
-import {
-  Button,
-  ButtonProps,
-  Menu,
-  MenuItemProps,
-  MenuProps,
-} from '@material-ui/core'
+import { Button, ButtonProps, Menu, MenuProps } from '@material-ui/core'
 import { useState } from 'react'
 import { MenuOption, MenuOptionProps } from './MenuOption'
 
