@@ -97,7 +97,7 @@ export const Builder: React.FC = () => {
         <UnitMapContext.Provider value={unitsMap ?? {}}>
           <FormSection
             gridContainerProps={{ className: classes.section }}
-            header={<FormSectionHeader title={'Information'} />}
+            header={<FormSectionHeader title={'Policy Information'} />}
             body={
               <InformationSection
                 id={[id, setId]}
@@ -109,18 +109,7 @@ export const Builder: React.FC = () => {
           />
           <FormSection
             gridContainerProps={{ className: classes.section }}
-            header={<FormSectionHeader title={'Activity Restrictions'} />}
-            body={
-              <RestrictionSection
-                restrictions={activityRestrictions}
-                updateRestrictions={updateActivityRestrictions}
-                validRestrictions={[]}
-              />
-            }
-          />
-          <FormSection
-            gridContainerProps={{ className: classes.section }}
-            header={<FormSectionHeader title={'Agent Restrictions'} />}
+            header={<FormSectionHeader title={'Rules'} />}
             body={
               <RestrictionSection
                 restrictions={agentRestrictions}
@@ -131,7 +120,18 @@ export const Builder: React.FC = () => {
           />
           <FormSection
             gridContainerProps={{ className: classes.section }}
-            header={<FormSectionHeader title={'Policy Conditions'} />}
+            header={<FormSectionHeader title={'Validity'} />}
+            body={
+              <RestrictionSection
+                restrictions={activityRestrictions}
+                updateRestrictions={updateActivityRestrictions}
+                validRestrictions={[]}
+              />
+            }
+          />
+          <FormSection
+            gridContainerProps={{ className: classes.section }}
+            header={<FormSectionHeader title={'Conditions'} />}
             body={
               <>
                 <Grid container spacing={2}>
@@ -162,7 +162,7 @@ export const Builder: React.FC = () => {
           />
           <FormSection
             gridContainerProps={{ className: classes.section }}
-            header={<FormSectionHeader title={'Policy Effects'} />}
+            header={<FormSectionHeader title={'Effects'} />}
             body={
               <EffectSection
                 effects={effects}
@@ -173,7 +173,7 @@ export const Builder: React.FC = () => {
           />
           <FormSection
             gridContainerProps={{ className: classes.section }}
-            header={<FormSectionHeader title={'Policy Obligations'} />}
+            header={<FormSectionHeader title={'Obligations'} />}
             body={
               <ObligationSection
                 obligations={obligations}
