@@ -41,17 +41,17 @@ export const RestrictionComponent: React.FC<RestrictionProps> = (props) => {
 
   return (
     <div className={classes.root}>
-      {!!restriction?.attributes?.length && (
+      {!!restriction?.restrictions?.length && (
         <Grid container spacing={1}>
           <Grid item xs={12}>
             <Typography className={classes.label}>
               {restriction.label}
             </Typography>
           </Grid>
-          {restriction.attributes.map((_, i) => (
-            <Grid item xs={12}>
+          {restriction.restrictions.map((_, i) => (
+            <Grid item xs={12} key={i}>
               <RestrictionComponent
-                keys={[...keys, 'attributes', i]}
+                keys={[...keys, 'restrictions', i]}
                 restrictions={restrictions}
                 updateRestrictions={updateRestrictions}
               />
@@ -60,13 +60,14 @@ export const RestrictionComponent: React.FC<RestrictionProps> = (props) => {
         </Grid>
       )}
       {!!restriction?.values?.length &&
-        restriction.values.map((value, i) => (
-          <Grid item xs={12} md={6}>
+        restriction.values.map(({ value, type }, i) => (
+          <Grid container item xs={12} md={6} key={i}>
             <InputWrapper
-              typeUri={value.type}
+              typeUri={type}
               options={options}
               textFieldProps={{
-                value,
+                label: restriction.label,
+                value: value ?? '',
                 onChange: (event: any) =>
                   updateRestrictions(
                     updateValue(

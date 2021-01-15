@@ -19,8 +19,8 @@ export const Selector: React.FC<SelectorProps> = ({
       </MenuItem>
     )}
     {!!options?.length &&
-      options.map((option) => (
-        <MenuItem value={option.value}>{option.label}</MenuItem>
+      options.map((option, index) => (
+        <MenuItem key={index} value={option.value}>{option.label}</MenuItem>
       ))}
   </TextField>
 )
