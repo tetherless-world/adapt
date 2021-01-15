@@ -12,8 +12,8 @@ export const InformationSection: React.FC<InformationSectionProps> = (
 ) => {
   let [source, setSource] = props.source
   let [id, setId] = props.id
-  let [label, setLabel] = props.source
-  let [definition, setDefinition] = props.source
+  let [label, setLabel] = props.label
+  let [definition, setDefinition] = props.definition
 
   return (
     <Grid container>
