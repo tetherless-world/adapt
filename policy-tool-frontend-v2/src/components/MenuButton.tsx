@@ -1,6 +1,17 @@
-import { Button, ButtonProps, Menu, MenuProps } from '@material-ui/core'
+import {
+  Button,
+  ButtonProps,
+  Menu,
+  MenuItem,
+  MenuItemProps,
+  MenuProps,
+} from '@material-ui/core'
 import { useState } from 'react'
-import { MenuOption, MenuOptionProps } from './MenuOption'
+
+export interface MenuOptionProps {
+  label: string
+  menuItemProps?: MenuItemProps
+}
 
 export interface MenuButtonProps {
   options: MenuOptionProps[]
@@ -42,13 +53,14 @@ export const MenuButton: React.FC<MenuButtonProps> = ({
         {...menuProps}
       >
         {options.map((option, i) => (
-          <MenuOption
-            label={option.label}
-            menuItemProps={{
-              ...option.menuItemProps,
-              onClick: () => handleSelect(i),
-            }}
-          />
+          <MenuItem
+            key={i}
+            onClick={() => handleSelect(i)}
+            {...option.menuItemProps}
+            button
+          >
+            {option.label}
+          </MenuItem>
         ))}
       </Menu>
     </>
