@@ -1,8 +1,9 @@
-import { makeStyles, useTheme } from '@material-ui/core'
+import { Grid, makeStyles, useTheme } from '@material-ui/core'
 import { useEffect, useMemo, useState } from 'react'
 import { FormSection } from '../../components/FormSection/FormSection'
 import { FormSectionHeader } from '../../components/FormSection/FormSectionHeader'
 import { LoadingWrapper } from '../../components/LoadingWrapper'
+import { Selector } from '../../components/Selector'
 import { OptionMapContext } from '../../contexts/OptionMapContext'
 import { UnitMapContext } from '../../contexts/UnitsMapContext'
 import { Restriction, Value } from '../../global'
@@ -10,6 +11,7 @@ import * as api from '../../hooks/api'
 import { EffectSection } from './EffectSection'
 import { InformationSection } from './InformationSection'
 import { RestrictionSection } from './RestrictionSection'
+import { ObligationSection } from './ObligationSection'
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -42,20 +44,45 @@ export const Builder: React.FC = () => {
   const [obligations, updateObligations] = useState<Value[]>([])
 
   const restrictionsApi = api.useGetRestrictions()
+  const obligationsApi = api.useGetObligations()
+  const effectsApi = api.useGetEffects()
+  const actionsApi = api.useGetActions()
+  const precedencesApi = api.useGetPrecedences()
 
   useEffect(() => {
     restrictionsApi.dispatch()
+    obligationsApi.dispatch()
+    effectsApi.dispatch()
+    actionsApi.dispatch()
+    precedencesApi.dispatch()
   }, [])
 
-  const loading = useMemo(() => restrictionsApi.response.loading, [
-    restrictionsApi.response.loading,
-  ])
+  const isLoading = useMemo(
+    () =>
+      restrictionsApi.response.loading &&
+      obligationsApi.response.loading &&
+      effectsApi.response.loading &&
+      actionsApi.response.loading &&
+      precedencesApi.response.loading,
+    [
+      restrictionsApi.response,
+      obligationsApi.response,
+      effectsApi.response,
+      actionsApi.response,
+      precedencesApi.response,
+    ]
+  )
 
   const { validRestrictions, optionsMap, unitsMap } =
     restrictionsApi.response.value ?? {}
 
+  const validObligations = obligationsApi.response.value?.validObligations ?? []
+  const validEffects = effectsApi.response.value?.validEffects ?? []
+  const validActions = actionsApi.response.value?.validActions ?? []
+  const validPrecedences = precedencesApi.response.value?.validPrecedences ?? []
+
   return (
-    <LoadingWrapper loading={loading}>
+    <LoadingWrapper loading={isLoading}>
       <OptionMapContext.Provider value={optionsMap ?? {}}>
         <UnitMapContext.Provider value={unitsMap ?? {}}>
           <FormSection
@@ -94,12 +121,54 @@ export const Builder: React.FC = () => {
           />
           <FormSection
             gridContainerProps={{ className: classes.section }}
+            header={<FormSectionHeader title={'Policy Conditions'} />}
+            body={
+              <>
+                <Grid container spacing={2}>
+                  <Grid item>
+                    <Selector
+                      options={validActions}
+                      textFieldProps={{
+                        label: 'Action',
+                        value: action,
+                        onChange: (event: any) => setAction(event.target.value),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item>
+                    <Selector
+                      options={validPrecedences}
+                      textFieldProps={{
+                        label: 'Precedence',
+                        value: precedence,
+                        onChange: (event: any) =>
+                          setPrecedence(event.target.value),
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </>
+            }
+          />
+          <FormSection
+            gridContainerProps={{ className: classes.section }}
             header={<FormSectionHeader title={'Policy Effects'} />}
             body={
               <EffectSection
                 effects={effects}
                 updateEffects={updateEffects}
-                validEffects={[]}
+                validEffects={validEffects}
+              />
+            }
+          />
+          <FormSection
+            gridContainerProps={{ className: classes.section }}
+            header={<FormSectionHeader title={'Policy Effects'} />}
+            body={
+              <ObligationSection
+                obligations={obligations}
+                updateObligations={updateObligations}
+                validObligations={validObligations}
               />
             }
           />

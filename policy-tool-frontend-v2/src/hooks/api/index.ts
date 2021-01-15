@@ -1,1 +1,5 @@
 export * from './useGetRestrictions'
+export * from './useGetActions'
+export * from './useGetEffects'
+export * from './useGetObligations'
+export * from './useGetPrecedences'
