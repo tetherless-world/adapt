@@ -1,17 +1,20 @@
 import { Grid, makeStyles, useTheme } from '@material-ui/core'
 import { useEffect, useMemo, useState } from 'react'
-import { FormSection } from '../../components/FormSection/FormSection'
-import { FormSectionHeader } from '../../components/FormSection/FormSectionHeader'
-import { LoadingWrapper } from '../../components/LoadingWrapper'
-import { Selector } from '../../components/Selector'
-import { OptionMapContext } from '../../contexts/OptionMapContext'
-import { UnitMapContext } from '../../contexts/UnitsMapContext'
-import { Restriction, Value } from '../../global'
-import * as api from '../../hooks/api'
-import { EffectSection } from './sections/EffectSection'
-import { InformationSection } from './sections/InformationSection'
-import { RestrictionSection } from './sections/RestrictionSection'
-import { ObligationSection } from './sections/ObligationSection'
+import {
+  FormSection,
+  FormSectionHeader,
+  LoadingWrapper,
+  Selector,
+} from 'src/components'
+import { OptionMapContext, UnitMapContext } from 'src/contexts'
+import { Restriction, Value } from 'src/global'
+import * as api from 'src/hooks/api'
+import {
+  EffectSection,
+  InformationSection,
+  ObligationSection,
+  RestrictionSection,
+} from './sections'
 
 const useStyles = makeStyles((theme) => ({
   section: {

@@ -1,5 +1,5 @@
 import { MenuItem, TextField, TextFieldProps } from '@material-ui/core'
-import { Option } from 'global'
+import { Option } from 'src/global'
 
 export interface SelectorProps {
   options?: Option[]

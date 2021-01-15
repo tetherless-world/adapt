@@ -1,5 +1,5 @@
 import { useAsyncFn } from 'react-use'
-import { Option } from '../../global'
+import { Option } from 'src/global'
 import { axios } from './common'
 
 export type GetObligationsResponse = {

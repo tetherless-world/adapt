@@ -1,8 +1,8 @@
 import { Grid, makeStyles, Typography, useTheme } from '@material-ui/core'
-import { OptionMapContext } from 'contexts/OptionMapContext'
-import { Restriction } from 'global'
 import _, { PropertyPath } from 'lodash'
 import { useContext } from 'react'
+import { OptionMapContext } from 'src/contexts'
+import { Restriction } from 'src/global'
 import { InputWrapper } from './InputWrapper'
 
 const useStyles = makeStyles((theme) => {

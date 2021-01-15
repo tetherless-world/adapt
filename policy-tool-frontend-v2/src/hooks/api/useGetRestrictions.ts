@@ -1,5 +1,5 @@
 import { useAsyncFn } from 'react-use'
-import { OptionMap, Restriction } from '../../global'
+import { OptionMap, Restriction } from 'src/global'
 import { axios } from './common'
 
 export interface GetRestrictionsResponse {
