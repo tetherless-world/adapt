@@ -7,7 +7,7 @@ export type GetPrecedencesResponse = {
 }
 
 const getPrecedences = async () => {
-  let { data } = await axios.get('/effects')
+  let { data } = await axios.get('/precedences')
   return data
 }
 

@@ -139,22 +139,34 @@ def app_factory(config):
     @app.route(f'{api_url}/actions', methods=['GET'])
     def get_actions():
         results = twks.query_rdf_type(PROV.Activity)
-        return jsonify([row.asdict() for row in results])
+        response = {
+            'validActions': [row.asdict() for row in results]
+        }
+        return jsonify(response)
 
     @app.route(f'{api_url}/precedences', methods=['GET'])
     def get_precedences():
         results = twks.query_rdfs_subclasses(POL.Precedence)
-        return jsonify([row.asdict() for row in results])
+        response = {
+            'validPrecedences': sorted([row.asdict() for row in results], key=lambda d: d['label'])
+        }
+        return jsonify(response)
 
     @app.route(f'{api_url}/effects', methods=['GET'])
     def get_effects():
         results = twks.query_rdf_type(POL.Effect)
-        return jsonify([row.asdict() for row in results])
+        response = {
+            'validEffects': [row.asdict() for row in results]
+        }
+        return jsonify(response)
 
     @app.route(f'{api_url}/obligations', methods=['GET'])
     def get_obligations():
         results = twks.query_rdf_type(POL.Obligation)
-        return jsonify([row.asdict() for row in results])
+        response = {
+            'validObligations': [row.asdict() for row in results]
+        }
+        return jsonify(response)
 
     def build_policy(source: str,
                      id: str,
