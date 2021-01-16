@@ -30,6 +30,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
+const builderDefaults = {
+  id: 'ExamplePolicy',
+  source: 'http://purl.org/twc/policy/',
+  precedence: 'http://purl.org/twc/policy/example/dsa/Priority_1'
+}
+
 const flatten = (restrictions: Restriction[]) => {
   let entries: any[] = []
   restrictions.reduce((r, { restrictions: subRestrictions, values }) => {
@@ -60,12 +66,12 @@ export const Builder: React.FC = () => {
   const classes = useStyles(theme)
   const history = useHistory()
 
-  const [id, setId] = useState<string>('ExamplePolicy')
-  const [source, setSource] = useState<string>('http://purl.org/twc/policy')
+  const [id, setId] = useState<string>(builderDefaults.id)
+  const [source, setSource] = useState<string>(builderDefaults.source)
   const [label, setLabel] = useState<string>('')
   const [definition, setDefinition] = useState<string>('')
   const [action, setAction] = useState<string>('')
-  const [precedence, setPrecedence] = useState<string>('')
+  const [precedence, setPrecedence] = useState<string>(builderDefaults.precedence)
   //prettier-ignore
   const [agentRestrictions, updateAgentRestrictions] = useState<Restriction[]>([])
   //prettier-ignore

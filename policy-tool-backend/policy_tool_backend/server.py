@@ -147,10 +147,17 @@ def app_factory(config):
 
     @app.route(f'{api_url}/precedences', methods=['GET'])
     def get_precedences():
-        results = twks.query_rdfs_subclasses(POL.Precedence)
-        response = {
-            'validPrecedences': sorted([row.asdict() for row in results], key=lambda d: d['label'])
-        }
+        # TODO: Discuss whether twks client wrapper is unnecessary.
+        results = twks.client.query_assertions('''
+            SELECT ?value ?label WHERE { 
+                ?value rdfs:subClassOf+ ?superClass;
+                       rdfs:label ?label 
+                FILTER NOT EXISTS { ?value rdf:type pol:Policy }
+            }
+            ''', initNs={'rdfs': RDFS, 'rdf': RDF, 'pol': POL}, initBindings={'superClass': POL.Precedence})
+        sorted_results = sorted([row.asdict() for row in results],
+                                key=itemgetter('label'))
+        response = {'validPrecedences': sorted_results}
         return jsonify(response)
 
     @app.route(f'{api_url}/effects', methods=['GET'])
@@ -186,7 +193,7 @@ def app_factory(config):
         if source[-1] == '#' or source[-1] == '/':
             identifier = f'{source}{id}'
         else:
-            identifier = f'{source}#{id}'
+            identifier = f'{source}/{id}'
 
         def dfs(r: dict) -> Graphable:
             uri = URIRef(r['uri'])
@@ -221,28 +228,35 @@ def app_factory(config):
             else:
                 raise RuntimeError('Invalid attribute structure.')
 
-        eq_agent = AgentRestriction(Extent.SOME,
-                                    BooleanClass(OWL.intersectionOf,
-                                                 [dfs(a) for a in agent_restrictions]))
-        eq_class = BooleanClass(OWL.intersectionOf, [URIRef(action), eq_agent])
+        if not agent_restrictions and not activity_restrictions:
+            eq_class = URIRef(action)
+        else:
+            eq_agent = AgentRestriction(Extent.SOME,
+                                        BooleanClass(OWL.intersectionOf,
+                                                     [dfs(a) for a in agent_restrictions]))
+            eq_class = BooleanClass(OWL.intersectionOf,
+                                    [URIRef(action), eq_agent])
 
-        for r in activity_restrictions:
-            ref = URIRef(r['uri'])
-            v, t = [r['values'][0][k] for k in ['value', 'type']]
+            for r in activity_restrictions:
+                ref = URIRef(r['uri'])
+                v, t = [r['values'][0][k] for k in ['value', 'type']]
 
-            if ref == PROV.Agent:
-                eq_class.append(AgentRestriction(Extent.SOME, URIRef(v)))
-            else:
-                literal = Literal(v, datatype=t)
-                if ref == PROV.startTime:
-                    eq_class.append(StartTimeRestriction(Extent.SOME, literal))
-                if ref == PROV.endTime:
-                    eq_class.append(EndTimeRestriction(Extent.SOME, literal))
+                if ref == PROV.Agent:
+                    eq_class.append(AgentRestriction(Extent.SOME, URIRef(v)))
+                else:
+                    literal = Literal(v, datatype=t)
+                    if ref == PROV.startTime:
+                        eq_class.append(
+                            StartTimeRestriction(Extent.SOME, literal))
+                    if ref == PROV.endTime:
+                        eq_class.append(
+                            EndTimeRestriction(Extent.SOME, literal))
 
         root = Class(identifier=URIRef(identifier),
+                     rdf_type=POL.Policy,
                      label=label,
                      equivalent_class=eq_class,
-                     subclass_of=[*effects, URIRef(precedence)])
+                     subclass_of=[URIRef(e['value']) for e in effects] + [URIRef(precedence)])
 
         return root.to_graph()
 
@@ -261,6 +275,7 @@ def app_factory(config):
                                    data['obligations'])
 
         pol = graph.serialize(format='turtle').decode('utf-8')
+        logger.info(pol)
 
         nanopublication = Nanopublication.parse_assertions(data=pol,
                                                            format="turtle")

@@ -1,6 +1,7 @@
 import glob
 import logging
 from pathlib import Path
+from typing import Optional
 
 from rdflib import RDFS, Graph, URIRef
 import rdflib
@@ -8,7 +9,7 @@ import rdflib
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
 
-from ..rdf.common import OWL, RDF, RDFS, SIO
+from ..rdf.common import OWL, RDF, RDFS, SIO, POL
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
