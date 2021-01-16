@@ -1,5 +1,4 @@
 import { Button, makeStyles, useTheme } from '@material-ui/core'
-import _ from 'lodash'
 import { useEffect, useMemo, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { FormSection, FormSectionHeader, LoadingWrapper } from 'src/components'
@@ -14,12 +13,12 @@ import {
   usePostPolicy,
 } from 'src/hooks/api'
 import {
+  ConditionSection,
   EffectSection,
   InformationSection,
   ObligationSection,
   RestrictionSection,
 } from './sections'
-import { ConditionSection } from './sections/ConditionSection'
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -48,7 +47,6 @@ const flatten = (restrictions: Restriction[]) => {
 const isValidPolicy = (state: PolicyState) =>
   !!state.id &&
   !!state.source &&
-  !!state.label &&
   !!state.action &&
   !!state.precedence &&
   !!state.effects.length &&
@@ -62,8 +60,8 @@ export const Builder: React.FC = () => {
   const classes = useStyles(theme)
   const history = useHistory()
 
-  const [id, setId] = useState<string>('')
-  const [source, setSource] = useState<string>('')
+  const [id, setId] = useState<string>('ExamplePolicy')
+  const [source, setSource] = useState<string>('http://purl.org/twc/policy')
   const [label, setLabel] = useState<string>('')
   const [definition, setDefinition] = useState<string>('')
   const [action, setAction] = useState<string>('')

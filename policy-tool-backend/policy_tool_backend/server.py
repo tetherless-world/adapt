@@ -179,7 +179,13 @@ def app_factory(config):
                      effects: List[dict],
                      obligations: List[dict]):
 
-        identifier = f'{source}#{id}' if source else f'http://purl.org/twc/policy#{id}'
+        if not source:
+            source = 'http://purl.org/twc/policy#'
+
+        if source[-1] == '#' or source[-1] == '/':
+            identifier = f'{source}{id}'
+        else:
+            identifier = f'{source}#{id}'
 
         def dfs(r: dict) -> Graphable:
             uri = URIRef(r['uri'])
@@ -237,29 +243,38 @@ def app_factory(config):
                      equivalent_class=eq_class,
                      subclass_of=[URIRef(action), URIRef(precedence)])
 
-        graph, _ = root.to_graph()
-        return graph
+        return root.to_graph()
 
-    @ app.route(f'{api_url}/policies', methods=['POST'])
+    @app.route(f'{api_url}/policies', methods=['POST'])
     def create_policy():
         data = request.json
-        graph = build_policy(data['source'],
-                             data['id'],
-                             data['label'],
-                             data['definition'],
-                             data['action'],
-                             data['precedence'],
-                             data['activityRestrictions'],
-                             data['agentRestrictions'],
-                             data['effects'],
-                             data['obligations'])
+        graph, root = build_policy(data['source'],
+                                   data['id'],
+                                   data['label'],
+                                   data['definition'],
+                                   data['action'],
+                                   data['precedence'],
+                                   data['activityRestrictions'],
+                                   data['agentRestrictions'],
+                                   data['effects'],
+                                   data['obligations'])
 
         pol = graph.serialize(format='turtle').decode('utf-8')
 
         nanopublication = Nanopublication.parse_assertions(data=pol,
                                                            format="turtle")
         twks.save(nanopublication)
+        return root
 
-        return pol
+    @app.route(f'{api_url}/policies')
+    def get_policy():
+        uri = request.args.get('uri')
+        result = twks.fetch_policy_by_uri(URIRef(uri))
+        graph = graph_factory()
+        for triple in result:
+            graph.add(triple)
+
+        policy = graph.serialize(format='turtle').decode('utf-8')
+        return jsonify({'policy': policy})
 
     return app

@@ -108,3 +108,6 @@ class TwksClientWrapper:
             'ASK { ?uri rdfs:subClassOf+ ?super_class }',
             initNs={'rdfs': RDFS},
             initBindings={'uri': URIRef(uri), 'super_class': URIRef(super_class)})
+
+    def fetch_policy_by_uri(self, uri: str):
+        return self.client.query_nanopublications('DESCRIBE ?uri', initBindings={'uri': uri})

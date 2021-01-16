@@ -35,6 +35,7 @@ export const InformationSection: React.FC<InformationSectionProps> = (
         <Grid item xs={12}>
           <TextField
             label={'Label'}
+            required={false}
             value={label}
             onChange={(e) => setLabel(e.target.value)}
           />
@@ -45,6 +46,7 @@ export const InformationSection: React.FC<InformationSectionProps> = (
           <TextField
             label={'Definition'}
             value={definition}
+            required={false}
             onChange={(e) => setDefinition(e.target.value)}
             multiline
             rowsMax={10}
