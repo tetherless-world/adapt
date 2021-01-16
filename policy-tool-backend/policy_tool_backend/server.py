@@ -10,7 +10,8 @@ from typing import List
 
 import rdflib
 from flask import Flask, jsonify, request
-from rdflib import BNode, Graph, Literal, URIRef
+from rdflib import BNode, Graph, Literal, URIRef, plugin
+from rdflib.serializer import Serializer
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
 
@@ -241,7 +242,7 @@ def app_factory(config):
         root = Class(identifier=URIRef(identifier),
                      label=label,
                      equivalent_class=eq_class,
-                     subclass_of=[URIRef(action), URIRef(precedence)])
+                     subclass_of=[*effects, URIRef(precedence)])
 
         return root.to_graph()
 
@@ -274,7 +275,15 @@ def app_factory(config):
         for triple in result:
             graph.add(triple)
 
-        policy = graph.serialize(format='turtle').decode('utf-8')
-        return jsonify({'policy': policy})
+        policy = json.loads(
+            graph.serialize(format='json-ld',
+                            context={
+                                "owl": "http://www.w3.org/2002/07/owl#",
+                                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                                "sio": "http://semanticscience.org/resource/",
+                                "xsd": "http://www.w3.org/2001/XMLSchema#"
+                            }).decode('utf-8'))
+        return jsonify(policy)
 
     return app
