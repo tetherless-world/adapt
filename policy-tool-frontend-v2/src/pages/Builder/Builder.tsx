@@ -73,18 +73,32 @@ export const Builder: React.FC = () => {
   const [effects, updateEffects] = useState<Value[]>([])
   const [obligations, updateObligations] = useState<Value[]>([])
 
-  const state = {
-    id,
-    source,
-    label,
-    definition,
-    action,
-    precedence,
-    agentRestrictions,
-    activityRestrictions,
-    effects,
-    obligations,
-  }
+  const state = useMemo(
+    () => ({
+      id,
+      source,
+      label,
+      definition,
+      action,
+      precedence,
+      agentRestrictions,
+      activityRestrictions,
+      effects,
+      obligations,
+    }),
+    [
+      id,
+      source,
+      label,
+      definition,
+      action,
+      precedence,
+      agentRestrictions,
+      activityRestrictions,
+      effects,
+      obligations,
+    ]
+  )
 
   const [restrictionsRes, getRestrictions] = useGetRestrictions()
   const [obligationsRes, getObligations] = useGetObligations()
@@ -103,7 +117,7 @@ export const Builder: React.FC = () => {
 
   useEffect(() => {
     if (!policyRes.loading && !!policyRes.value) {
-      let url = `/view?uri=${policyRes.value}`
+      let url = `/view?uri=${encodeURI(policyRes.value)}`
       history.push(url)
     }
   }, [policyRes, history])
