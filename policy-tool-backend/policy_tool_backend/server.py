@@ -218,7 +218,7 @@ def app_factory(config):
                 return AttributeRestriction(Extent.SOME, range_)
 
             if 'values' in r:
-                v, t = r['values'][0].values()
+                v, t = itemgetter('value', 'type')(r['values'][0])
                 if t == OWL.Class:
                     range_.append(AttributeRestriction(Extent.SOME, URIRef(v)))
                 else:
@@ -269,31 +269,32 @@ def app_factory(config):
                     if ref == PROV.endTime:
                         eq_class.append(EndTimeRestriction(Extent.SOME, lit))
 
+        root.equivalent_class = eq_class
         return root.to_graph()
 
-    @ app.route(f'{api_url}/policies', methods=['POST'])
+    @app.route(f'{api_url}/policies', methods=['POST'])
     def create_policy():
         data = request.json
-        graph, root = build_policy(data['source'],
-                                   data['id'],
-                                   data['label'],
-                                   data['definition'],
-                                   data['action'],
-                                   data['precedence'],
-                                   data['activityRestrictions'],
-                                   data['agentRestrictions'],
-                                   data['effects'],
-                                   data['obligations'])
+        graph, root = build_policy(source=data['source'],
+                                   id=data['id'],
+                                   label=data['label'],
+                                   definition=data['definition'],
+                                   action=data['action'],
+                                   precedence=data['precedence'],
+                                   activity_restrictions=data['activityRestrictions'],
+                                   agent_restrictions=data['agentRestrictions'],
+                                   effects=data['effects'],
+                                   obligations=data['obligations'])
 
         pol = graph.serialize(format='turtle').decode('utf-8')
-        logger.info(pol)
+        logger.info(f'\nGenerated policy {str(root)}:\n\n{pol}')
 
         nanopublication = Nanopublication.parse_assertions(data=pol,
                                                            format="turtle")
         twks.save(nanopublication)
         return root
 
-    @ app.route(f'{api_url}/policies')
+    @app.route(f'{api_url}/policies')
     def get_policy():
         uri = request.args.get('uri')
         fmt = request.args.get('format', 'nt')
@@ -302,23 +303,19 @@ def app_factory(config):
         for triple in result:
             graph.add(triple)
 
-        # policy = json.loads(
-        #     graph.serialize(format='json-ld',
-        #                     context={
-        #                         "owl": "http://www.w3.org/2002/07/owl#",
-        #                         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-        #                         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-        #                         "sio": "http://semanticscience.org/resource/",
-        #                         "xsd": "http://www.w3.org/2001/XMLSchema#"
-        #                     }).decode('utf-8'))
-        # return jsonify(policy)
+        if fmt == 'json-ld':
+            policy = json.loads(
+                graph.serialize(format='json-ld',
+                                context={
+                                    "owl": "http://www.w3.org/2002/07/owl#",
+                                    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+                                    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+                                    "sio": "http://semanticscience.org/resource/",
+                                    "xsd": "http://www.w3.org/2001/XMLSchema#"
+                                }).decode('utf-8'))
+            return jsonify(policy)
 
         policy = graph.serialize(format=fmt).decode('utf-8')
-        logger.info(policy)
         return policy
-
-    @ app.route(f'{api_url}/policies')
-    def visualize():
-        pass
 
     return app
