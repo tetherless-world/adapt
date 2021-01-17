@@ -193,7 +193,7 @@ def app_factory(config):
         if source[-1] == '#' or source[-1] == '/':
             identifier = f'{source}{id}'
         else:
-            identifier = f'{source}/{id}'
+            identifier = f'{source}#{id}'
 
         def dfs(r: dict) -> Graphable:
             uri = URIRef(r['uri'])

@@ -123,7 +123,7 @@ export const Builder: React.FC = () => {
 
   useEffect(() => {
     if (!policyRes.loading && !!policyRes.value) {
-      let url = `/view?uri=${encodeURI(policyRes.value)}`
+      let url = `/view?uri=${encodeURIComponent(policyRes.value)}`
       history.push(url)
     }
   }, [policyRes, history])
