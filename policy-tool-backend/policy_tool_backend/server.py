@@ -212,13 +212,12 @@ def app_factory(config):
                     literal = Literal(v, datatype=t)
                     if 'subClassOf' in r:
                         subclasses = [URIRef(s) for s in r['subClassOf']]
-
                         if SIO.MinimalValue in subclasses:
                             constraints.append((XSD.minInclusive, literal))
                         if SIO.MaximalValue in subclasses:
                             constraints.append((XSD.maxInclusive, literal))
 
-                    if constraints:
+                    if not constraints:
                         range_.append(ValueRestriction(Extent.VALUE, literal))
                     else:
                         range_.append(ValueRestriction(Extent.SOME,
