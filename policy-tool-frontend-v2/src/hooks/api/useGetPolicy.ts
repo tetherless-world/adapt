@@ -1,15 +1,15 @@
 import { useAsyncFn } from 'react-use'
-import { Option } from 'src/global'
 import { axios } from './common'
 
-export type GetPolicyResponse = {
-  validPrecedences: Option[]
-}
+export type GetPolicyResponse = string 
 
-const getPolicy = (uri: string) => async () => {
+const getPolicy = (uri: string, format: string) => async () => {
   let { data } = await axios.get('/policies', { params: { uri } })
   return data
 }
 
-export const useGetPolicy = (uri: string) =>
-  useAsyncFn<() => Promise<GetPolicyResponse>>(getPolicy(uri), [uri])
+export const useGetPolicy = (uri: string, format: string = 'turtle') =>
+  useAsyncFn<() => Promise<GetPolicyResponse>>(getPolicy(uri, format), [
+    uri,
+    format,
+  ])

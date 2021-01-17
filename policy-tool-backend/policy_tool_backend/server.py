@@ -297,7 +297,7 @@ def app_factory(config):
     @app.route(f'{api_url}/policies')
     def get_policy():
         uri = request.args.get('uri')
-        fmt = request.args.get('format', 'nt')
+        fmt = request.args.get('format', 'turtle')
         result = twks.fetch_policy_by_uri(URIRef(uri))
         graph = graph_factory()
         for triple in result:
@@ -316,6 +316,40 @@ def app_factory(config):
             return jsonify(policy)
 
         policy = graph.serialize(format=fmt).decode('utf-8')
+        logger.info(policy)
         return policy
+
+    @app.route(f'{api_url}/policies/visualization')
+    def visualize_policy():
+        uri = request.args.get('uri')
+        result = twks.fetch_policy_by_uri(URIRef(uri))
+        graph = graph_factory()
+        for triple in result:
+            graph.add(triple)
+
+        unprocessed_nodes = set()
+        links = []
+        nsm = graph.namespace_manager
+        for s, p, o in graph:
+            if o.n3(nsm) != 'rdf:nil':
+                unprocessed_nodes.add(s.n3(nsm))
+                unprocessed_nodes.add(o.n3(nsm))
+                link = {'source': s.n3(nsm), 'target': o.n3(nsm)}
+                if p.n3(nsm)[0] != '_':
+                    link['label'] = p.n3(nsm)
+                links.append(link)
+
+        nodes = []
+        for node_id in unprocessed_nodes:
+            node = {'id': node_id}
+            if node_id[0] != '_':
+                node['label'] = node_id
+            else:
+                node['label'] = 'owl:Restriction'
+
+            if node_id != 'rdf:nil':
+                nodes.append(node)
+
+        return jsonify({'nodes': nodes, 'links': links})
 
     return app
