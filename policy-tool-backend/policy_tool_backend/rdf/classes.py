@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 
 from rdflib import Graph
 from rdflib.term import BNode, Identifier, Literal, URIRef
@@ -45,7 +45,7 @@ class BooleanClass(Graphable):
         List of RDF entities [Identifier or Graphable] contained in the intersection/union, by default []
     """
 
-    def __init__(self, operation: URIRef, members: List[Union[Identifier, Graphable]]):
+    def __init__(self, operation: URIRef, members: Optional[List[Union[Identifier, Graphable]]] = None):
         """
         A class representing the owl:intersectionOf or owl:unionOf entities [Identifier or Graphable]
 
@@ -58,7 +58,9 @@ class BooleanClass(Graphable):
             List of RDF entities [Identifier or Graphable] contained in the intersection/union, by default []
         """
         self.operation = operation
-        self.members = members
+        self.members = []
+        if members:
+            self.members.extend(members)
 
     def append(self, member: Union[Identifier, Graphable]):
         self.members.append(member)
@@ -110,11 +112,13 @@ class Class(Graphable):
     ----------
     identifier : Identifier, optional
         Identifier corresponding to root node of this object, by default BNode()
-    label : str, optional
-        `rdf:label` corresponding to this object, by default None
+    label : Optional[str], optional
+        `rdf:label` corresponding to this class, by default None
+    definition : Optional[str], optional
+        `skos:definition` corresponding to this class, by default None
     rdf_type : Identifier, optional
-        `rdf:type` corresponding to this object, by default OWL.Class
-    equivalent_class : Graphable, optional
+        `rdf:type` corresponding to this class, by default OWL.Class
+    equivalent_class : Union[Identifier, Graphable], optional
         `owl:equivalentClass` corresponding to this object, by default None
     subclass_of : List[Union[Identifier, Graphable]], optional
         List of RDF entities [Identifier or Graphable] for which this object is `rdfs:subClassOf`, by default []
@@ -122,30 +126,39 @@ class Class(Graphable):
 
     def __init__(self,
                  identifier: Identifier = BNode(),
-                 label: str = None,
-                 rdf_type: Identifier = OWL.Class,
-                 equivalent_class: Union[Identifier, Graphable] = None,
-                 subclass_of: List[Union[Identifier, Graphable]] = []):
+                 label: Optional[str] = None,
+                 definition: Optional[str] = None,
+                 rdf_type: Optional[Identifier] = OWL.Class,
+                 equivalent_class: Optional[Union[Identifier,
+                                                  Graphable]] = None,
+                 subclass_of: Optional[List[Union[Identifier, Graphable]]] = None):
         """
-        An owl:Class object
+        An `owl:Class` object
 
         Parameters
         ----------
         identifier : Identifier, optional
             Identifier corresponding to root node of this object, by default BNode()
-        label : str, optional
-            `rdf:label` corresponding to this object, by default None
+        label : Optional[str], optional
+            `rdf:label` corresponding to this class, by default None
+        definition : Optional[str], optional
+            `skos:definition` corresponding to this class, by default None
         rdf_type : Identifier, optional
             `rdf:type` corresponding to this object, by default OWL.Class
-        equivalent_class : Graphable, optional
+        equivalent_class : Union[Identifier, Graphable], optional
             `owl:equivalentClass` corresponding to this object, by default None
         subclass_of : List[Union[Identifier, Graphable]], optional
-            List of RDF entities [Identifier or Graphable] for which this object is `rdfs:subClassOf`, by default []
+             List of RDF entities [Identifier or Graphable] for which this object is `rdfs:subClassOf`, by default []
         """
         self.identifier = identifier
         self.label = label
+        self.definition = definition
         self.equivalent_class = equivalent_class
-        self.subclass_of = subclass_of
+
+        self.subclass_of = []
+        if subclass_of:
+            self.subclass_of.extend(subclass_of)
+
         self.rdf_type = rdf_type
 
     def to_graph(self):
@@ -196,16 +209,13 @@ class Restriction(Graphable):
     ----------
     on_property : Identifier
         Identifier of propert which is restricted by this object 
-    restriction_kind : Extent
-        Type of restriction on the property
-    restriction_value : Union[Identifier, Graphable]
+    extent_ : Extent
+        Extent to which the range is restricted
+    range_ : Union[Identifier, Graphable]
         Value of the restriction
     """
 
-    def __init__(self,
-                 on_property: Identifier,
-                 restriction_kind: Extent,
-                 restriction_value: Union[Identifier, Graphable]):
+    def __init__(self, on_property: Identifier, extent_: Extent, range_: Union[Identifier, Graphable]):
         """
         An owl:Restriction object
 
@@ -213,14 +223,14 @@ class Restriction(Graphable):
         ----------
         on_property : Identifier
             Identifier of propert which is restricted by this object 
-        restriction_kind : Extent
-            Type of restriction on the property
-        restriction_value : Union[Identifier, Graphable]
+        extent_ : Extent
+            Extent to which the range is restricted
+        range_ : Union[Identifier, Graphable]
             Value of the restriction
         """
         self.on_property = on_property
-        self.restriction_kind = restriction_kind
-        self.restriction_value = restriction_value
+        self.extent_ = extent_
+        self.range_ = range_
 
     def to_graph(self):
         """
@@ -242,12 +252,12 @@ class Restriction(Graphable):
         root.add(RDF.type, OWL.Restriction)
         root.add(OWL.onProperty, self.on_property)
 
-        if isinstance(self.restriction_value, Graphable):
-            subgraph, subroot = self.restriction_value.to_graph()
+        if isinstance(self.range_, Graphable):
+            subgraph, subroot = self.range_.to_graph()
             graph += subgraph
-            root.add(self.restriction_kind.value, subroot)
-        elif isinstance(self.restriction_value, Identifier):
-            root.add(self.restriction_kind.value, self.restriction_value)
+            root.add(self.extent_.value, subroot)
+        elif isinstance(self.range_, Identifier):
+            root.add(self.extent_.value, self.range_)
         else:
             raise Exception
 
@@ -256,54 +266,32 @@ class Restriction(Graphable):
 
 class AgentRestriction(Restriction):
 
-    def __init__(self,
-                 restriction_kind: Extent,
-                 restriction_value: Union[Identifier, Graphable]):
-        super().__init__(on_property=PROV.wasAssociatedWith,
-                         restriction_kind=restriction_kind,
-                         restriction_value=restriction_value)
+    def __init__(self, extent_: Extent, range_: Union[Identifier, Graphable]):
+        super().__init__(PROV.wasAssociatedWith, extent_, range_)
 
 
 class StartTimeRestriction(Restriction):
-    def __init__(self,
-                 restriction_kind: Extent,
-                 restriction_value: Union[Identifier, Graphable]):
-        super().__init__(on_property=PROV.startedAtTime,
-                         restriction_kind=restriction_kind,
-                         restriction_value=restriction_value)
+    def __init__(self, extent_: Extent, range_: Union[Identifier, Graphable]):
+        super().__init__(PROV.startedAtTime, extent_, range_)
 
 
 class EndTimeRestriction(Restriction):
-    def __init__(self,
-                 restriction_kind: Extent,
-                 restriction_value: Union[Identifier, Graphable]):
-        super().__init__(on_property=PROV.endedAtTime,
-                         restriction_kind=restriction_kind,
-                         restriction_value=restriction_value)
+    def __init__(self, extent_: Extent, range_: Union[Identifier, Graphable]):
+        super().__init__(PROV.endedAtTime, extent_, range_)
 
 
 class AttributeRestriction(Restriction):
-    def __init__(self,
-                 restriction_kind: Extent,
-                 restriction_value: Union[Identifier, Graphable]):
-        super().__init__(on_property=SIO.hasAttribute,
-                         restriction_kind=restriction_kind,
-                         restriction_value=restriction_value)
+    def __init__(self, extent_: Extent, range_: Union[Identifier, Graphable]):
+        super().__init__(SIO.hasAttribute, extent_, range_)
 
 
 class ValueRestriction(Restriction):
-    def __init__(self,
-                 restriction_kind: Extent,
-                 restriction_value: Union[Identifier, Graphable]):
-        super().__init__(on_property=SIO.hasValue,
-                         restriction_kind=restriction_kind,
-                         restriction_value=restriction_value)
+    def __init__(self, extent_: Extent, range_: Union[Identifier, Graphable]):
+        super().__init__(SIO.hasValue, extent_, range_)
 
 
 class RestrictedDatatype(Graphable):
-    def __init__(self,
-                 on_datatype: Identifier,
-                 with_restrictions: List[Tuple[Identifier, Identifier]] = []):
+    def __init__(self, on_datatype: Identifier, with_restrictions: List[Tuple[Identifier, Identifier]] = []):
         self.on_datatype = on_datatype
         self.with_restrictions = with_restrictions
 

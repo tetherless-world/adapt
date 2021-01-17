@@ -149,9 +149,9 @@ def app_factory(config):
     def get_precedences():
         # TODO: Discuss whether twks client wrapper is unnecessary.
         results = twks.client.query_assertions('''
-            SELECT ?value ?label WHERE { 
+            SELECT ?value ?label WHERE {
                 ?value rdfs:subClassOf+ ?superClass;
-                       rdfs:label ?label 
+                       rdfs:label ?label
                 FILTER NOT EXISTS { ?value rdf:type pol:Policy }
             }
             ''', initNs={'rdfs': RDFS, 'rdf': RDF, 'pol': POL}, initBindings={'superClass': POL.Precedence})
@@ -191,37 +191,51 @@ def app_factory(config):
             source = 'http://purl.org/twc/policy#'
 
         if source[-1] == '#' or source[-1] == '/':
-            identifier = f'{source}{id}'
+            identifier = URIRef(f'{source}{id}')
         else:
-            identifier = f'{source}#{id}'
+            identifier = URIRef(f'{source}#{id}')
+
+        root = Class(identifier=identifier, rdf_type=POL.Policy, label=label)
+
+        if precedence:
+            root.subclass_of.append(URIRef(precedence))
+
+        if effects:
+            root.subclass_of.extend([URIRef(e['value']) for e in effects])
+
+        if obligations:
+            root.subclass_of.extend([URIRef(o['value']) for o in obligations])
 
         def dfs(r: dict) -> Graphable:
             uri = URIRef(r['uri'])
+            if 'restrictions' not in r and 'values' not in r:
+                return uri
+
             range_ = BooleanClass(OWL.intersectionOf, [uri])
-            if r.get('restrictions'):
+            if 'restrictions' in r:
                 children = [dfs(c) for c in r['restrictions']]
                 range_.extend(children)
                 return AttributeRestriction(Extent.SOME, range_)
 
-            if r.get('values'):
-                v, t = [r['values'][0][k] for k in ['value', 'type']]
+            if 'values' in r:
+                v, t = r['values'][0].values()
                 if t == OWL.Class:
                     range_.append(AttributeRestriction(Extent.SOME, URIRef(v)))
                 else:
                     constraints = []
-                    literal = Literal(v, datatype=t)
+                    lit = Literal(v, datatype=t)
                     if 'subClassOf' in r:
                         subclasses = [URIRef(s) for s in r['subClassOf']]
                         if SIO.MinimalValue in subclasses:
-                            constraints.append((XSD.minInclusive, literal))
+                            constraints.append((XSD.minInclusive, lit))
                         if SIO.MaximalValue in subclasses:
-                            constraints.append((XSD.maxInclusive, literal))
+                            constraints.append((XSD.maxInclusive, lit))
 
                     if not constraints:
-                        range_.append(ValueRestriction(Extent.VALUE, literal))
+                        range_.append(ValueRestriction(Extent.VALUE, lit))
                     else:
-                        range_.append(ValueRestriction(Extent.SOME,
-                                                       RestrictedDatatype(t, constraints)))
+                        dt = RestrictedDatatype(t, constraints)
+                        range_.append(ValueRestriction(Extent.SOME, dt))
 
                 return AttributeRestriction(Extent.SOME, range_)
             else:
@@ -230,12 +244,18 @@ def app_factory(config):
         if not agent_restrictions and not activity_restrictions:
             eq_class = URIRef(action)
         else:
-            eq_agent = AgentRestriction(Extent.SOME,
-                                        BooleanClass(OWL.intersectionOf,
-                                                     [dfs(a) for a in agent_restrictions]))
-            eq_class = BooleanClass(OWL.intersectionOf,
-                                    [URIRef(action), eq_agent])
+            eq_class = BooleanClass(OWL.intersectionOf, [URIRef(action)])
+            # handle agent restrictions
+            if agent_restrictions:
+                agents = [dfs(a) for a in agent_restrictions]
+                if len(agents) == 1:
+                    eq_agent = AgentRestriction(Extent.SOME, agents[0])
+                else:
+                    eq_agent = AgentRestriction(Extent.SOME,
+                                                BooleanClass(OWL.intersectionOf, agents))
+                eq_class.append(eq_agent)
 
+            # handle activity restrictions
             for r in activity_restrictions:
                 ref = URIRef(r['uri'])
                 v, t = [r['values'][0][k] for k in ['value', 'type']]
@@ -243,23 +263,15 @@ def app_factory(config):
                 if ref == PROV.Agent:
                     eq_class.append(AgentRestriction(Extent.SOME, URIRef(v)))
                 else:
-                    literal = Literal(v, datatype=t)
+                    lit = Literal(v, datatype=t)
                     if ref == PROV.startTime:
-                        eq_class.append(
-                            StartTimeRestriction(Extent.SOME, literal))
+                        eq_class.append(StartTimeRestriction(Extent.SOME, lit))
                     if ref == PROV.endTime:
-                        eq_class.append(
-                            EndTimeRestriction(Extent.SOME, literal))
-
-        root = Class(identifier=URIRef(identifier),
-                     rdf_type=POL.Policy,
-                     label=label,
-                     equivalent_class=eq_class,
-                     subclass_of=[URIRef(e['value']) for e in effects] + [URIRef(precedence)])
+                        eq_class.append(EndTimeRestriction(Extent.SOME, lit))
 
         return root.to_graph()
 
-    @app.route(f'{api_url}/policies', methods=['POST'])
+    @ app.route(f'{api_url}/policies', methods=['POST'])
     def create_policy():
         data = request.json
         graph, root = build_policy(data['source'],
@@ -281,23 +293,32 @@ def app_factory(config):
         twks.save(nanopublication)
         return root
 
-    @app.route(f'{api_url}/policies')
+    @ app.route(f'{api_url}/policies')
     def get_policy():
         uri = request.args.get('uri')
+        fmt = request.args.get('format', 'nt')
         result = twks.fetch_policy_by_uri(URIRef(uri))
         graph = graph_factory()
         for triple in result:
             graph.add(triple)
 
-        policy = json.loads(
-            graph.serialize(format='json-ld',
-                            context={
-                                "owl": "http://www.w3.org/2002/07/owl#",
-                                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-                                "sio": "http://semanticscience.org/resource/",
-                                "xsd": "http://www.w3.org/2001/XMLSchema#"
-                            }).decode('utf-8'))
-        return jsonify(policy)
+        # policy = json.loads(
+        #     graph.serialize(format='json-ld',
+        #                     context={
+        #                         "owl": "http://www.w3.org/2002/07/owl#",
+        #                         "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        #                         "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+        #                         "sio": "http://semanticscience.org/resource/",
+        #                         "xsd": "http://www.w3.org/2001/XMLSchema#"
+        #                     }).decode('utf-8'))
+        # return jsonify(policy)
+
+        policy = graph.serialize(format=fmt).decode('utf-8')
+        logger.info(policy)
+        return policy
+
+    @ app.route(f'{api_url}/policies')
+    def visualize():
+        pass
 
     return app
