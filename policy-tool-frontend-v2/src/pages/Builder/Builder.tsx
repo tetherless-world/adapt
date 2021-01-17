@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
 const policyDefault = {
   id: 'ExamplePolicy',
   source: 'http://purl.org/twc/policy/',
+  label: 'Example Policy',
   precedence: 'http://purl.org/twc/policy/example/dsa/Priority_1',
 }
 
@@ -53,6 +54,7 @@ const flatten = (restrictions: Restriction[]) => {
 const isValidPolicy = (state: PolicyState) =>
   !!state.id &&
   !!state.source &&
+  !!state.label &&
   !!state.action &&
   !!state.precedence &&
   !!state.effects.length &&
@@ -68,7 +70,7 @@ export const Builder: React.FC = () => {
 
   const [id, setId] = useState<string>(policyDefault.id)
   const [source, setSource] = useState<string>(policyDefault.source)
-  const [label, setLabel] = useState<string>('')
+  const [label, setLabel] = useState<string>(policyDefault.label)
   const [definition, setDefinition] = useState<string>('')
   const [action, setAction] = useState<string>('')
   const [precedence, setPrecedence] = useState<string>(policyDefault.precedence)

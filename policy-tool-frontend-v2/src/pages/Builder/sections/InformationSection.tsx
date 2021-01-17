@@ -35,7 +35,6 @@ export const InformationSection: React.FC<InformationSectionProps> = (
         <Grid item xs={12}>
           <TextField
             label={'Label'}
-            required={false}
             value={label}
             onChange={(e) => setLabel(e.target.value)}
           />
