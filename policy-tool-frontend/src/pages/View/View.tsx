@@ -1,4 +1,4 @@
-import { Grid, Paper } from '@material-ui/core'
+import { Grid, Paper, TextField, Typography } from '@material-ui/core'
 import { useEffect, useMemo } from 'react'
 import { Graph as GraphComponent } from 'react-d3-graph'
 import { useHistory } from 'react-router-dom'
@@ -29,30 +29,51 @@ export const View: React.FC<ViewProps> = () => {
 
   return (
     <LoadingWrapper loading={policyRes?.loading}>
-      <Grid container justify={'center'}>
-        <Grid item>
-          <Paper variant={'outlined'}>
-            <GraphComponent
-              data={policy}
-              id={'graph-view'}
-              config={{
-                directed: true,
-                nodeHighlightBehavior: true,
-                height: 800,
-                width: 800,
-                node: {
-                  labelProperty: (n: any) => n.label,
-                  color: 'lightgreen',
-                  size: 200,
-                  highlightStrokeColor: 'blue',
-                },
-                link: {
-                  highlightColor: 'lightblue',
-                  renderLabel: false,
-                },
-              }}
-            />
-          </Paper>
+      <Grid container>
+        <Grid container item xs={12} justify={'space-between'}>
+          <Grid item xs={4}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <Typography variant={'h5'}>View Policy</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label={'Identifier'}
+                  value={uri}
+                  disabled
+                  margin={'dense'}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={8}>
+            <Grid container item xs={12} justify={'center'}>
+              <Paper variant={'outlined'}>
+                <Grid container item xs={12} justify={'center'}>
+                  <GraphComponent
+                    data={policy}
+                    id={'graph-view'}
+                    config={{
+                      directed: true,
+                      nodeHighlightBehavior: true,
+                      height: 720,
+                      width: 720,
+                      node: {
+                        labelProperty: (n: any) => n.label,
+                        color: 'lightgreen',
+                        size: 200,
+                        highlightStrokeColor: 'blue',
+                      },
+                      link: {
+                        highlightColor: 'lightblue',
+                        renderLabel: false,
+                      },
+                    }}
+                  />
+                </Grid>
+              </Paper>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </LoadingWrapper>
