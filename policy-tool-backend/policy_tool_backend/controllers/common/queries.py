@@ -24,7 +24,7 @@ def get_subclasses_by_super_class(super_class: str):
                                               initBindings={'superClass': super_class})
 
 
-def get_uri_by_type(type_: str):
+def get_uris_by_type(type_: str):
     return current_app.store.query_assertions(get_uri_by_type_query,
                                               initNs={'rdf': RDF,
                                                       'rdfs': RDFS},

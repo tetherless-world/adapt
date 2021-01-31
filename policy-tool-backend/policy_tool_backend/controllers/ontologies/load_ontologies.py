@@ -1,17 +1,16 @@
 from pathlib import Path
 
-from flask import Blueprint, current_app
+from flask import current_app
 from rdflib.util import guess_format
 from twks.nanopub import Nanopublication
 
-ontologies_api = Blueprint('ontologies', __name__, url_prefix='/api/ontologies')
+from .ontologies_blueprint import ontologies_blueprint
 
 remote_ontologies = [
     'http://purl.obolibrary.org/obo/uo.owl'
 ]
 
-
-@ontologies_api.before_app_first_request
+@ontologies_blueprint.before_app_first_request
 def load_ontologies(self):
     """Add ontologies into twks-server"""
     files = Path(current_app.config['ONTOLOGY_PATH']).glob('*')

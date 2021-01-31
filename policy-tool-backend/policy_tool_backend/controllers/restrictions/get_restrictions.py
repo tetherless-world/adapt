@@ -1,12 +1,11 @@
 from collections import defaultdict
 
 from flask import Blueprint, current_app, jsonify
-from rdflib.namespace import OWL, RDF, RDFS
+from rdflib import OWL, RDF, RDFS
 
-from ..rdf.common.namespaces import SIO
-from .common.queries import ask_is_subclass, get_subclasses_by_super_class
-
-restrictions_api = Blueprint('restrictions', __name__, '/api/restrictions')
+from ...rdf.common.namespaces import SIO
+from ..common.queries import ask_is_subclass, get_subclasses_by_super_class
+from .restrictions_blueprint import restrictions_blueprint
 
 attributes_query = '''
 SELECT DISTINCT ?uri ?label ?property ?range ?propertyType ?extent ?cardinality ?unitLabel
@@ -49,15 +48,11 @@ WHERE {
 '''
 
 
-@restrictions_api.route('/')
+@restrictions_blueprint.route('/')
 def get_restrictions():
-    results = current_app.store.query_assertions(attributes_query,
-                                                 initNs={
-                                                     'rdf': RDF,
-                                                     'rdfs': RDFS,
-                                                     'sio': SIO,
-                                                     'owl': OWL
-                                                 })
+    results = current_app.store.query_assertions(
+        attributes_query,
+        initNs={'rdf': RDF, 'rdfs': RDFS, 'sio': SIO, 'owl': OWL})
 
     # keep track of important node information
     nodes = defaultdict(lambda: defaultdict(list))
@@ -113,10 +108,10 @@ def get_restrictions():
 
         return node
 
-    valid_restrictions = [t for node in nodes.values() if (t := dfs(node))]
+    restrictions = [t for node in nodes.values() if (t := dfs(node))]
 
     return jsonify({
-        'validRestrictions': valid_restrictions,
+        'validRestrictions': restrictions,
         'optionsMap': options_map,
         'unitsMap': units_map
     })

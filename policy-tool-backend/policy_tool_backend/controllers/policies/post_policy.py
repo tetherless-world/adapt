@@ -1,30 +1,16 @@
-import json
-import logging
 from operator import itemgetter
 from typing import List
 
-from flask import Blueprint, current_app, jsonify, request
-from rdflib import Literal, URIRef, plugin
-from rdflib.serializer import Serializer
-from rdflib.namespace import OWL, PROV, RDF, RDFS, SKOS, XSD
-from rdflib.util import guess_format
+from flask import current_app, request
+from rdflib import OWL, PROV, RDF, RDFS, SKOS, XSD, Literal, URIRef
 from twks.nanopub import Nanopublication
 
-from ..rdf.classes import (AgentRestriction, AttributeRestriction,
-                           BooleanClass, Class, EndTimeRestriction, Extent,
-                           Graphable, RestrictedDatatype, StartTimeRestriction,
-                           ValueRestriction)
-from ..rdf.common import graph_factory
-from ..rdf.common.namespaces import POL, SIO
-
-policies_api = Blueprint('policies', __name__, url_prefix='/api/policies')
-
-get_policy_by_uri_query = 'DESCRIBE ?uri'
-
-
-def get_policy_by_uri(uri: str):
-    return current_app.store.query_nanopublications(get_policy_by_uri_query,
-                                                    initBindings={'uri': URIRef(uri)})
+from ...rdf.classes import (AgentRestriction, AttributeRestriction,
+                            BooleanClass, Class, EndTimeRestriction, Extent,
+                            Graphable, RestrictedDatatype,
+                            StartTimeRestriction, ValueRestriction)
+from ...rdf.common.namespaces import POL, SIO
+from .policies_blueprint import policies_blueprint
 
 
 def build_policy(source: str,
@@ -124,8 +110,8 @@ def build_policy(source: str,
     return root.to_graph()
 
 
-@policies_api.route('/', methods=['POST'])
-def create_policy():
+@policies_blueprint.route('/', methods=['POST'])
+def post_policy():
     data = request.json
     graph, root = build_policy(source=data['source'],
                                id=data['id'],
@@ -144,67 +130,3 @@ def create_policy():
     pub = Nanopublication.parse_assertions(data=pol, format="turtle")
     current_app.store.put_nanopublication(pub)
     return root
-
-
-@policies_api.route('/')
-def get_policy():
-    uri = request.args.get('uri')
-    fmt = request.args.get('format', 'turtle')
-
-    result = get_policy_by_uri(uri)
-
-    graph = graph_factory()
-    for triple in result:
-        graph.add(triple)
-
-    if fmt == 'json-ld':
-        policy = json.loads(
-            graph.serialize(format='json-ld',
-                            context={
-                                "owl": "http://www.w3.org/2002/07/owl#",
-                                "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-                                "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
-                                "sio": "http://semanticscience.org/resource/",
-                                "xsd": "http://www.w3.org/2001/XMLSchema#"
-                            }).decode('utf-8'))
-        return jsonify(policy)
-
-    policy = graph.serialize(format=fmt).decode('utf-8')
-    return policy
-
-
-@policies_api.route('/visualization')
-def visualize_policy():
-    uri = request.args.get('uri')
-
-    result = get_policy_by_uri(uri)
-
-    graph = graph_factory()
-    for triple in result:
-        graph.add(triple)
-
-    # todo: explore tree to make graphable set
-    unprocessed_nodes = set()
-    links = []
-    nsm = graph.namespace_manager
-    for s, p, o in graph:
-        if o.n3(nsm) != 'rdf:nil':
-            unprocessed_nodes.add(s.n3(nsm))
-            unprocessed_nodes.add(o.n3(nsm))
-            link = {'source': s.n3(nsm), 'target': o.n3(nsm)}
-            if p.n3(nsm)[0] != '_':
-                link['label'] = p.n3(nsm)
-            links.append(link)
-
-    nodes = []
-    for node_id in unprocessed_nodes:
-        node = {'id': node_id}
-        if node_id[0] != '_':
-            node['label'] = node_id
-        else:
-            node['label'] = 'owl:Restriction'
-
-        if node_id != 'rdf:nil':
-            nodes.append(node)
-
-    return jsonify({'nodes': nodes, 'links': links})
