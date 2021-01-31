@@ -15,7 +15,6 @@ from rdflib.serializer import Serializer
 from twks.client import TwksClient
 from twks.nanopub import Nanopublication
 
-from .models.dtos import RequestPostDTO
 from .rdf.classes import (AgentRestriction, AttributeRestriction, BooleanClass,
                           Class, EndTimeRestriction, Extent, Graphable,
                           RestrictedDatatype, StartTimeRestriction,
