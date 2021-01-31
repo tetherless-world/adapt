@@ -1,9 +1,13 @@
+import json
+
+import rdflib
+
 from .app import App
 from .config import get_config
 from .store import get_store
 
 
-def default(self, o):
+def default_json_encoder(self, o):
     try:
         s = str(o)
     except TypeError:
@@ -22,6 +26,10 @@ def app_factory(name):
                       app.config['KNOWLEDGE_STORE_PORT'])
 
     app.register_store(store)
-    app.json_encoder.default = default
+    # app.json_encoder.default = default_json_encoder
+
+    from .blueprints import blueprint_list
+    for bp in blueprint_list:
+        app.register_blueprint(bp)
 
     return app
