@@ -3,8 +3,8 @@ from collections import defaultdict
 from flask import Blueprint, current_app, jsonify
 from rdflib import OWL, RDF, RDFS
 
-from ...rdf.common.namespaces import SIO
-from ..common.queries import ask_is_subclass, get_subclasses_by_super_class
+from ...common import SIO
+from ...common.queries import ask_is_subclass, get_subclasses_by_super_class
 from .restrictions_blueprint import restrictions_blueprint
 
 attributes_query = '''

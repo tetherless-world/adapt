@@ -1,7 +1,7 @@
 from flask import jsonify
-from rdflib.namespace import PROV
+from rdflib import PROV
 
-from ..common.queries import get_uris_by_type
+from ...common.queries import get_uris_by_type
 from .actions_blueprint import actions_blueprint
 
 

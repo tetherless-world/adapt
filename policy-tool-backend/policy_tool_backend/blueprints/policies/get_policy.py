@@ -2,7 +2,7 @@ import json
 
 from flask import jsonify, request
 
-from ...rdf.common import graph_factory
+from ...common import graph_factory
 from .policies_blueprint import policies_blueprint
 from .queries import get_policy_by_uri
 

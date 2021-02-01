@@ -3,7 +3,7 @@ from operator import itemgetter
 from flask import current_app, jsonify
 from rdflib import PROV, RDF, RDFS
 
-from ...rdf.common.namespaces import POL
+from ...common import POL
 from .precedences_blueprint import precedences_blueprint
 
 get_precedences_query = '''

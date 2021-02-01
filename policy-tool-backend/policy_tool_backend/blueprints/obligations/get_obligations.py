@@ -1,7 +1,7 @@
 from flask import jsonify
 
-from ...rdf.common.namespaces import POL
-from ..common.queries import get_uris_by_type
+from ...common import POL
+from ...common.queries import get_uris_by_type
 from .obligations_blueprint import obligations_blueprint
 
 

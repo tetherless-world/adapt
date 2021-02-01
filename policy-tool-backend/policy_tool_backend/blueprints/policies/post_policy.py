@@ -5,11 +5,13 @@ from flask import current_app, request
 from rdflib import OWL, PROV, RDF, RDFS, SKOS, XSD, Literal, URIRef
 from twks.nanopub import Nanopublication
 
-from ...rdf.classes import (AgentRestriction, AttributeRestriction,
-                            BooleanClass, Class, EndTimeRestriction, Extent,
-                            Graphable, RestrictedDatatype,
-                            StartTimeRestriction, ValueRestriction)
-from ...rdf.common.namespaces import POL, SIO
+from ...common import POL, SIO
+from ...common.classes import BooleanClass, Class
+from ...common.graphable import Graphable
+from ...common.restrictions import (AgentRestriction, AttributeRestriction,
+                                    EndTimeRestriction, Extent,
+                                    RestrictedDatatype, StartTimeRestriction,
+                                    ValueRestriction)
 from .policies_blueprint import policies_blueprint
 
 
