@@ -112,7 +112,7 @@ def build_policy(source: str,
     return root.to_graph()
 
 
-@policies_blueprint.route('/', methods=['POST'])
+@policies_blueprint.route('', methods=['POST'])
 def post_policy():
     data = request.json
     graph, root = build_policy(source=data['source'],

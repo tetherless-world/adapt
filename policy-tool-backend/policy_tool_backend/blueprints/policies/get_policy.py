@@ -7,7 +7,7 @@ from .policies_blueprint import policies_blueprint
 from .queries import get_policy_by_uri
 
 
-@policies_blueprint.route('/')
+@policies_blueprint.route('')
 def get_policy():
     uri = request.args.get('uri')
     fmt = request.args.get('format', 'turtle')

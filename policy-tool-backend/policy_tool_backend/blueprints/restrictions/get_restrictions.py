@@ -48,7 +48,7 @@ WHERE {
 '''
 
 
-@restrictions_blueprint.route('/')
+@restrictions_blueprint.route('')
 def get_restrictions():
     results = current_app.store.query_assertions(
         attributes_query,

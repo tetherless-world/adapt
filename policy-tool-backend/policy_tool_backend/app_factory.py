@@ -17,6 +17,10 @@ def default_json_encoder(self, o):
     return json.JSONEncoder.default(self, o)
 
 
+def index():
+    return 'Hello there!'
+
+
 def app_factory(name):
     app = App(name)
     config = get_config()
@@ -31,5 +35,7 @@ def app_factory(name):
     from .blueprints import blueprint_list
     for bp in blueprint_list:
         app.register_blueprint(bp)
+
+    app.add_url_rule('/', '.index', index)
 
     return app

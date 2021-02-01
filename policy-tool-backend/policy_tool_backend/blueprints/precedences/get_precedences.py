@@ -15,7 +15,7 @@ SELECT ?uri ?label WHERE {
 '''
 
 
-@precedences_blueprint.route('/')
+@precedences_blueprint.route('')
 def get_precedences():
     results = current_app.store.query_assertions(
         get_precedences_query,
