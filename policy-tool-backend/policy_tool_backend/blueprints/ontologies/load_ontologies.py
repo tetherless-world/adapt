@@ -11,7 +11,7 @@ remote_ontologies = [
 ]
 
 @ontologies_blueprint.before_app_first_request
-def load_ontologies(self):
+def load_ontologies():
     """Add ontologies into twks-server"""
     files = Path(current_app.config['ONTOLOGY_PATH']).glob('*')
     for f in files:
