@@ -18,7 +18,7 @@ SELECT ?uri ?label WHERE {
 ask_is_subclass_query = 'ASK { ?uri rdfs:subClassOf+ ?superClass }'
 
 
-def get_subclasses_by_super_class(super_class: str):
+def get_subclasses_by_superclass(super_class: str):
     return current_app.store.query_assertions(get_subclass_by_superclass_query,
                                               initNs={'rdfs': RDFS},
                                               initBindings={'superClass': super_class})

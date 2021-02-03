@@ -1,10 +1,12 @@
 from collections import defaultdict
+from copy import deepcopy
 
 from flask import Blueprint, current_app, jsonify
-from rdflib import OWL, RDF, RDFS
+from rdflib import OWL, RDF, RDFS, XSD
 
 from ...common import SIO
-from ...common.queries import ask_is_subclass, get_subclasses_by_super_class
+from ...common.queries import ask_is_subclass, get_subclasses_by_superclass
+from .error import RestrictionMappingError
 from .restrictions_blueprint import restrictions_blueprint
 
 attributes_query = '''
@@ -47,6 +49,8 @@ WHERE {
 }
 '''
 
+# TODO: restructure for testing
+
 
 @restrictions_blueprint.route('')
 def get_restrictions():
@@ -54,64 +58,139 @@ def get_restrictions():
         attributes_query,
         initNs={'rdf': RDF, 'rdfs': RDFS, 'sio': SIO, 'owl': OWL})
 
-    # keep track of important node information
-    nodes = defaultdict(lambda: defaultdict(list))
-    tree = defaultdict(list)  # keep track of graph structure
-    units_map = {}
+    rows_by_uri = defaultdict(list)
     for row in results:
-        if row.uri not in nodes:
-            nodes[row.uri]['uri'] = row.uri
-            nodes[row.uri]['label'] = row.label
+        rows_by_uri[row.uri].append(row)
 
-            # for identifying sio:MaximalValue, sio:MinimalValue, sio:interval
-            for sio_uri in [SIO.MaximalValue, SIO.MinimalValue, SIO.interval]:
-                if ask_is_subclass(row.uri, sio_uri):
-                    nodes[row.uri]['subClassOf'].append(sio_uri)
+    graph_by_uri = {}
+    sio_class_by_uri = {}
+    subclasses_by_superclass = {}
+    label_by_uri = {}
 
-        if row.property == SIO.hasAttribute:
-            tree[row.uri].append(row.range)
+    def add_subclasses_by_superclass(uri):
+        if uri in subclasses_by_superclass:
+            return
 
-        if row.property == SIO.hasValue or row.property == RDF.type:
-            nodes[row.uri]['type'] = row.range
-            nodes[row.uri]['values'].append({
-                'value': None,
-                'type': row.range
-            })
+        subclasses = get_subclasses_by_superclass(uri)
+        if subclasses:
+            subclasses_by_superclass[uri] = [s.uri for s in subclasses]
+            # add subclass labels
+            for s in subclasses:
+                if s.uri not in label_by_uri:
+                    label_by_uri[s.uri] = s.label
 
-        if row.property == SIO.hasUnit:
-            nodes[row.uri]['unit'] = row.range
-            nodes[row.uri]['unitLabel'] = row.unitLabel
-            # add unit to unit_map
-            if row.range not in units_map:
-                subclasses = get_subclasses_by_super_class(row.range)
-                units_map[row.range] = [{'value': s.subclass, 'label': s.label}
-                                        for s in subclasses]
+    def dfs(uri):
+        if uri in graph_by_uri:
+            return deepcopy(graph_by_uri[uri])
 
-    options_map = {}
+        node = {
+            '@type': OWL.Restriction,
+            OWL.onProperty: {'@id': SIO.hasAttribute},
+            OWL.someValuesFrom: {
+                '@type': OWL.Class,
+                OWL.intersectionOf: [
+                    {'@id': uri}
+                ]
+            }
+        }
 
-    def dfs(node):
-        """Depth-first search to create valid restriction structures"""
-        if 'values' in node:
-            if node['type'] == OWL.Class:
-                subclasses = get_subclasses_by_super_class(node['uri'])
-                if not subclasses:
-                    # filter restrictions without without options
-                    return
-                options_map[node['uri']] = [{'value': s.subclass, 'label': s.label}
-                                            for s in subclasses]
+        for row in rows_by_uri[uri]:
+            if uri not in label_by_uri:
+                label_by_uri[uri] = row.label
 
-        if node['uri'] in tree:
-            for child in tree[node['uri']]:
-                if child in nodes:
-                    child_node = dfs(nodes[child])
-                    node['restrictions'].append(child_node)
+            if row.property == RDF.type:
+                node[OWL.someValuesFrom][OWL.intersectionOf]\
+                    .append({'@id': None})
+                add_subclasses_by_superclass(uri)
 
-        return node
+            elif row.property == SIO.hasValue:
+                if ask_is_subclass(uri, SIO.MinimalValue):
+                    sio_class_by_uri[uri] = SIO.MinimalValue
+                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                        .append({
+                            '@type': OWL.Restriction,
+                            OWL.onProperty: {'@id': SIO.hasValue},
+                            OWL.someValuesFrom: {
+                                '@type': RDFS.Datatype,
+                                OWL.onDatatype: row.range,
+                                OWL.withRestrictions: [
+                                    {
+                                        XSD.minInclusive: {
+                                            '@type': row.range,
+                                            '@value': None
+                                        }
+                                    }
+                                ]
+                            }
+                        })
+                elif ask_is_subclass(uri, SIO.MaximalValue):
+                    sio_class_by_uri[uri] = SIO.MaximalValue
+                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                        .append({
+                            '@type': OWL.Restriction,
+                            OWL.onProperty: {'@id': SIO.hasValue},
+                            OWL.someValuesFrom: {
+                                '@type': RDFS.Datatype,
+                                OWL.onDatatype: row.range,
+                                OWL.withRestrictions: [
+                                    {
+                                        XSD.maxInclusive: {
+                                            '@type': row.range,
+                                            '@value': None
+                                        }
+                                    }
+                                ]
+                            }
+                        })
+                else:
+                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                        .append({
+                            '@type': OWL.Restriction,
+                            OWL.onProperty: {'@id': SIO.hasValue},
+                            OWL.hasValue: {
+                                '@type': row.range,
+                                '@value': None
+                            }
+                        })
 
-    restrictions = [t for node in nodes.values() if (t := dfs(node))]
+            elif row.property == SIO.hasUnit:
+                node[OWL.someValuesFrom][OWL.intersectionOf]\
+                    .append({
+                        '@type': OWL.Restriction,
+                        OWL.onProperty: {'@id': SIO.hasUnit},
+                        OWL.someValuesFrom: {
+                            '@type': OWL.Class,
+                            OWL.intersectionOf: [
+                                {'@id': row.range},
+                                {'@id': None}
+                            ]
+                        }
+                    })
+
+                add_subclasses_by_superclass(row.range)
+
+            elif row.property == SIO.hasAttribute:
+                if ask_is_subclass(uri, SIO.interval):
+                    sio_class_by_uri[uri] = SIO.interval
+
+                subrest = dfs(row.range)
+                if subrest:
+                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                        .append(subrest)
+            else:
+                raise RestrictionMappingError(row.property)
+
+        graph_by_uri[uri] = node
+        return deepcopy(node)
+
+    for uri in rows_by_uri:
+        graph_by_uri[uri] = dfs(uri)
+
+    restrictions = [[uri, node] for uri, node in graph_by_uri.items()]
 
     return jsonify({
         'validRestrictions': restrictions,
-        'optionsMap': options_map,
-        'unitsMap': units_map
+        'subclassesBySuperclass': subclasses_by_superclass,
+        'sioClassByURI': sio_class_by_uri,
+        'labelByURI': label_by_uri
     })
