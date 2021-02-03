@@ -4,6 +4,7 @@ from flask import current_app, jsonify
 from rdflib import PROV, RDF, RDFS
 
 from ...common import POL
+from ...common.utils import to_option_list
 from .precedences_blueprint import precedences_blueprint
 
 get_precedences_query = '''
@@ -22,7 +23,7 @@ def get_precedences():
         initNs={'rdf': RDF, 'rdfs': RDFS, 'pol': POL},
         initBindings={'superClass', PROV.Precedence})
 
-    precedences = [{'value': row.uri, 'label': row.label} for row in results]
+    precedences = to_option_list(results)
     sorted_precedences = sorted(precedences, key=itemgetter('label'))
 
     response = {'validPrecedences': sorted_precedences}
