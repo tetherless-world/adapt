@@ -7,7 +7,7 @@ from twks.nanopub import Nanopublication
 from .ontologies_blueprint import ontologies_blueprint
 
 remote_ontologies = [
-    'http://purl.obolibrary.org/obo/uo.owl'
+    # 'http://purl.obolibrary.org/obo/uo.owl'
 ]
 
 @ontologies_blueprint.before_app_first_request
