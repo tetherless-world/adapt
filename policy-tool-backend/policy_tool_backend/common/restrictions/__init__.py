@@ -6,3 +6,4 @@ from .restricted_datatype import RestrictedDatatype
 from .restriction import Restriction
 from .start_time_restriction import StartTimeRestriction
 from .value_restriction import ValueRestriction
+from .unit_restriction import UnitRestriction
