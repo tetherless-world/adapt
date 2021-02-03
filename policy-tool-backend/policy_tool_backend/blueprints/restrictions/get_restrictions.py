@@ -1,3 +1,4 @@
+import os
 from collections import defaultdict
 from copy import deepcopy
 
@@ -50,6 +51,13 @@ WHERE {
 '''
 
 # TODO: restructure for testing
+if os.getenv('DEBUG'):
+    @restrictions_blueprint.route('/test')
+    def get_restrictions_test():
+        results = current_app.store.query_assertions(
+            attributes_query,
+            initNs={'rdf': RDF, 'rdfs': RDFS, 'sio': SIO, 'owl': OWL})
+        return jsonify([r.asdict() for r in results])
 
 
 @restrictions_blueprint.route('')
@@ -71,13 +79,12 @@ def get_restrictions():
         if uri in subclasses_by_superclass:
             return
 
+        subclasses_by_superclass[uri] = []
         subclasses = get_subclasses_by_superclass(uri)
-        if subclasses:
-            subclasses_by_superclass[uri] = [s.uri for s in subclasses]
-            # add subclass labels
-            for s in subclasses:
-                if s.uri not in label_by_uri:
-                    label_by_uri[s.uri] = s.label
+        for s in subclasses:
+            subclasses_by_superclass[uri].append(s.subclass)
+            if s.subclass not in label_by_uri:
+                label_by_uri[s.subclass] = s.label
 
     def dfs(uri):
         if uri in graph_by_uri:
@@ -99,9 +106,12 @@ def get_restrictions():
                 label_by_uri[uri] = row.label
 
             if row.property == RDF.type:
-                node[OWL.someValuesFrom][OWL.intersectionOf]\
-                    .append({'@id': None})
                 add_subclasses_by_superclass(uri)
+                if subclasses_by_superclass[uri]:
+                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                        .append({'@id': None})
+                else:
+                    node[OWL.someValuesFrom] = {'@id': uri}
 
             elif row.property == SIO.hasValue:
                 if ask_is_subclass(uri, SIO.MinimalValue):
@@ -154,20 +164,27 @@ def get_restrictions():
                         })
 
             elif row.property == SIO.hasUnit:
-                node[OWL.someValuesFrom][OWL.intersectionOf]\
-                    .append({
-                        '@type': OWL.Restriction,
-                        OWL.onProperty: {'@id': SIO.hasUnit},
-                        OWL.someValuesFrom: {
-                            '@type': OWL.Class,
-                            OWL.intersectionOf: [
-                                {'@id': row.range},
-                                {'@id': None}
-                            ]
-                        }
-                    })
-
                 add_subclasses_by_superclass(row.range)
+                if subclasses_by_superclass[row.range]:
+                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                        .append({
+                            '@type': OWL.Restriction,
+                            OWL.onProperty: {'@id': SIO.hasUnit},
+                            OWL.someValuesFrom: {
+                                '@type': OWL.Class,
+                                OWL.intersectionOf: [
+                                    {'@id': row.range},
+                                    {'@id': None}
+                                ]
+                            }
+                        })
+                else:
+                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                        .append({
+                            '@type': OWL.Restriction,
+                            OWL.onProperty: {'@id': SIO.hasUnit},
+                            OWL.someValuesFrom: {'@id': row.range}
+                        })
 
             elif row.property == SIO.hasAttribute:
                 if ask_is_subclass(uri, SIO.interval):
@@ -186,10 +203,8 @@ def get_restrictions():
     for uri in rows_by_uri:
         graph_by_uri[uri] = dfs(uri)
 
-    restrictions = [[uri, node] for uri, node in graph_by_uri.items()]
-
     return jsonify({
-        'validRestrictions': restrictions,
+        'validRestrictions': graph_by_uri,
         'subclassesBySuperclass': subclasses_by_superclass,
         'sioClassByURI': sio_class_by_uri,
         'labelByURI': label_by_uri
