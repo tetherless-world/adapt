@@ -3,7 +3,7 @@ from collections import defaultdict
 from copy import deepcopy
 
 from flask import Blueprint, current_app, jsonify
-from rdflib import OWL, RDF, RDFS, XSD
+from rdflib import OWL, RDF, RDFS, XSD, PROV
 
 from ...common import SIO
 from ...common.queries import ask_is_subclass, get_subclasses_by_superclass
@@ -50,6 +50,20 @@ WHERE {
 }
 '''
 
+property_order_map = {
+    SIO.hasAttribute: 0,
+    RDF.type: 1,
+    SIO.hasValue: 2,
+    SIO.hasUnit: 3,
+}
+
+
+def property_order(property_uri):
+    if property_uri in property_order_map:
+        return property_order_map[property_uri]
+    return 4
+
+
 # TODO: restructure for testing
 if os.getenv('DEBUG'):
     @restrictions_blueprint.route('/test')
@@ -67,8 +81,11 @@ def get_restrictions():
         initNs={'rdf': RDF, 'rdfs': RDFS, 'sio': SIO, 'owl': OWL})
 
     rows_by_uri = defaultdict(list)
+    # group and sort rows
     for row in results:
         rows_by_uri[row.uri].append(row)
+    for uri in rows_by_uri:
+        rows_by_uri[uri].sort(key=lambda row: property_order(row.property))
 
     graph_by_uri = {}
     sio_class_by_uri = {}
@@ -108,15 +125,15 @@ def get_restrictions():
             if row.property == RDF.type:
                 add_subclasses_by_superclass(uri)
                 if subclasses_by_superclass[uri]:
-                    node[OWL.someValuesFrom][OWL.intersectionOf]\
-                        .append({'@id': None})
+                    (node[OWL.someValuesFrom][OWL.intersectionOf]
+                        .append({'@id': None}))
                 else:
                     node[OWL.someValuesFrom] = {'@id': uri}
 
             elif row.property == SIO.hasValue:
                 if ask_is_subclass(uri, SIO.MinimalValue):
                     sio_class_by_uri[uri] = SIO.MinimalValue
-                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                    (node[OWL.someValuesFrom][OWL.intersectionOf]
                         .append({
                             '@type': OWL.Restriction,
                             OWL.onProperty: {'@id': SIO.hasValue},
@@ -132,10 +149,10 @@ def get_restrictions():
                                     }
                                 ]
                             }
-                        })
+                        }))
                 elif ask_is_subclass(uri, SIO.MaximalValue):
                     sio_class_by_uri[uri] = SIO.MaximalValue
-                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                    (node[OWL.someValuesFrom][OWL.intersectionOf]
                         .append({
                             '@type': OWL.Restriction,
                             OWL.onProperty: {'@id': SIO.hasValue},
@@ -151,9 +168,9 @@ def get_restrictions():
                                     }
                                 ]
                             }
-                        })
+                        }))
                 else:
-                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                    (node[OWL.someValuesFrom][OWL.intersectionOf]
                         .append({
                             '@type': OWL.Restriction,
                             OWL.onProperty: {'@id': SIO.hasValue},
@@ -161,12 +178,12 @@ def get_restrictions():
                                 '@type': row.range,
                                 '@value': None
                             }
-                        })
+                        }))
 
             elif row.property == SIO.hasUnit:
                 add_subclasses_by_superclass(row.range)
                 if subclasses_by_superclass[row.range]:
-                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                    (node[OWL.someValuesFrom][OWL.intersectionOf]
                         .append({
                             '@type': OWL.Restriction,
                             OWL.onProperty: {'@id': SIO.hasUnit},
@@ -177,14 +194,14 @@ def get_restrictions():
                                     {'@id': None}
                                 ]
                             }
-                        })
+                        }))
                 else:
-                    node[OWL.someValuesFrom][OWL.intersectionOf]\
+                    (node[OWL.someValuesFrom][OWL.intersectionOf]
                         .append({
                             '@type': OWL.Restriction,
                             OWL.onProperty: {'@id': SIO.hasUnit},
                             OWL.someValuesFrom: {'@id': row.range}
-                        })
+                        }))
 
             elif row.property == SIO.hasAttribute:
                 if ask_is_subclass(uri, SIO.interval):
@@ -192,8 +209,8 @@ def get_restrictions():
 
                 subrest = dfs(row.range)
                 if subrest:
-                    node[OWL.someValuesFrom][OWL.intersectionOf]\
-                        .append(subrest)
+                    (node[OWL.someValuesFrom][OWL.intersectionOf]
+                        .append(subrest))
             else:
                 raise RestrictionMappingError(row.property)
 
@@ -202,6 +219,13 @@ def get_restrictions():
 
     for uri in rows_by_uri:
         graph_by_uri[uri] = dfs(uri)
+
+    for uri in rows_by_uri:
+        graph_by_uri[uri] = {
+            '@type': OWL.Restriction,
+            OWL.onProperty: {'@id': PROV.wasAssociatedWith},
+            OWL.someValuesFrom: graph_by_uri[uri]
+        }
 
     return jsonify({
         'validRestrictions': graph_by_uri,
