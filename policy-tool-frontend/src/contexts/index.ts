@@ -1,2 +1,3 @@
-export * from './OptionMapContext'
-export * from './UnitsMapContext'
+export * from './LabelByURIContext'
+export * from './SioClassByURIContext'
+export * from './SubclassesByURIContext'
