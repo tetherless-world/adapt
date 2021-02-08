@@ -1,11 +1,13 @@
+import { Dictionary } from 'lodash'
 import { useAsyncFn } from 'react-use'
-import { OptionMap, Restriction } from 'src/global'
+import { AgentRestriction } from 'src/types/restrictions'
 import { axios } from './common'
 
 export interface GetRestrictionsResponse {
-  validRestrictions: Restriction[]
-  optionsMap: OptionMap
-  unitsMap: OptionMap
+  validRestrictions: Dictionary<AgentRestriction>
+  subclassesByURI: Record<string, string[]>
+  labelByURI: Record<string, string>
+  sioClassByURI: Record<string, string>
 }
 
 const getRestrictions = async () => {
