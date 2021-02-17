@@ -4,6 +4,7 @@ import { PolicyState } from 'src/types/policy'
 import {
   AgentRestriction,
   isAgentRestriction,
+  isRestrictionNode,
   isValidityRestriction,
   ValidityRestriction,
 } from 'src/types/restrictions'
@@ -49,58 +50,71 @@ export const { actions, reducer } = createSlice({
     setAction: {
       prepare: (action: string) => ({ payload: action }),
       reducer: (state, action: PayloadAction<string>) => {
-        state['owl:equivalentClass']['owl:intersectionOf'][0]['@id'] =
-          action.payload
+        let restrictions = state['owl:equivalentClass']['owl:intersectionOf']
+        restrictions[0]['@id'] = action.payload
       },
     },
     setPrecedence: {
       prepare: (precedence: string) => ({ payload: precedence }),
       reducer: (state, action: PayloadAction<string>) => {
-        state['rdfs:subClassOf'][0]['@id'] = action.payload
+        let subclasses = state['rdfs:subClassOf']
+        subclasses[0]['@id'] = action.payload
       },
     },
     addAgentRestriction: {
-      prepare: (restriction: AgentRestriction) => ({
-        payload: restriction,
-      }),
+      prepare: (restriction: AgentRestriction) => ({ payload: restriction }),
       reducer: (state, action: PayloadAction<AgentRestriction>) => {
-        let [a, ...rest] = state['owl:equivalentClass']['owl:intersectionOf']
-        let i = rest.findIndex(isValidityRestriction)
-        if (i === -1)
-          state['owl:equivalentClass']['owl:intersectionOf'].push(
-            action.payload
-          )
-        else
-          state['owl:equivalentClass']['owl:intersectionOf'].splice(
-            i,
-            0,
-            action.payload
-          )
+        let restrictions = state['owl:equivalentClass']['owl:intersectionOf']
+        let i = restrictions.findIndex(
+          (r) => isRestrictionNode(r) && !isAgentRestriction(r)
+        )
+        if (i === -1) restrictions.push(action.payload)
+        else restrictions.splice(i, 0, action.payload)
       },
     },
     deleteAgentRestriction: {
       prepare: (index: number) => ({ payload: index }),
       reducer: (state, action: PayloadAction<number>) => {
-        state['owl:equivalentClass']['owl:intersectionOf'].splice(
-          action.payload + 1,
-          1
-        )
+        let restrictions = state['owl:equivalentClass']['owl:intersectionOf']
+        restrictions.splice(action.payload + 1, 1)
       },
     },
     resetAgentRestrictions: (state) => {
-      let [a, ...rest] = state['owl:equivalentClass']['owl:intersectionOf']
-      state['owl:equivalentClass']['owl:intersectionOf'] = [
-        a,
-        ...rest.filter((r) => !isAgentRestriction(r)),
-      ]
+      let restrictions = state['owl:equivalentClass']['owl:intersectionOf']
+      let iMin = restrictions.findIndex(
+        (r) => isRestrictionNode(r) && isAgentRestriction(r)
+      )
+      let iMax = restrictions.findIndex(
+        (r) => isRestrictionNode(r) && !isAgentRestriction(r)
+      )
+      if (iMin === -1) return
+      if (iMax === -1) restrictions.splice(1, restrictions.length - 1)
+      else restrictions.splice(iMin, iMax - iMin)
     },
     addValidityRestriction: {
-      prepare: (restriction: ValidityRestriction) => ({
-        payload: restriction,
-      }),
+      prepare: (restriction: ValidityRestriction) => ({ payload: restriction }),
       reducer: (state, action: PayloadAction<ValidityRestriction>) => {
-        state['owl:equivalentClass']['owl:intersectionOf'].push(action.payload)
+        let restrictions = state['owl:equivalentClass']['owl:intersectionOf']
+        restrictions.push(action.payload)
       },
+    },
+    deleteValidityRestriction: {
+      prepare: (index: number) => ({ payload: index }),
+      reducer: (state, action: PayloadAction<number>) => {
+        let restrictions = state['owl:equivalentClass']['owl:intersectionOf']
+        let iMin = restrictions.findIndex(
+          (r) => isRestrictionNode(r) && isValidityRestriction(r)
+        )
+        restrictions.splice(action.payload + iMin, 1)
+      },
+    },
+    resetValidityRestrictions: (state) => {
+      let restrictions = state['owl:equivalentClass']['owl:intersectionOf']
+      let iMin = restrictions.findIndex(
+        (r) => isRestrictionNode(r) && isValidityRestriction(r)
+      )
+      if (iMin === -1) return
+      restrictions.splice(iMin, restrictions.length - iMin)
     },
     update: {
       prepare: (keys: PropertyPath, value: any) => ({
