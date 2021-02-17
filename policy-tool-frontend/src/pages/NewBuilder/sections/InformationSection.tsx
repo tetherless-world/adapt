@@ -1,7 +1,7 @@
 import { Grid, TextField } from '@material-ui/core'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { NewPolicyState } from 'src/global'
+import { PolicyState } from 'src/types/policy'
 import { isValidURI } from '../helpers'
 import { actions } from 'src/store'
 
@@ -23,11 +23,9 @@ const parseURI = (uri: string) => {
 export const InformationSection: React.FC = () => {
   const dispatch = useDispatch()
 
-  const uri = useSelector<NewPolicyState, string>((state) => state['@id'])
-  const label = useSelector<NewPolicyState, string>(
-    (state) => state['rdfs:label']
-  )
-  const definition = useSelector<NewPolicyState, string>(
+  const uri = useSelector<PolicyState, string>((state) => state['@id'])
+  const label = useSelector<PolicyState, string>((state) => state['rdfs:label'])
+  const definition = useSelector<PolicyState, string>(
     (state) => state['skos:definition']
   )
 
