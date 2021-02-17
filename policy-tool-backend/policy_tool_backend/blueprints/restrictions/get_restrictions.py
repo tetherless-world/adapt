@@ -89,17 +89,17 @@ def get_restrictions():
 
     graph_by_uri = {}
     sio_class_by_uri = {}
-    subclasses_by_superclass = {}
+    subclasses_by_uri = {}
     label_by_uri = {}
 
     def add_subclasses_by_superclass(uri):
-        if uri in subclasses_by_superclass:
+        if uri in subclasses_by_uri:
             return
 
-        subclasses_by_superclass[uri] = []
+        subclasses_by_uri[uri] = []
         subclasses = get_subclasses_by_superclass(uri)
         for s in subclasses:
-            subclasses_by_superclass[uri].append(s.subclass)
+            subclasses_by_uri[uri].append(s.subclass)
             if s.subclass not in label_by_uri:
                 label_by_uri[s.subclass] = s.label
 
@@ -124,7 +124,7 @@ def get_restrictions():
 
             if row.property == RDF.type:
                 add_subclasses_by_superclass(uri)
-                if subclasses_by_superclass[uri]:
+                if subclasses_by_uri[uri]:
                     (node[OWL.someValuesFrom][OWL.intersectionOf]
                         .append({'@id': None}))
                 else:
@@ -182,7 +182,7 @@ def get_restrictions():
 
             elif row.property == SIO.hasUnit:
                 add_subclasses_by_superclass(row.range)
-                if subclasses_by_superclass[row.range]:
+                if subclasses_by_uri[row.range]:
                     (node[OWL.someValuesFrom][OWL.intersectionOf]
                         .append({
                             '@type': OWL.Restriction,
@@ -229,7 +229,7 @@ def get_restrictions():
 
     return jsonify({
         'validRestrictions': graph_by_uri,
-        'subclassesBySuperclass': subclasses_by_superclass,
+        'subclassesByURI': subclasses_by_uri,
         'sioClassByURI': sio_class_by_uri,
         'labelByURI': label_by_uri
     })
