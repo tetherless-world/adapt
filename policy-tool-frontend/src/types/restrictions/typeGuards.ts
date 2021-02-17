@@ -1,8 +1,11 @@
 import { AgentRestriction } from './agent'
 import {
+  AttributeRestriction,
   BaseAttributeRestriction,
   BaseValueRestriction,
+  BoundedValueRestriction,
   ClassRestriction,
+  IntervalRestriction,
   MaximalValueRestriction,
   MinimalValueRestriction,
   ValueRestriction,
@@ -17,6 +20,7 @@ import { UnitRestriction } from './unit'
 import { ValidityRestriction } from './validity'
 import {
   BaseHasValueRestriction,
+  HasBoundedValueRestriction,
   HasMaximalValueRestriction,
   HasMinimalValueRestriction,
   HasValueRestriction,
@@ -85,19 +89,19 @@ export const isHasValueRestriction = (
 
 export const isHasBoundedValueRestriction = (
   o: BaseHasValueRestriction
-): o is HasMinimalValueRestriction | HasMaximalValueRestriction => {
+): o is HasBoundedValueRestriction => {
   return !isHasValueRestriction(o)
 }
 
 export const isHasMinimalValueRestriction = (
-  o: HasMinimalValueRestriction | HasMaximalValueRestriction
+  o: HasBoundedValueRestriction
 ): o is HasMinimalValueRestriction => {
   let r = o['owl:someValuesFrom']['owl:withRestrictions'][0]
   return 'xsd:minInclusive' in r
 }
 
 export const isHasMaximalValueRestriction = (
-  o: HasMinimalValueRestriction | HasMaximalValueRestriction
+  o: HasBoundedValueRestriction
 ): o is HasMaximalValueRestriction => {
   let r = o['owl:someValuesFrom']['owl:withRestrictions'][0]
   return 'xsd:maxInclusive' in r
@@ -137,25 +141,51 @@ export const isBaseValueRestriction = (
 export const isValueRestriction = (
   o: BaseValueRestriction
 ): o is ValueRestriction => {
-  return isHasValueRestriction(o['owl:someValuesFrom']['owl:intersectionOf'][1])
+  let r = o['owl:someValuesFrom']['owl:intersectionOf']
+  return isHasValueRestriction(r[1])
 }
+
 export const isBoundedValueRestriction = (
   o: BaseValueRestriction
-): o is MinimalValueRestriction | MaximalValueRestriction => {
+): o is BoundedValueRestriction => {
   return !isValueRestriction(o)
 }
 
 export const isMinimalValueRestriction = (
-  o: MinimalValueRestriction | MaximalValueRestriction
+  o: BoundedValueRestriction
 ): o is MinimalValueRestriction => {
-  return isHasMinimalValueRestriction(
-    o['owl:someValuesFrom']['owl:intersectionOf'][1]
-  )
+  let r = o['owl:someValuesFrom']['owl:intersectionOf']
+  return isHasMinimalValueRestriction(r[1])
 }
 export const isMaximalValueRestriction = (
-  o: MinimalValueRestriction | MaximalValueRestriction
+  o: BoundedValueRestriction
 ): o is MaximalValueRestriction => {
-  return isHasMaximalValueRestriction(
-    o['owl:someValuesFrom']['owl:intersectionOf'][1]
+  let r = o['owl:someValuesFrom']['owl:intersectionOf']
+  return isHasMaximalValueRestriction(r[1])
+}
+
+export const isAttributeRestriction = (
+  o: BaseAttributeRestriction
+): o is AttributeRestriction => {
+  if (
+    !isClassRestriction(o) &&
+    !isBaseValueRestriction(o) &&
+    isIntersectionClass(o['owl:someValuesFrom'])
+  ) {
+    let [a, ...rest] = o['owl:someValuesFrom']['owl:intersectionOf']
+    return rest.every((r) => isBaseAttributeRestriction(r))
+  }
+  return false
+}
+
+export const isIntervalRestriction = (
+  o: AttributeRestriction
+): o is IntervalRestriction => {
+  let [a, ...rest] = o['owl:someValuesFrom']['owl:intersectionOf']
+  return (
+    rest.every((r) => isBaseValueRestriction(r as BaseAttributeRestriction)) &&
+    rest.every((r) => isBoundedValueRestriction(r as BaseValueRestriction)) &&
+    isMinimalValueRestriction(rest[0] as BoundedValueRestriction) &&
+    isMinimalValueRestriction(rest[1] as BoundedValueRestriction)
   )
 }

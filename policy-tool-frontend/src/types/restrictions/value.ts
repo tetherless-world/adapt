@@ -29,3 +29,7 @@ export interface HasMaximalValueRestriction extends BaseHasValueRestriction {
   }
   'owl:hasValue': undefined
 }
+
+export type HasBoundedValueRestriction =
+  | HasMinimalValueRestriction
+  | HasMaximalValueRestriction

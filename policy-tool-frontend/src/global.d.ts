@@ -1,5 +1,5 @@
-import { SignKeyObjectInput } from 'crypto'
-import { Dictionary, PropertyName, PropertyPath } from 'lodash'
+import { Dictionary } from 'lodash'
+import { AgentRestriction, ValidityRestriction } from './types/restrictions'
 
 export interface Restriction {
   uri: string
@@ -35,33 +35,4 @@ export interface PolicyState {
   activityRestrictions: Restriction[]
   effects: Value[]
   obligations: Value[]
-}
-
-export interface NewPolicyState {
-  // Identifier (source + id)
-  '@id': string
-  '@type': 'pol:Policy'
-  // Label
-  'rdfs:label': string
-  // Definition
-  'skos:definition': string
-  // Restrictions
-  'owl:equivalentClass': {
-    '@type': 'owl:Class'
-    'owl:intersectionOf': [
-      // Action
-      NamedNode,
-      // Agent and Attribute restrictions
-      ...AgentRestriction[],
-      // Validity restrictions
-      ...ValidityRestriction[]
-    ]
-  }
-  'rdfs:subClassOf': [
-    // Precedence
-    NamedNode,
-    // Additional Effects
-    // TODO: How do we distinguish between effects and obligations here?
-    ...NamedNode[]
-  ]
 }

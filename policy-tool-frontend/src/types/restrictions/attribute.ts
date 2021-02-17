@@ -56,7 +56,7 @@ export interface MaximalValueRestriction extends BaseValueRestriction {
   }
 }
 
-export interface IntervalRestriction extends BaseAttributeRestriction {
+export interface IntervalRestriction extends AttributeRestriction {
   'owl:someValuesFrom': IntersectionClass & {
     'owl:intersectionOf': [
       NamedNode,
@@ -65,3 +65,7 @@ export interface IntervalRestriction extends BaseAttributeRestriction {
     ]
   }
 }
+
+export type BoundedValueRestriction =
+  | MinimalValueRestriction
+  | MaximalValueRestriction

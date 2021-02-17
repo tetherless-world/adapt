@@ -1,6 +1,6 @@
 import { createSlice, Draft, PayloadAction } from '@reduxjs/toolkit'
 import _, { PropertyPath } from 'lodash'
-import { NewPolicyState } from 'src/global'
+import { PolicyState } from 'src/types/policy'
 import {
   AgentRestriction,
   isAgentRestriction,
@@ -8,7 +8,7 @@ import {
   ValidityRestriction,
 } from 'src/types/restrictions'
 
-const init: NewPolicyState = {
+const init: PolicyState = {
   '@id': '',
   '@type': 'pol:Policy',
   'rdfs:label': '',
@@ -22,7 +22,7 @@ const init: NewPolicyState = {
 
 type UpdateURIPayload = { source: string; id: string }
 type SetPayload = { keys: PropertyPath; value: any }
-type UpdateFunction = (state: Draft<NewPolicyState>) => void
+type UpdateFunction = (state: Draft<PolicyState>) => void
 
 export const { actions, reducer } = createSlice({
   name: 'policy',
