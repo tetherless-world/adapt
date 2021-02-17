@@ -167,11 +167,7 @@ export const isMaximalValueRestriction = (
 export const isAttributeRestriction = (
   o: BaseAttributeRestriction
 ): o is AttributeRestriction => {
-  if (
-    !isClassRestriction(o) &&
-    !isBaseValueRestriction(o) &&
-    isIntersectionClass(o['owl:someValuesFrom'])
-  ) {
+  if (isIntersectionClass(o['owl:someValuesFrom'])) {
     let [a, ...rest] = o['owl:someValuesFrom']['owl:intersectionOf']
     return rest.every((r) => isBaseAttributeRestriction(r))
   }
