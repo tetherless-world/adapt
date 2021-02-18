@@ -5,7 +5,7 @@ import { Selector } from 'src/components/Selector'
 import { Option } from 'src/global'
 import { actions } from 'src/store'
 import { PolicyState } from 'src/types/policy'
-import { AgentRestriction } from 'src/types/restrictions'
+import { AgentRestriction, isNamedNode } from 'src/types/restrictions'
 import { RestrictionProps } from '../props'
 
 export const AgentRestrictionComponent: React.FC<RestrictionProps> = ({
@@ -15,6 +15,14 @@ export const AgentRestrictionComponent: React.FC<RestrictionProps> = ({
   const restriction = useSelector<PolicyState, AgentRestriction>((state) =>
     _.get(state, keys)
   )
+
+  if (!isNamedNode(restriction['owl:someValuesFrom'])) {
+    console.error(
+      'This message should not be printed. Restriction structure is potentially invalid.'
+    )
+    console.error(restriction)
+    return <></>
+  }
 
   // TODO: retrieve from AgentsContext or some part of the global store.
   let options: Option[] = [{ label: '', value: '' }]
@@ -27,6 +35,7 @@ export const AgentRestrictionComponent: React.FC<RestrictionProps> = ({
             label: 'Agent',
             onChange: (e) =>
               dispatch(actions.update([...keys, '@id'], e.target.value)),
+            value: restriction['owl:someValuesFrom']['@id'],
           }}
         />
       </Grid>
