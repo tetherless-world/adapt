@@ -17,9 +17,7 @@ export const AgentRestrictionComponent: React.FC<RestrictionProps> = ({
   )
 
   if (!isNamedNode(restriction['owl:someValuesFrom'])) {
-    console.error(
-      'This message should not be printed. Restriction structure is potentially invalid.'
-    )
+    console.error('This should not be printed. Restriction must be invalid.')
     console.error(restriction)
     return <></>
   }
