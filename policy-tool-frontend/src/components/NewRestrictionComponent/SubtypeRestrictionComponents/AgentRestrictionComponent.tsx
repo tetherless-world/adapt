@@ -19,7 +19,7 @@ export const AgentRestrictionComponent: React.FC<RestrictionProps> = ({
   if (!isNamedNode(restriction['owl:someValuesFrom'])) {
     console.error('This should not be printed. Restriction must be invalid.')
     console.error(restriction)
-    return <></>
+    return null
   }
 
   // TODO: retrieve from AgentsContext or some part of the global store.

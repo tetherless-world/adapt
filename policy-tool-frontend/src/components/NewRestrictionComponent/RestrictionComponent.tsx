@@ -16,5 +16,5 @@ export const RestrictionComponent: React.FC<RestrictionProps> = ({ keys }) => {
     [restriction]
   )
 
-  return !!RestrictionComponent ? <RestrictionComponent keys={keys} /> : <></>
+  return !!RestrictionComponent ? <RestrictionComponent keys={keys} /> : null
 }
