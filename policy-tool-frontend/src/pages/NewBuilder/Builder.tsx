@@ -1,32 +1,23 @@
 import { Button, makeStyles, useTheme } from '@material-ui/core'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useSelector } from 'react-redux'
 import { useHistory } from 'react-router-dom'
 import { FormSection, FormSectionHeader, LoadingWrapper } from 'src/components'
 import {
   LabelByURIContext,
-  SubclassesByURIContext,
   SioClassByURIContext,
+  SubclassesByURIContext
 } from 'src/contexts'
-import { NewPolicyState, PolicyState, Restriction, Value } from 'src/global'
 import {
   useGetActions,
   useGetEffects,
   useGetObligations,
   useGetPrecedences,
   useGetRestrictions,
-  usePostPolicy,
+  usePostPolicy
 } from 'src/hooks/api'
-import { PolicyStore } from 'src/store/initialState'
-import { parseURI } from './helpers'
-import {
-  ConditionSection,
-  EffectSection,
-  InformationSection,
-  ObligationSection,
-  RestrictionSection,
-} from './sections'
-import { AgentRestrictionSection } from './sections/AgentRestrictionSection'
+import { PolicyState } from 'src/types/policy'
+import { AgentRestrictionSection, InformationSection } from './sections'
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -45,45 +36,35 @@ const policyDefault = {
   precedence: 'http://purl.org/twc/policy/example/dsa/Priority_1',
 }
 
-const flatten = (restrictions: Restriction[]) => {
+const flatten = (restrictions: any[]) => {
   let entries: any[] = []
-  restrictions.reduce((r, { restrictions: subRestrictions, values }) => {
-    if (subRestrictions) {
-      r.push(...flatten(subRestrictions))
-    }
-    if (values) {
-      r.push(...values.map((v) => v.value))
-    }
-    return r
-  }, entries)
+  // restrictions.reduce((r, { restrictions: subRestrictions, values }) => {
+  //   if (subRestrictions) {
+  //     r.push(...flatten(subRestrictions))
+  //   }
+  //   if (values) {
+  //     r.push(...values.map((v) => v.value))
+  //   }
+  //   return r
+  // }, entries)
   return entries
 }
 
-const isValidPolicy = (state: PolicyState) =>
-  !!state.id &&
-  !!state.source &&
-  !!state.label &&
-  !!state.action &&
-  !!state.precedence &&
-  !!state.effects.length &&
-  !!state.effects.every(({ value }) => value || false) &&
-  !!state.obligations.every(({ value }) => value || false) &&
-  !!flatten(state.activityRestrictions).every((v) => v || false) &&
-  !!flatten(state.agentRestrictions).every((v) => v || false)
+const isValidPolicy = (state: PolicyState) => true
 
 export const NewBuilder: React.FC = () => {
   const theme = useTheme()
   const classes = useStyles(theme)
   const history = useHistory()
 
-  const policy = useSelector((state: PolicyStore) => state.policy)
+  const policy = useSelector<PolicyState, PolicyState>((state) => state)
 
   const [restrictionsRes, getRestrictions] = useGetRestrictions()
   const [obligationsRes, getObligations] = useGetObligations()
   const [effectsRes, getEffects] = useGetEffects()
   const [actionsRes, getActions] = useGetActions()
   const [precedencesRes, getPrecedences] = useGetPrecedences()
-  // const [policyRes, postPolicy] = usePostPolicy()
+  const [policyRes, postPolicy] = usePostPolicy(policy)
 
   useEffect(() => {
     getRestrictions()
@@ -116,7 +97,7 @@ export const NewBuilder: React.FC = () => {
     labelByURI,
     sioClassByURI,
   } = restrictionsRes.value ?? {
-    validRestrictions: [],
+    validRestrictions: {},
     subclassesByURI: {},
     labelByURI: {},
     sioClassByURI: {},
@@ -141,59 +122,31 @@ export const NewBuilder: React.FC = () => {
             <FormSection
               gridContainerProps={{ className: classes.section }}
               header={<FormSectionHeader title={'Rules'} />}
-              body={<AgentRestrictionSection />}
+              body={
+                <AgentRestrictionSection
+                  validRestrictions={validRestrictions}
+                />
+              }
             />
             <FormSection
               gridContainerProps={{ className: classes.section }}
               header={<FormSectionHeader title={'Validity'} />}
-              body={
-                <RestrictionSection
-                  restrictions={activityRestrictions}
-                  updateRestrictions={updateActivityRestrictions}
-                  validRestrictions={[]}
-                />
-              }
+              body={<></>}
             />
             <FormSection
               gridContainerProps={{ className: classes.section }}
               header={<FormSectionHeader title={'Conditions'} />}
-              body={
-                <ConditionSection
-                  action={action}
-                  setAction={setAction}
-                  validActions={validActions}
-                  precedence={precedence}
-                  setPrecedence={setPrecedence}
-                  validPrecedences={validPrecedences}
-                />
-              }
+              body={<></>}
             />
             <FormSection
               gridContainerProps={{ className: classes.section }}
               header={<FormSectionHeader title={'Effects'} />}
-              body={
-                <EffectSection
-                  effects={effects}
-                  updateEffects={updateEffects}
-                  validEffects={validEffects}
-                />
-              }
-            />
-            <FormSection
-              gridContainerProps={{ className: classes.section }}
-              header={<FormSectionHeader title={'Obligations'} />}
-              body={
-                <ObligationSection
-                  obligations={obligations}
-                  updateObligations={updateObligations}
-                  validObligations={validObligations}
-                />
-              }
+              body={<></>}
             />
             <FormSection
               gridContainerProps={{ className: classes.save }}
               body={
-                <Button onClick={postPolicy} disabled={!isValid}>
+                <Button onClick={postPolicy} disabled>
                   Save
                 </Button>
               }

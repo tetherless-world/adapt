@@ -1,4 +1,3 @@
-import { exception } from 'console'
 import {
   isAgentRestriction,
   isAttributeRestriction,
@@ -11,7 +10,7 @@ import {
   isNamedNode,
   isValidityRestriction,
   isValueRestriction,
-  RestrictionNode,
+  RestrictionNode
 } from 'src/types/restrictions'
 import { RestrictionProps } from './props'
 import {
@@ -21,7 +20,7 @@ import {
   MaximalValueRestrictionComponent,
   MinimalValueRestrictionComponent,
   ValidityRestrictionComponent,
-  ValueRestrictionComponent,
+  ValueRestrictionComponent
 } from './SubtypeRestrictionComponents'
 
 export const getRestrictionComponent = (
@@ -62,5 +61,5 @@ export const getRestrictionComponent = (
     }
   }
 
-  throw exception('Unknown RestrictionNode structure')
+  throw Error('Unknown RestrictionNode structure')
 }

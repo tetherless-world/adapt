@@ -1,13 +1,12 @@
 import { Button, Grid, IconButton } from '@material-ui/core'
 import { Delete } from '@material-ui/icons'
 import { createSelector } from '@reduxjs/toolkit'
-import _, { Dictionary } from 'lodash'
+import _ from 'lodash'
 import { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { MenuButton } from 'src/components'
 import { RestrictionComponent } from 'src/components/NewRestrictionComponent/RestrictionComponent'
 import { LabelByURIContext } from 'src/contexts'
-import { useLabels } from 'src/hooks/useLabels'
 import { actions } from 'src/store'
 import { restrictionsSelector } from 'src/store/policy'
 import {
@@ -17,7 +16,7 @@ import {
 } from 'src/types/restrictions'
 
 export interface AgentRestrictionSectionProps {
-  validRestrictions: Dictionary<AgentRestriction>
+  validRestrictions: Record<string, AgentRestriction>
 }
 
 const agentRestrictionsSelector = createSelector(
@@ -48,8 +47,11 @@ export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
   const restrictions = useSelector(agentRestrictionsSelector)
 
   const restrictionURIs: string[] = Object.keys(validRestrictions)
-
-  const restrictionLabels = useLabels(labelByURI, restrictionURIs)
+  const restrictionLabels = restrictionURIs.map((uri) => labelByURI[uri])
+  const restrictionOptions = restrictionURIs.map((uri) => ({
+    label: labelByURI[uri],
+    value: uri,
+  }))
 
   const handleSelectOption = (i: number) => {
     let uri = restrictionURIs[i]
@@ -72,11 +74,11 @@ export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
         <Grid item xs={12} md={4}>
           <MenuButton
             // TODO: redo this component, it's not right
-            options={restrictionLabels}
+            options={restrictionOptions}
             onSelectOption={handleSelectOption}
             buttonProps={{
               children: 'Add',
-              disabled: !validRestrictions.length,
+              disabled: !restrictionOptions.length,
             }}
           />
         </Grid>
