@@ -31,10 +31,10 @@ export const getRestrictionComponent = (
   if (isValidityRestriction(restriction)) return ValidityRestrictionComponent
 
   if (isAgentRestriction(restriction)) {
-    if (isNamedNode(restriction['owl:someValuesFrom']))
+    if (isNamedNode(restriction[OWL.someValuesFrom]))
       return AgentRestrictionComponent
 
-    return getRestrictionComponent(restriction['owl:someValuesFrom'])
+    return getRestrictionComponent(restriction[OWL.someValuesFrom])
   }
 
   if (isBaseAttributeRestriction(restriction)) {

@@ -1,11 +1,12 @@
+import { OWL } from 'src/namespaces'
 import { DatatypeRestriction, RestrictionNode } from './baseTypes'
 
 export interface StartTimeRestriction extends RestrictionNode {
-  'owl:onProperty': 'prov:startedAtTime'
-  'owl:someValuesFrom': DatatypeRestriction & {
+  [OWL.onProperty]: 'prov:startedAtTime'
+  [OWL.someValuesFrom]: DatatypeRestriction & {
     '@type': 'rdfs:Datatype'
-    'owl:onDatatype': 'xsd:dateTime'
-    'owl:withRestrictions': [
+    [OWL.onDatatype]: 'xsd:dateTime'
+    [OWL.withRestrictions]: [
       {
         'xsd:minInclusive': {
           '@type': 'xsd:dateTime'
@@ -17,11 +18,11 @@ export interface StartTimeRestriction extends RestrictionNode {
 }
 
 export interface EndTimeRestriction extends RestrictionNode {
-  'owl:onProperty': 'prov:endedAtTime'
-  'owl:someValuesFrom': DatatypeRestriction & {
+  [OWL.onProperty]: 'prov:endedAtTime'
+  [OWL.someValuesFrom]: DatatypeRestriction & {
     '@type': 'rdfs:Datatype'
-    'owl:onDatatype': 'xsd:dateTime'
-    'owl:withRestrictions': [
+    [OWL.onDatatype]: 'xsd:dateTime'
+    [OWL.withRestrictions]: [
       {
         'xsd:maxInclusive': {
           '@type': 'xsd:dateTime'

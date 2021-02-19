@@ -1,4 +1,4 @@
-import { SIO } from 'src/namespaces'
+import { OWL, SIO } from 'src/namespaces'
 import { AgentRestriction } from './agent'
 import {
   AttributeRestriction,
@@ -45,47 +45,47 @@ export const isLiteral = (o: any): o is Literal => {
 export const isIntersectionClass = (o: any): o is IntersectionClass => {
   return (
     '@type' in o &&
-    o['type'] === 'owl:Class' &&
-    'owl:intersectionOf' in o &&
-    Array.isArray(o['owl:intersectionOf'])
+    o['type'] === OWL.Class &&
+    OWL.intersectionOf in o &&
+    Array.isArray(o[OWL.intersectionOf])
   )
 }
 
 export const isRestrictionNode = (o: any): o is RestrictionNode => {
-  return '@type' in o && o['@type'] === 'owl:Restriction'
+  return '@type' in o && o['@type'] === OWL.Restriction
 }
 
 export const isAgentRestriction = (
   o: RestrictionNode
 ): o is AgentRestriction => {
-  return o['owl:onProperty'] === 'prov:wasAssociatedWith'
+  return o[OWL.onProperty] === 'prov:wasAssociatedWith'
 }
 
 export const isValidityRestriction = (
   o: RestrictionNode
 ): o is ValidityRestriction => {
   return (
-    o['owl:onProperty'] === 'prov:endedAtTime' ||
-    o['owl:onProperty'] === 'prov:startedAtTime'
+    o[OWL.onProperty] === 'prov:endedAtTime' ||
+    o[OWL.onProperty] === 'prov:startedAtTime'
   )
 }
 
 export const isBaseAttributeRestriction = (
   o: RestrictionNode
 ): o is BaseAttributeRestriction => {
-  return o['owl:onProperty'] === SIO.hasAttribute
+  return o[OWL.onProperty] === SIO.hasAttribute
 }
 
 export const isBaseHasValueRestriction = (
   o: RestrictionNode
 ): o is BaseHasValueRestriction => {
-  return o['owl:onProperty'] === SIO.hasValue
+  return o[OWL.onProperty] === SIO.hasValue
 }
 
 export const isHasValueRestriction = (
   o: BaseHasValueRestriction
 ): o is HasValueRestriction => {
-  return o['owl:hasValue'] !== undefined
+  return o[OWL.hasValue] !== undefined
 }
 
 export const isHasBoundedValueRestriction = (
@@ -97,30 +97,31 @@ export const isHasBoundedValueRestriction = (
 export const isHasMinimalValueRestriction = (
   o: HasBoundedValueRestriction
 ): o is HasMinimalValueRestriction => {
-  let r = o['owl:someValuesFrom']['owl:withRestrictions'][0]
+  let r = o[OWL.someValuesFrom][OWL.withRestrictions][0]
   return 'xsd:minInclusive' in r
 }
 
 export const isHasMaximalValueRestriction = (
   o: HasBoundedValueRestriction
 ): o is HasMaximalValueRestriction => {
-  let r = o['owl:someValuesFrom']['owl:withRestrictions'][0]
+  let r = o[OWL.someValuesFrom][OWL.withRestrictions][0]
   return 'xsd:maxInclusive' in r
 }
 
 export const isUnitRestriction = (o: RestrictionNode): o is UnitRestriction => {
-  return o['owl:onProperty'] === SIO.hasUnit
+  return o[OWL.onProperty] === SIO.hasUnit
 }
 
 export const isClassRestriction = (
   o: BaseAttributeRestriction
 ): o is ClassRestriction => {
-  if (isIntersectionClass(o['owl:someValuesFrom'])) {
-    if (o['owl:someValuesFrom']['owl:intersectionOf'].length == 2) {
-      return o['owl:someValuesFrom']['owl:intersectionOf'].every(isNamedNode)
+  let o1 = o[OWL.someValuesFrom]
+  if (isIntersectionClass(o1)) {
+    if (o1[OWL.intersectionOf].length == 2) {
+      return o1[OWL.intersectionOf].every(isNamedNode)
     }
   } else {
-    return isNamedNode(o['owl:someValuesFrom'])
+    return isNamedNode(o[OWL.someValuesFrom])
   }
   return false
 }
@@ -128,8 +129,9 @@ export const isClassRestriction = (
 export const isBaseValueRestriction = (
   o: BaseAttributeRestriction
 ): o is BaseValueRestriction => {
-  if (isIntersectionClass(o['owl:someValuesFrom'])) {
-    let [a, ...rest] = o['owl:someValuesFrom']['owl:intersectionOf']
+  let o1 = o[OWL.someValuesFrom]
+  if (isIntersectionClass(o1)) {
+    let [a, ...rest] = o1[OWL.intersectionOf]
     if (rest.length === 1) {
       return isBaseHasValueRestriction(rest[0])
     } else if (rest.length === 2) {
@@ -142,7 +144,7 @@ export const isBaseValueRestriction = (
 export const isValueRestriction = (
   o: BaseValueRestriction
 ): o is ValueRestriction => {
-  let r = o['owl:someValuesFrom']['owl:intersectionOf']
+  let r = o[OWL.someValuesFrom][OWL.intersectionOf]
   return isHasValueRestriction(r[1])
 }
 
@@ -155,21 +157,22 @@ export const isBoundedValueRestriction = (
 export const isMinimalValueRestriction = (
   o: BoundedValueRestriction
 ): o is MinimalValueRestriction => {
-  let r = o['owl:someValuesFrom']['owl:intersectionOf']
+  let r = o[OWL.someValuesFrom][OWL.intersectionOf]
   return isHasMinimalValueRestriction(r[1])
 }
 export const isMaximalValueRestriction = (
   o: BoundedValueRestriction
 ): o is MaximalValueRestriction => {
-  let r = o['owl:someValuesFrom']['owl:intersectionOf']
+  let r = o[OWL.someValuesFrom][OWL.intersectionOf]
   return isHasMaximalValueRestriction(r[1])
 }
 
 export const isAttributeRestriction = (
   o: BaseAttributeRestriction
 ): o is AttributeRestriction => {
-  if (isIntersectionClass(o['owl:someValuesFrom'])) {
-    let [a, ...rest] = o['owl:someValuesFrom']['owl:intersectionOf']
+  let o1 = o[OWL.someValuesFrom]
+  if (isIntersectionClass(o1)) {
+    let [a, ...rest] = o1[OWL.intersectionOf]
     return rest.every((r) => isBaseAttributeRestriction(r))
   }
   return false
@@ -178,7 +181,7 @@ export const isAttributeRestriction = (
 export const isIntervalRestriction = (
   o: AttributeRestriction
 ): o is IntervalRestriction => {
-  let [a, ...rest] = o['owl:someValuesFrom']['owl:intersectionOf']
+  let [a, ...rest] = o[OWL.someValuesFrom][OWL.intersectionOf]
   return (
     rest.every((r) => isBaseValueRestriction(r as BaseAttributeRestriction)) &&
     rest.every((r) => isBoundedValueRestriction(r as BaseValueRestriction)) &&

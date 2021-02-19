@@ -1,3 +1,5 @@
+import { OWL } from "src/namespaces";
+
 export interface NamedNode {
   '@id': string | null
 }
@@ -9,22 +11,22 @@ export interface Literal {
 
 export interface DatatypeRestriction {
   '@type': 'rdfs:Datatype'
-  'owl:onDatatype': string
-  'owl:withRestrictions': { [k: string]: Literal }[]
+  [OWL.onDatatype]: string
+  [OWL.withRestrictions]: { [k: string]: Literal }[]
 }
 
 export interface RestrictionNode {
-  '@type': 'owl:Restriction'
-  'owl:onProperty': string
-  'owl:someValuesFrom'?:
+  '@type': OWL.Restriction
+  [OWL.onProperty]: string
+  [OWL.someValuesFrom]?:
     | NamedNode
     | RestrictionNode
     | DatatypeRestriction
     | IntersectionClass
-  'owl:hasValue'?: NamedNode | Literal
+  [OWL.hasValue]?: NamedNode | Literal
 }
 
 export interface IntersectionClass {
-  '@type': 'owl:Class'
-  'owl:intersectionOf': [NamedNode, ...RestrictionNode[]]
+  '@type': OWL.Class
+  [OWL.intersectionOf]: [NamedNode, ...RestrictionNode[]]
 }

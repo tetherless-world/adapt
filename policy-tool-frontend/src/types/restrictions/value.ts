@@ -1,34 +1,34 @@
-import { SIO } from 'src/namespaces'
+import { OWL, SIO } from 'src/namespaces'
 import { DatatypeRestriction, Literal, RestrictionNode } from './baseTypes'
 
 export interface BaseHasValueRestriction extends RestrictionNode {
-  'owl:onProperty': SIO.hasValue
-  'owl:someValuesFrom'?: DatatypeRestriction
-  'owl:hasValue'?: Literal
+  [OWL.onProperty]: SIO.hasValue
+  [OWL.someValuesFrom]?: DatatypeRestriction
+  [OWL.hasValue]?: Literal
 }
 
 export interface HasValueRestriction extends BaseHasValueRestriction {
-  'owl:onProperty': SIO.hasValue
-  'owl:someValuesFrom': undefined
-  'owl:hasValue': Literal
+  [OWL.onProperty]: SIO.hasValue
+  [OWL.someValuesFrom]: undefined
+  [OWL.hasValue]: Literal
 }
 
 export interface HasMinimalValueRestriction extends BaseHasValueRestriction {
-  'owl:someValuesFrom': DatatypeRestriction & {
+  [OWL.someValuesFrom]: DatatypeRestriction & {
     '@type': 'rdfs:Datatype'
-    'owl:onDatatype': string
-    'owl:withRestrictions': [{ 'xsd:minInclusive': Literal }]
+    [OWL.onDatatype]: string
+    [OWL.withRestrictions]: [{ 'xsd:minInclusive': Literal }]
   }
-  'owl:hasValue': undefined
+  [OWL.hasValue]: undefined
 }
 
 export interface HasMaximalValueRestriction extends BaseHasValueRestriction {
-  'owl:someValuesFrom': DatatypeRestriction & {
+  [OWL.someValuesFrom]: DatatypeRestriction & {
     '@type': 'rdfs:Datatype'
-    'owl:onDatatype': string
-    'owl:withRestrictions': [{ 'xsd:maxInclusive': Literal }]
+    [OWL.onDatatype]: string
+    [OWL.withRestrictions]: [{ 'xsd:maxInclusive': Literal }]
   }
-  'owl:hasValue': undefined
+  [OWL.hasValue]: undefined
 }
 
 export type HasBoundedValueRestriction =

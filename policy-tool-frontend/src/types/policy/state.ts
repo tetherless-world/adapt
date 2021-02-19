@@ -1,3 +1,4 @@
+import { OWL } from 'src/namespaces';
 import {
   AgentRestriction,
   NamedNode,
@@ -13,9 +14,9 @@ export interface PolicyState {
   // Definition
   'skos:definition': string
   // Restrictions
-  'owl:equivalentClass': {
-    '@type': 'owl:Class'
-    'owl:intersectionOf': [
+  [OWL.equivalentClass]: {
+    '@type': OWL.Class
+    [OWL.intersectionOf]: [
       // Action
       NamedNode,
       // Agent and Attribute / Validity  restrictions

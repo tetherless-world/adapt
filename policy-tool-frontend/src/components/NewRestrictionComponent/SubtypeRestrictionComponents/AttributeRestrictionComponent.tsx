@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { useContext } from 'react'
 import { useSelector } from 'react-redux'
 import { LabelByURIContext } from 'src/contexts'
+import { OWL } from 'src/namespaces'
 import { PolicyState } from 'src/types/policy'
 import { AttributeRestriction } from 'src/types/restrictions'
 import { RestrictionProps } from '../props'
@@ -28,7 +29,7 @@ export const AttributeRestrictionComponent: React.FC<RestrictionProps> = ({
   )
 
   const classes = useStyles()
-  const [n, ...rest] = restriction['owl:someValuesFrom']['owl:intersectionOf']
+  const [n, ...rest] = restriction[OWL.someValuesFrom][OWL.intersectionOf]
 
   return (
     <Grid container item xs={12}>
@@ -45,8 +46,8 @@ export const AttributeRestrictionComponent: React.FC<RestrictionProps> = ({
             <RestrictionComponent
               keys={[
                 ...keys,
-                'owl:someValuesFrom',
-                'owl:intersectionOf',
+                OWL.someValuesFrom,
+                OWL.intersectionOf,
                 i + 1,
               ]}
             />

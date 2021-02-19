@@ -1,4 +1,4 @@
-import { SIO } from 'src/namespaces'
+import { OWL, SIO } from 'src/namespaces'
 import { IntersectionClass, NamedNode, RestrictionNode } from './baseTypes'
 import { UnitRestriction } from './unit'
 import {
@@ -9,57 +9,57 @@ import {
 } from './value'
 
 export interface BaseAttributeRestriction extends RestrictionNode {
-  'owl:onProperty': SIO.hasAttribute
-  'owl:hasValue': undefined
+  [OWL.onProperty]: SIO.hasAttribute
+  [OWL.hasValue]: undefined
 }
 
 export interface ClassRestriction extends BaseAttributeRestriction {
-  'owl:someValuesFrom':
+  [OWL.someValuesFrom]:
     | NamedNode
-    | (IntersectionClass & { 'owl:intersectionOf': [NamedNode, NamedNode] })
+    | (IntersectionClass & { [OWL.intersectionOf]: [NamedNode, NamedNode] })
 }
 
 export interface AttributeRestriction extends BaseAttributeRestriction {
-  'owl:someValuesFrom': IntersectionClass & {
-    'owl:intersectionOf': [NamedNode, ...BaseAttributeRestriction[]]
+  [OWL.someValuesFrom]: IntersectionClass & {
+    [OWL.intersectionOf]: [NamedNode, ...BaseAttributeRestriction[]]
   }
 }
 
 export interface BaseValueRestriction extends BaseAttributeRestriction {
-  'owl:someValuesFrom': IntersectionClass & {
-    'owl:intersectionOf':
+  [OWL.someValuesFrom]: IntersectionClass & {
+    [OWL.intersectionOf]:
       | [NamedNode, BaseHasValueRestriction]
       | [NamedNode, BaseHasValueRestriction, UnitRestriction]
   }
 }
 
 export interface ValueRestriction extends BaseValueRestriction {
-  'owl:someValuesFrom': IntersectionClass & {
-    'owl:intersectionOf':
+  [OWL.someValuesFrom]: IntersectionClass & {
+    [OWL.intersectionOf]:
       | [NamedNode, HasValueRestriction]
       | [NamedNode, HasValueRestriction, UnitRestriction]
   }
 }
 
 export interface MinimalValueRestriction extends BaseValueRestriction {
-  'owl:someValuesFrom': IntersectionClass & {
-    'owl:intersectionOf':
+  [OWL.someValuesFrom]: IntersectionClass & {
+    [OWL.intersectionOf]:
       | [NamedNode, HasMinimalValueRestriction]
       | [NamedNode, HasMinimalValueRestriction, UnitRestriction]
   }
 }
 
 export interface MaximalValueRestriction extends BaseValueRestriction {
-  'owl:someValuesFrom': IntersectionClass & {
-    'owl:intersectionOf':
+  [OWL.someValuesFrom]: IntersectionClass & {
+    [OWL.intersectionOf]:
       | [NamedNode, HasMaximalValueRestriction]
       | [NamedNode, HasMaximalValueRestriction, UnitRestriction]
   }
 }
 
 export interface IntervalRestriction extends AttributeRestriction {
-  'owl:someValuesFrom': IntersectionClass & {
-    'owl:intersectionOf': [
+  [OWL.someValuesFrom]: IntersectionClass & {
+    [OWL.intersectionOf]: [
       NamedNode,
       MinimalValueRestriction,
       MaximalValueRestriction

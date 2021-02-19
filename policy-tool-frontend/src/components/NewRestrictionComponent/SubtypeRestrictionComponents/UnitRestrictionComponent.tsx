@@ -39,7 +39,7 @@ import { RestrictionProps } from '../props'
 //     _.get(state, keys)
 //   )
 
-//   const [baseNode, valueNode] = root['owl:intersectionOf']
+//   const [baseNode, valueNode] = root[OWL.intersectionOf]
 
 //   return <></>
 // }
@@ -56,24 +56,24 @@ export const UnitRestrictionComponent: React.FC<RestrictionProps> = ({
     _.get(state, keys)
   )
 
-  if (isNamedNode(restriction['owl:someValuesFrom'])) {
-    if (!!restriction['owl:someValuesFrom']['@id'])
+  if (isNamedNode(restriction[OWL.someValuesFrom])) {
+    if (!!restriction[OWL.someValuesFrom]['@id'])
       // render as disabled input field
       return (
         <>
           <TextField
             label={'Class'}
-            value={labelByURI[restriction['owl:someValuesFrom']['@id']]}
+            value={labelByURI[restriction[OWL.someValuesFrom]['@id']]}
             disabled
           />
         </>
       )
   }
 
-  if (isIntersectionClass(restriction['owl:someValuesFrom'])) {
-    const baseClass = restriction['owl:someValuesFrom']['owl:intersectionOf'][0]
+  if (isIntersectionClass(restriction[OWL.someValuesFrom])) {
+    const baseClass = restriction[OWL.someValuesFrom][OWL.intersectionOf][0]
     const valueClass =
-      restriction['owl:someValuesFrom']['owl:intersectionOf'][1]
+      restriction[OWL.someValuesFrom][OWL.intersectionOf][1]
 
     let baseURI = baseClass['@id'] ?? ''
     let baseLabel = labelByURI[baseURI]
@@ -96,7 +96,7 @@ export const UnitRestrictionComponent: React.FC<RestrictionProps> = ({
           onChange={(e) => {
             dispatch(
               actions.update(
-                [...keys, 'owl:someValuesFrom', 'owl:intersectionOf', 1, '@id'],
+                [...keys, OWL.someValuesFrom, OWL.intersectionOf, 1, '@id'],
                 e.target.value
               )
             )

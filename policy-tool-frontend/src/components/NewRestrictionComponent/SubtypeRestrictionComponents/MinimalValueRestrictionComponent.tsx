@@ -20,18 +20,18 @@ export const MinimalValueRestrictionComponent: React.FC<RestrictionProps> = ({
     (state) => _.get(state, keys)
   )
 
-  const baseClass = restriction['owl:someValuesFrom']['owl:intersectionOf'][0]
+  const baseClass = restriction[OWL.someValuesFrom][OWL.intersectionOf][0]
   const hasValueRestriction =
-    restriction['owl:someValuesFrom']['owl:intersectionOf'][1]
+    restriction[OWL.someValuesFrom][OWL.intersectionOf][1]
 
   const unitRestriction =
-    restriction['owl:someValuesFrom']['owl:intersectionOf'][3] ?? undefined
+    restriction[OWL.someValuesFrom][OWL.intersectionOf][3] ?? undefined
 
   const baseLabel = labelByURI[baseClass['@id'] ?? '']
 
   const { '@value': value, '@type': type } = hasValueRestriction[
-    'owl:someValuesFrom'
-  ]['owl:withRestrictions'][0]['xsd:minInclusive']
+    OWL.someValuesFrom
+  ][OWL.withRestrictions][0]['xsd:minInclusive']
 
   return (
     <Grid container item xs={12}>
@@ -45,11 +45,11 @@ export const MinimalValueRestrictionComponent: React.FC<RestrictionProps> = ({
               actions.update(
                 [
                   ...keys,
-                  'owl:someValuesFrom',
-                  'owl:intersectionOf',
+                  OWL.someValuesFrom,
+                  OWL.intersectionOf,
                   1,
-                  'owl:someValuesFrom',
-                  'owl:withRestrictions',
+                  OWL.someValuesFrom,
+                  OWL.withRestrictions,
                   0,
                   'xsd:minInclusive',
                 ],
@@ -62,7 +62,7 @@ export const MinimalValueRestrictionComponent: React.FC<RestrictionProps> = ({
       {!!unitRestriction && (
         <Grid item xs={12} md={6}>
           <UnitRestrictionComponent
-            keys={[...keys, 'owl:someValuesFrom', 'owl:intersectionOf', 2]}
+            keys={[...keys, OWL.someValuesFrom, OWL.intersectionOf, 2]}
           />
         </Grid>
       )}

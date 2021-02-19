@@ -1,6 +1,7 @@
+import { OWL } from 'src/namespaces';
 import { NamedNode, RestrictionNode } from './baseTypes'
 
 export interface AgentRestriction extends RestrictionNode {
-  'owl:onProperty': 'prov:wasAssociatedWith'
-  'owl:someValuesFrom': NamedNode | RestrictionNode
+  [OWL.onProperty]: 'prov:wasAssociatedWith'
+  [OWL.someValuesFrom]: NamedNode | RestrictionNode
 }

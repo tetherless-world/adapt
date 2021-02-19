@@ -25,15 +25,15 @@ const useStyles = makeStyles((theme) => ({
 }))
 
 const getMinimalValueLiteral = (minValue: MinimalValueRestriction) => {
-  return minValue['owl:someValuesFrom']['owl:intersectionOf'][1][
-    'owl:someValuesFrom'
-  ]['owl:withRestrictions'][0]['xsd:minInclusive']
+  return minValue[OWL.someValuesFrom][OWL.intersectionOf][1][
+    OWL.someValuesFrom
+  ][OWL.withRestrictions][0]['xsd:minInclusive']
 }
 
 const getMaximalValueLiteral = (maxValue: MaximalValueRestriction) => {
-  return maxValue['owl:someValuesFrom']['owl:intersectionOf'][1][
-    'owl:someValuesFrom'
-  ]['owl:withRestrictions'][0]['xsd:maxInclusive']
+  return maxValue[OWL.someValuesFrom][OWL.intersectionOf][1][
+    OWL.someValuesFrom
+  ][OWL.withRestrictions][0]['xsd:maxInclusive']
 }
 
 export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
@@ -47,13 +47,13 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
     _.get(state, keys)
   )
 
-  const baseNode = restriction['owl:someValuesFrom']['owl:intersectionOf'][0]
+  const baseNode = restriction[OWL.someValuesFrom][OWL.intersectionOf][0]
 
-  const minValue = restriction['owl:someValuesFrom']['owl:intersectionOf'][1]
-  const minUnit = minValue['owl:someValuesFrom']['owl:intersectionOf'][2] ?? ''
+  const minValue = restriction[OWL.someValuesFrom][OWL.intersectionOf][1]
+  const minUnit = minValue[OWL.someValuesFrom][OWL.intersectionOf][2] ?? ''
 
-  const maxValue = restriction['owl:someValuesFrom']['owl:intersectionOf'][2]
-  const maxUnit = maxValue['owl:someValuesFrom']['owl:intersectionOf'][2] ?? ''
+  const maxValue = restriction[OWL.someValuesFrom][OWL.intersectionOf][2]
+  const maxUnit = maxValue[OWL.someValuesFrom][OWL.intersectionOf][2] ?? ''
 
   const minLiteral = getMinimalValueLiteral(minValue)
   const maxLiteral = getMaximalValueLiteral(maxValue)
@@ -61,11 +61,11 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
   const baseLabel = labelByURI[baseNode['@id'] ?? '']
   const minLabel =
     labelByURI[
-      minValue['owl:someValuesFrom']['owl:intersectionOf'][0]['@id'] ?? ''
+      minValue[OWL.someValuesFrom][OWL.intersectionOf][0]['@id'] ?? ''
     ]
   const maxLabel =
     labelByURI[
-      maxValue['owl:someValuesFrom']['owl:intersectionOf'][0]['@id'] ?? ''
+      maxValue[OWL.someValuesFrom][OWL.intersectionOf][0]['@id'] ?? ''
     ]
 
   const checkUpdateMinValueValidity = (newValue: any) => {
@@ -75,12 +75,12 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
       actions.update(
         [
           ...keys,
-          'owl:someValuesFrom',
-          'owl:intersectionOf',
+          OWL.someValuesFrom,
+          OWL.intersectionOf,
           1,
-          'owl:someValuesFrom',
-          'owl:intersectionOf',
-          'owl:withRestrictions',
+          OWL.someValuesFrom,
+          OWL.intersectionOf,
+          OWL.withRestrictions,
           0,
           'xsd:minInclusive',
         ],
@@ -96,12 +96,12 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
       actions.update(
         [
           ...keys,
-          'owl:someValuesFrom',
-          'owl:intersectionOf',
+          OWL.someValuesFrom,
+          OWL.intersectionOf,
           1,
-          'owl:someValuesFrom',
-          'owl:intersectionOf',
-          'owl:withRestrictions',
+          OWL.someValuesFrom,
+          OWL.intersectionOf,
+          OWL.withRestrictions,
           0,
           'xsd:maxInclusive',
         ],
@@ -132,11 +132,11 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
               <UnitRestrictionComponent
                 keys={[
                   ...keys,
-                  'owl:someValuesFrom',
-                  'owl:intersectionOf',
+                  OWL.someValuesFrom,
+                  OWL.intersectionOf,
                   1,
-                  'owl:someValuesFrom',
-                  'owl:intersectionOf',
+                  OWL.someValuesFrom,
+                  OWL.intersectionOf,
                 ]}
               />
             </Grid>
@@ -156,11 +156,11 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
               <UnitRestrictionComponent
                 keys={[
                   ...keys,
-                  'owl:someValuesFrom',
-                  'owl:intersectionOf',
+                  OWL.someValuesFrom,
+                  OWL.intersectionOf,
                   2,
-                  'owl:someValuesFrom',
-                  'owl:intersectionOf',
+                  OWL.someValuesFrom,
+                  OWL.intersectionOf,
                 ]}
               />
             </Grid>

@@ -102,7 +102,7 @@ export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
               </Grid>
               <Grid item xs={11}>
                 <RestrictionComponent
-                  keys={['owl:equivalentClass', 'owl:intersectionOf', i + 1]}
+                  keys={[OWL.equivalentClass, OWL.intersectionOf, i + 1]}
                 />
               </Grid>
             </Grid>

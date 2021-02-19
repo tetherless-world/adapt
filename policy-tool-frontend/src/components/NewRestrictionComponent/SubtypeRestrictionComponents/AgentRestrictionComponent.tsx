@@ -3,25 +3,19 @@ import _ from 'lodash'
 import { useDispatch, useSelector } from 'react-redux'
 import { Selector } from 'src/components/Selector'
 import { Option } from 'src/global'
+import { OWL } from 'src/namespaces'
 import { actions } from 'src/store'
 import { PolicyState } from 'src/types/policy'
-import { AgentRestriction, isNamedNode } from 'src/types/restrictions'
+import { NamedNode } from 'src/types/restrictions'
 import { RestrictionProps } from '../props'
 
 export const AgentRestrictionComponent: React.FC<RestrictionProps> = ({
   keys,
 }) => {
   const dispatch = useDispatch()
-  const restriction = useSelector<PolicyState, AgentRestriction>((state) =>
-    _.get(state, keys)
+  const restriction = useSelector<PolicyState, NamedNode>(
+    (state) => _.get(state, [...keys, OWL.someValuesFrom]) as NamedNode
   )
-
-  if (!isNamedNode(restriction['owl:someValuesFrom'])) {
-    console.error('This should not be printed. Restriction must be invalid.')
-    console.error(restriction)
-    return null
-  }
-
   // TODO: retrieve from AgentsContext or some part of the global store.
   let options: Option[] = [{ label: '', value: '' }]
   return (
@@ -32,8 +26,13 @@ export const AgentRestrictionComponent: React.FC<RestrictionProps> = ({
           textFieldProps={{
             label: 'Agent',
             onChange: (e) =>
-              dispatch(actions.update([...keys, '@id'], e.target.value)),
-            value: restriction['owl:someValuesFrom']['@id'],
+              dispatch(
+                actions.update(
+                  [...keys, 'owl:someValuesFrom', '@id'],
+                  e.target.value
+                )
+              ),
+            value: restriction['@id'],
           }}
         />
       </Grid>

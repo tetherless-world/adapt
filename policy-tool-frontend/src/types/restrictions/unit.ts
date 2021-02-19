@@ -1,9 +1,9 @@
-import { SIO } from 'src/namespaces';
+import { OWL, SIO } from 'src/namespaces';
 import { IntersectionClass, NamedNode, RestrictionNode } from './baseTypes'
 
 export interface UnitRestriction extends RestrictionNode {
-  'owl:onProperty': SIO.hasUnit
-  'owl:someValuesFrom':
+  [OWL.onProperty]: SIO.hasUnit
+  [OWL.someValuesFrom]:
     | NamedNode
-    | (IntersectionClass & { 'owl:intersectionOf': [NamedNode, NamedNode] })
+    | (IntersectionClass & { [OWL.intersectionOf]: [NamedNode, NamedNode] })
 }
