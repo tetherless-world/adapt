@@ -62,5 +62,5 @@ export const getRestrictionComponent = (
     }
   }
 
-  throw exception('Undefined RestrictionNode structure')
+  throw exception('Unknown RestrictionNode structure')
 }

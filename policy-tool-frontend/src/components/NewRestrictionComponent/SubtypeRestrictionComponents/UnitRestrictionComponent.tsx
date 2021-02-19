@@ -1,19 +1,50 @@
-import { Grid, TextField } from '@material-ui/core'
+import { MenuItem, TextField } from '@material-ui/core'
 import _ from 'lodash'
 import { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Selector } from 'src/components/Selector'
 import { LabelByURIContext, SubclassesByURIContext } from 'src/contexts'
 import { actions } from 'src/store'
 import { PolicyState } from 'src/types/policy'
 import {
-  ClassRestriction,
   isIntersectionClass,
   isNamedNode,
+  UnitRestriction,
 } from 'src/types/restrictions'
 import { RestrictionProps } from '../props'
 
-export const ClassRestrictionComponent: React.FC<RestrictionProps> = ({
+// const DisabledUnitRestrictionComponent: React.FC<RestrictionProps> = ({
+//   keys,
+// }) => {
+//   const labelByURI = useContext(LabelByURIContext)
+//   const node = useSelector<PolicyState, NamedNode>((state) =>
+//     _.get(state, keys)
+//   )
+
+//   return (
+//     <>
+//       <TextField select disabled label={'Unit'} value={node['@id']}>
+//         <MenuItem value={node['@id'] ?? ''}>
+//           {labelByURI[node['@id'] ?? '']}
+//         </MenuItem>
+//       </TextField>
+//     </>
+//   )
+// }
+
+// const SelectableUnitRestrictionComponent: React.FC<RestrictionProps> = ({
+//   keys,
+// }) => {
+//   const labelByURI = useContext(LabelByURIContext)
+//   const root = useSelector<PolicyState, IntersectionClass>((state) =>
+//     _.get(state, keys)
+//   )
+
+//   const [baseNode, valueNode] = root['owl:intersectionOf']
+
+//   return <></>
+// }
+
+export const UnitRestrictionComponent: React.FC<RestrictionProps> = ({
   keys,
 }) => {
   const labelByURI = useContext(LabelByURIContext)
@@ -21,7 +52,7 @@ export const ClassRestrictionComponent: React.FC<RestrictionProps> = ({
 
   const dispatch = useDispatch()
 
-  const restriction = useSelector<PolicyState, ClassRestriction>((state) =>
+  const restriction = useSelector<PolicyState, UnitRestriction>((state) =>
     _.get(state, keys)
   )
 
@@ -29,13 +60,13 @@ export const ClassRestrictionComponent: React.FC<RestrictionProps> = ({
     if (!!restriction['owl:someValuesFrom']['@id'])
       // render as disabled input field
       return (
-        <Grid container item xs={12}>
+        <>
           <TextField
             label={'Class'}
             value={labelByURI[restriction['owl:someValuesFrom']['@id']]}
             disabled
           />
-        </Grid>
+        </>
       )
   }
 
@@ -58,29 +89,25 @@ export const ClassRestrictionComponent: React.FC<RestrictionProps> = ({
     // render as selector using first named node as label
     return (
       <>
-        <Grid container item xs={12}>
-          <Selector
-            options={options}
-            textFieldProps={{
-              label: baseLabel,
-              value: valueLabel,
-              onChange: (e) => {
-                dispatch(
-                  actions.update(
-                    [
-                      ...keys,
-                      'owl:someValuesFrom',
-                      'owl:intersectionOf',
-                      1,
-                      '@id',
-                    ],
-                    e.target.value
-                  )
-                )
-              },
-            }}
-          />
-        </Grid>
+        <TextField
+          label={baseLabel}
+          select
+          value={valueLabel}
+          onChange={(e) => {
+            dispatch(
+              actions.update(
+                [...keys, 'owl:someValuesFrom', 'owl:intersectionOf', 1, '@id'],
+                e.target.value
+              )
+            )
+          }}
+        >
+          {options.map((o) => (
+            <MenuItem key={o.value} value={o.value}>
+              {o.label}
+            </MenuItem>
+          ))}
+        </TextField>
       </>
     )
   }

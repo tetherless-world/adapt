@@ -21,12 +21,13 @@ const useStyles = makeStyles((theme) => ({
 export const AttributeRestrictionComponent: React.FC<RestrictionProps> = ({
   keys,
 }) => {
+  const labelByURI = useContext(LabelByURIContext)
+
   const restriction = useSelector<PolicyState, AttributeRestriction>((state) =>
     _.get(state, keys)
   )
 
   const classes = useStyles()
-  const labelByURI = useContext(LabelByURIContext)
   const [n, ...rest] = restriction['owl:someValuesFrom']['owl:intersectionOf']
 
   return (
