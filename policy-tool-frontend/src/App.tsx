@@ -1,7 +1,7 @@
 import { makeStyles, MuiThemeProvider } from '@material-ui/core'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { Layout, LayoutHeader } from './components'
-import { Builder, Home, NotFound, View } from './pages'
+import { Home, NewBuilder, NotFound, View } from './pages'
 import { theme } from './theme'
 
 const useStyles = makeStyles((theme) => ({
@@ -30,7 +30,8 @@ export const App: React.FC = () => {
             }
             body={
               <Switch>
-                <Route path={'/builder'} component={Builder} />
+                {/* <Route path={'/builder'} component={Builder} /> */}
+                <Route path={'/newbuilder'} component={NewBuilder} />
                 <Route path={'/view'} component={View} />
                 <Route path={'/'} exact component={Home} />
                 <Route path={'*'} component={NotFound} />

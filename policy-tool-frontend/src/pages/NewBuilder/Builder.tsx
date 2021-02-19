@@ -71,7 +71,7 @@ const isValidPolicy = (state: PolicyState) =>
   !!flatten(state.activityRestrictions).every((v) => v || false) &&
   !!flatten(state.agentRestrictions).every((v) => v || false)
 
-export const Builder: React.FC = () => {
+export const NewBuilder: React.FC = () => {
   const theme = useTheme()
   const classes = useStyles(theme)
   const history = useHistory()
