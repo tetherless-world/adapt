@@ -1,3 +1,4 @@
+import { SIO } from 'src/namespaces'
 import { AgentRestriction } from './agent'
 import {
   AttributeRestriction,
@@ -72,13 +73,13 @@ export const isValidityRestriction = (
 export const isBaseAttributeRestriction = (
   o: RestrictionNode
 ): o is BaseAttributeRestriction => {
-  return o['owl:onProperty'] === 'sio:hasAttribute'
+  return o['owl:onProperty'] === SIO.hasAttribute
 }
 
 export const isBaseHasValueRestriction = (
   o: RestrictionNode
 ): o is BaseHasValueRestriction => {
-  return o['owl:onProperty'] === 'sio:hasValue'
+  return o['owl:onProperty'] === SIO.hasValue
 }
 
 export const isHasValueRestriction = (
@@ -108,7 +109,7 @@ export const isHasMaximalValueRestriction = (
 }
 
 export const isUnitRestriction = (o: RestrictionNode): o is UnitRestriction => {
-  return o['owl:onProperty'] === 'sio:hasUnit'
+  return o['owl:onProperty'] === SIO.hasUnit
 }
 
 export const isClassRestriction = (

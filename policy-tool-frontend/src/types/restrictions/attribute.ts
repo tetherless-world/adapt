@@ -1,3 +1,4 @@
+import { SIO } from 'src/namespaces'
 import { IntersectionClass, NamedNode, RestrictionNode } from './baseTypes'
 import { UnitRestriction } from './unit'
 import {
@@ -8,7 +9,7 @@ import {
 } from './value'
 
 export interface BaseAttributeRestriction extends RestrictionNode {
-  'owl:onProperty': 'sio:hasAttribute'
+  'owl:onProperty': SIO.hasAttribute
   'owl:hasValue': undefined
 }
 

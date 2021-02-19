@@ -1,13 +1,14 @@
+import { SIO } from 'src/namespaces'
 import { DatatypeRestriction, Literal, RestrictionNode } from './baseTypes'
 
 export interface BaseHasValueRestriction extends RestrictionNode {
-  'owl:onProperty': 'sio:hasValue'
+  'owl:onProperty': SIO.hasValue
   'owl:someValuesFrom'?: DatatypeRestriction
   'owl:hasValue'?: Literal
 }
 
 export interface HasValueRestriction extends BaseHasValueRestriction {
-  'owl:onProperty': 'sio:hasValue'
+  'owl:onProperty': SIO.hasValue
   'owl:someValuesFrom': undefined
   'owl:hasValue': Literal
 }
