@@ -1,9 +1,6 @@
-import { OWL } from 'src/namespaces';
-import {
-  AgentRestriction,
-  NamedNode,
-  ValidityRestriction,
-} from '../restrictions'
+import { OWL } from 'src/namespaces'
+import { NamedNode } from '../base'
+import { AgentRestriction, ValidityRestriction } from '../restrictions'
 
 export interface PolicyState {
   // Identifier (source + id)

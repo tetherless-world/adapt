@@ -1,64 +1,69 @@
 import { OWL, SIO } from 'src/namespaces'
-import { IntersectionClass, NamedNode, RestrictionNode } from './baseTypes'
-import { UnitRestriction } from './unit'
+import { XOR } from 'ts-xor'
+import { NamedNode } from '../base'
+import { IntersectionOf, Restriction } from './common'
 import {
-  BaseHasValueRestriction,
+  DisjointHasValueRestriction,
   HasMaximalValueRestriction,
   HasMinimalValueRestriction,
   HasValueRestriction,
-} from './value'
+} from './hasValue'
+import { UnitRestriction } from './unit'
 
-export interface BaseAttributeRestriction extends RestrictionNode {
-  [OWL.onProperty]: SIO.hasAttribute
-  [OWL.hasValue]: undefined
-}
-
-export interface ClassRestriction extends BaseAttributeRestriction {
-  [OWL.someValuesFrom]:
-    | NamedNode
-    | (IntersectionClass & { [OWL.intersectionOf]: [NamedNode, NamedNode] })
-}
-
-export interface AttributeRestriction extends BaseAttributeRestriction {
-  [OWL.someValuesFrom]: IntersectionClass & {
-    [OWL.intersectionOf]: [NamedNode, ...BaseAttributeRestriction[]]
+export interface DisjointValueRestriction extends Restriction {
+  [OWL.onProperty]: NamedNode & { '@id': SIO.hasAttribute }
+  [OWL.someValuesFrom]: IntersectionOf & {
+    [OWL.intersectionOf]: XOR<
+      [NamedNode, DisjointHasValueRestriction],
+      [NamedNode, DisjointHasValueRestriction, UnitRestriction]
+    >
   }
 }
 
-export interface BaseValueRestriction extends BaseAttributeRestriction {
-  [OWL.someValuesFrom]: IntersectionClass & {
-    [OWL.intersectionOf]:
-      | [NamedNode, BaseHasValueRestriction]
-      | [NamedNode, BaseHasValueRestriction, UnitRestriction]
+export interface ValueRestriction extends DisjointValueRestriction {
+  [OWL.someValuesFrom]: IntersectionOf & {
+    [OWL.intersectionOf]: XOR<
+      [NamedNode, HasValueRestriction],
+      [NamedNode, HasValueRestriction, UnitRestriction]
+    >
   }
 }
 
-export interface ValueRestriction extends BaseValueRestriction {
-  [OWL.someValuesFrom]: IntersectionClass & {
-    [OWL.intersectionOf]:
-      | [NamedNode, HasValueRestriction]
-      | [NamedNode, HasValueRestriction, UnitRestriction]
+export interface MinimalValueRestriction extends DisjointValueRestriction {
+  [OWL.someValuesFrom]: IntersectionOf & {
+    [OWL.intersectionOf]: XOR<
+      [NamedNode, HasMinimalValueRestriction],
+      [NamedNode, HasMinimalValueRestriction, UnitRestriction]
+    >
   }
 }
 
-export interface MinimalValueRestriction extends BaseValueRestriction {
-  [OWL.someValuesFrom]: IntersectionClass & {
-    [OWL.intersectionOf]:
-      | [NamedNode, HasMinimalValueRestriction]
-      | [NamedNode, HasMinimalValueRestriction, UnitRestriction]
+export interface MaximalValueRestriction extends DisjointValueRestriction {
+  [OWL.someValuesFrom]: IntersectionOf & {
+    [OWL.intersectionOf]: XOR<
+      [NamedNode, HasMaximalValueRestriction],
+      [NamedNode, HasMaximalValueRestriction, UnitRestriction]
+    >
   }
 }
 
-export interface MaximalValueRestriction extends BaseValueRestriction {
-  [OWL.someValuesFrom]: IntersectionClass & {
-    [OWL.intersectionOf]:
-      | [NamedNode, HasMaximalValueRestriction]
-      | [NamedNode, HasMaximalValueRestriction, UnitRestriction]
+export interface ClassRestriction extends Restriction {
+  [OWL.onProperty]: NamedNode & { '@id': SIO.hasAttribute }
+  [OWL.someValuesFrom]: XOR<
+    NamedNode,
+    IntersectionOf & { [OWL.intersectionOf]: [NamedNode, NamedNode] }
+  >
+}
+
+export interface AttributeRestriction extends Restriction {
+  [OWL.onProperty]: NamedNode & { '@id': SIO.hasAttribute }
+  [OWL.someValuesFrom]: IntersectionOf & {
+    [OWL.intersectionOf]: [NamedNode, Restriction, ...Restriction[]]
   }
 }
 
 export interface IntervalRestriction extends AttributeRestriction {
-  [OWL.someValuesFrom]: IntersectionClass & {
+  [OWL.someValuesFrom]: IntersectionOf & {
     [OWL.intersectionOf]: [
       NamedNode,
       MinimalValueRestriction,
@@ -67,6 +72,12 @@ export interface IntervalRestriction extends AttributeRestriction {
   }
 }
 
-export type BoundedValueRestriction =
-  | MinimalValueRestriction
-  | MaximalValueRestriction
+export type BoundedValueRestriction = XOR<
+  MinimalValueRestriction,
+  MaximalValueRestriction
+>
+
+export type DisjointAttributeRestriction = XOR<
+  ClassRestriction,
+  XOR<DisjointValueRestriction, AttributeRestriction>
+>

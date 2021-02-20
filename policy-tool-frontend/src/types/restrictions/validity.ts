@@ -1,36 +1,27 @@
-import { OWL } from 'src/namespaces'
-import { DatatypeRestriction, RestrictionNode } from './baseTypes'
+import { OWL, PROV, XSD } from 'src/namespaces'
+import { XOR } from 'ts-xor'
+import { Literal } from '../base'
+import { NamedNode } from '../restrictions'
+import { DatatypeRestriction, Restriction } from './common'
 
-export interface StartTimeRestriction extends RestrictionNode {
-  [OWL.onProperty]: 'prov:startedAtTime'
+export interface StartTimeRestriction extends Restriction {
+  [OWL.onProperty]: NamedNode & { '@id': PROV.startedAtTime }
   [OWL.someValuesFrom]: DatatypeRestriction & {
-    '@type': 'rdfs:Datatype'
-    [OWL.onDatatype]: 'xsd:dateTime'
+    [OWL.onDatatype]: NamedNode & { '@id': XSD.dateTime }
     [OWL.withRestrictions]: [
-      {
-        'xsd:minInclusive': {
-          '@type': 'xsd:dateTime'
-          value: string
-        }
-      }
+      { [XSD.minInclusive]: Literal & { '@type': XSD.dateTime; value: string } }
     ]
   }
 }
 
-export interface EndTimeRestriction extends RestrictionNode {
-  [OWL.onProperty]: 'prov:endedAtTime'
+export interface EndTimeRestriction extends Restriction {
+  [OWL.onProperty]: NamedNode & { '@id': PROV.endedAtTime }
   [OWL.someValuesFrom]: DatatypeRestriction & {
-    '@type': 'rdfs:Datatype'
-    [OWL.onDatatype]: 'xsd:dateTime'
+    [OWL.onDatatype]: NamedNode & { '@id': XSD.dateTime }
     [OWL.withRestrictions]: [
-      {
-        'xsd:maxInclusive': {
-          '@type': 'xsd:dateTime'
-          value: string
-        }
-      }
+      { [XSD.maxInclusive]: Literal & { '@type': XSD.dateTime; value: string } }
     ]
   }
 }
 
-export type ValidityRestriction = StartTimeRestriction | EndTimeRestriction
+export type ValidityRestriction = XOR<StartTimeRestriction, EndTimeRestriction>
