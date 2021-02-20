@@ -1,3 +1,3 @@
 export * from './RestrictionComponent'
-export * from './SubtypeRestrictionComponents'
+export * from './subtypes'
 

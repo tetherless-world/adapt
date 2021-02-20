@@ -23,7 +23,7 @@ import {
   MaximalValueRestrictionComponent,
   ValidityRestrictionComponent,
   ValueRestrictionComponent,
-} from './SubtypeRestrictionComponents'
+} from './subtypes'
 
 export const getRestrictionComponent = (
   restriction?: Restriction
