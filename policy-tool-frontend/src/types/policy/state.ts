@@ -1,15 +1,16 @@
-import { OWL } from 'src/namespaces'
+import { OWL, POL, RDFS, SKOS } from 'src/namespaces'
+import { XOR } from 'ts-xor'
 import { NamedNode } from '../base'
 import { AgentRestriction, ValidityRestriction } from '../restrictions'
 
 export interface PolicyState {
   // Identifier (source + id)
   '@id': string
-  '@type': 'pol:Policy'
+  '@type': POL.Policy
   // Label
-  'rdfs:label': string
+  [RDFS.label]: string
   // Definition
-  'skos:definition': string
+  [SKOS.definition]: string
   // Restrictions
   [OWL.equivalentClass]: {
     '@type': OWL.Class
@@ -17,10 +18,10 @@ export interface PolicyState {
       // Action
       NamedNode,
       // Agent and Attribute / Validity  restrictions
-      ...(AgentRestriction | ValidityRestriction)[]
+      ...XOR<AgentRestriction, ValidityRestriction>[]
     ]
   }
-  'rdfs:subClassOf': [
+  [RDFS.subClassOf]: [
     // Precedence
     NamedNode,
     // Additional Effects
