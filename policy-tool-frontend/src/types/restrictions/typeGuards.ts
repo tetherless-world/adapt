@@ -6,6 +6,7 @@ import {
   AttributeRestriction,
   BoundedValueRestriction,
   ClassRestriction,
+  DisjointAttributeRestriction,
   DisjointValueRestriction,
   IntervalRestriction,
   MaximalValueRestriction,
@@ -141,23 +142,22 @@ export const isDisjointValueRestriction = (
   o: Restriction
 ): o is DisjointValueRestriction => {
   if (
-    o['http://www.w3.org/2002/07/owl#onProperty']['@id'] === SIO.hasAttribute
+    o['http://www.w3.org/2002/07/owl#someValuesFrom'] &&
+    isTypedNode(o['http://www.w3.org/2002/07/owl#someValuesFrom']) &&
+    isIntersectionOf(o['http://www.w3.org/2002/07/owl#someValuesFrom'])
   ) {
-    if (
-      o['http://www.w3.org/2002/07/owl#someValuesFrom'] &&
-      isTypedNode(o['http://www.w3.org/2002/07/owl#someValuesFrom']) &&
-      isIntersectionOf(o['http://www.w3.org/2002/07/owl#someValuesFrom'])
-    ) {
-      let [a, b, c] = o['http://www.w3.org/2002/07/owl#someValuesFrom'][
-        'http://www.w3.org/2002/07/owl#intersectionOf'
-      ]
+    let [a, b, c] = o['http://www.w3.org/2002/07/owl#someValuesFrom'][
+      'http://www.w3.org/2002/07/owl#intersectionOf'
+    ]
 
-      return (
-        isNamedNode(a) &&
-        isDisjointHasValueRestriction(b as Restriction) &&
-        (is.undefined(c) || isUnitRestriction(c as Restriction))
-      )
-    }
+    return (
+      isNamedNode(a) &&
+      isTypedNode(b) &&
+      isRestriction(b) &&
+      isDisjointHasValueRestriction(b) &&
+      (is.undefined(c) ||
+        (isTypedNode(c) && isRestriction(c) && isUnitRestriction(c)))
+    )
   }
   return false
 }
@@ -189,21 +189,19 @@ export const isMaximalValueRestriction = (
 }
 
 export const isAttributeRestriction = (
-  o: Restriction
+  o: DisjointAttributeRestriction
 ): o is AttributeRestriction => {
   if (
-    o['http://www.w3.org/2002/07/owl#onProperty']['@id'] === SIO.hasAttribute
+    o['http://www.w3.org/2002/07/owl#someValuesFrom'] &&
+    isTypedNode(o['http://www.w3.org/2002/07/owl#someValuesFrom']) &&
+    isIntersectionOf(o['http://www.w3.org/2002/07/owl#someValuesFrom'])
   ) {
-    if (
-      o['http://www.w3.org/2002/07/owl#someValuesFrom'] &&
-      isTypedNode(o['http://www.w3.org/2002/07/owl#someValuesFrom']) &&
-      isIntersectionOf(o['http://www.w3.org/2002/07/owl#someValuesFrom'])
-    ) {
-      let [a, ...rest] = o['http://www.w3.org/2002/07/owl#someValuesFrom'][
-        'http://www.w3.org/2002/07/owl#intersectionOf'
-      ]
-      return isNamedNode(a) && rest.every((r) => isRestriction(r as TypedNode))
-    }
+    let [a, ...rest] = o['http://www.w3.org/2002/07/owl#someValuesFrom'][
+      'http://www.w3.org/2002/07/owl#intersectionOf'
+    ]
+    return (
+      isNamedNode(a) && rest.every((r) => isTypedNode(r) && isRestriction(r))
+    )
   }
   return false
 }
@@ -213,14 +211,23 @@ export const isIntervalRestriction = (
 ): o is IntervalRestriction => {
   let [a, ...rest] = o[OWL.someValuesFrom][OWL.intersectionOf]
   if (rest.length === 2) {
-    return (
-      rest.every((r) => isDisjointValueRestriction(r as Restriction)) &&
-      rest.every((r) =>
-        isBoundedValueRestriction(r as DisjointValueRestriction)
-      ) &&
-      isMinimalValueRestriction(rest[0] as BoundedValueRestriction) &&
-      isMaximalValueRestriction(rest[1] as BoundedValueRestriction)
+    return rest.every(
+      (r, i) =>
+        isTypedNode(r) &&
+        isRestriction(r) &&
+        isDisjointValueRestriction(r) &&
+        isDisjointValueRestriction(r) &&
+        isBoundedValueRestriction(r) &&
+        (i === 0 ? isMinimalValueRestriction(r) : isMaximalValueRestriction(r))
     )
   }
   return false
+}
+
+export const isDisjointAttributeRestriction = (
+  o: Restriction
+): o is DisjointAttributeRestriction => {
+  return (
+    o['http://www.w3.org/2002/07/owl#onProperty']['@id'] === SIO.hasAttribute
+  )
 }
