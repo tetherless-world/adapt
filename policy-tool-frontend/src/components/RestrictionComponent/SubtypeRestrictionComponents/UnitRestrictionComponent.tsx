@@ -1,116 +1,104 @@
-import { MenuItem, TextField } from '@material-ui/core'
+import { Grid, MenuItem, TextField } from '@material-ui/core'
 import _ from 'lodash'
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { LabelByURIContext, SubclassesByURIContext } from 'src/contexts'
+import { OWL } from 'src/namespaces'
 import { actions } from 'src/store'
+import { NamedNode } from 'src/types/base'
 import { PolicyState } from 'src/types/policy'
 import {
-  isIntersectionClass,
+  ClassRestriction,
+  IntersectionOf,
+  isIntersectionOf,
   isNamedNode,
   UnitRestriction,
 } from 'src/types/restrictions'
 import { RestrictionProps } from '../props'
 
-// const DisabledUnitRestrictionComponent: React.FC<RestrictionProps> = ({
-//   keys,
-// }) => {
-//   const labelByURI = useContext(LabelByURIContext)
-//   const node = useSelector<PolicyState, NamedNode>((state) =>
-//     _.get(state, keys)
-//   )
+const UnitRestrictionComponentA: React.FC<RestrictionProps> = ({ keys }) => {
+  const labelByURI = useContext(LabelByURIContext)
+  const restriction = useSelector<
+    PolicyState,
+    UnitRestriction & { [OWL.someValuesFrom]: NamedNode }
+  >((state) => _.get(state, keys))
+  return (
+    <Grid container item xs={12}>
+      <TextField
+        label={'Unit'}
+        value={labelByURI[restriction[OWL.someValuesFrom]['@id']]}
+        disabled
+      />
+    </Grid>
+  )
+}
 
-//   return (
-//     <>
-//       <TextField select disabled label={'Unit'} value={node['@id']}>
-//         <MenuItem value={node['@id'] ?? ''}>
-//           {labelByURI[node['@id'] ?? '']}
-//         </MenuItem>
-//       </TextField>
-//     </>
-//   )
-// }
-
-// const SelectableUnitRestrictionComponent: React.FC<RestrictionProps> = ({
-//   keys,
-// }) => {
-//   const labelByURI = useContext(LabelByURIContext)
-//   const root = useSelector<PolicyState, IntersectionClass>((state) =>
-//     _.get(state, keys)
-//   )
-
-//   const [baseNode, valueNode] = root[OWL.intersectionOf]
-
-//   return <></>
-// }
-
-export const UnitRestrictionComponent: React.FC<RestrictionProps> = ({
-  keys,
-}) => {
+const UnitRestrictionComponentB: React.FC<RestrictionProps> = ({ keys }) => {
   const labelByURI = useContext(LabelByURIContext)
   const subclassesByURI = useContext(SubclassesByURIContext)
 
   const dispatch = useDispatch()
+  const restriction = useSelector<
+    PolicyState,
+    UnitRestriction & {
+      [OWL.someValuesFrom]: IntersectionOf & {
+        [OWL.intersectionOf]: [NamedNode, NamedNode]
+      }
+    }
+  >((state) => _.get(state, keys))
 
-  const restriction = useSelector<PolicyState, UnitRestriction>((state) =>
-    _.get(state, keys)
-  )
+  const baseClass = restriction[OWL.someValuesFrom][OWL.intersectionOf][0]
+  const valueClass = restriction[OWL.someValuesFrom][OWL.intersectionOf][1]
 
-  if (isNamedNode(restriction[OWL.someValuesFrom])) {
-    if (!!restriction[OWL.someValuesFrom]['@id'])
-      // render as disabled input field
-      return (
-        <>
-          <TextField
-            label={'Class'}
-            value={labelByURI[restriction[OWL.someValuesFrom]['@id']]}
-            disabled
-          />
-        </>
-      )
-  }
+  let baseURI = baseClass['@id']
+  let valueURI = valueClass['@id']
+  let baseLabel = labelByURI[baseURI]
+  let valueLabel = useMemo(() => labelByURI[valueURI], [valueURI])
 
-  if (isIntersectionClass(restriction[OWL.someValuesFrom])) {
-    const baseClass = restriction[OWL.someValuesFrom][OWL.intersectionOf][0]
-    const valueClass =
-      restriction[OWL.someValuesFrom][OWL.intersectionOf][1]
+  const subclasses = subclassesByURI[baseURI].map((s) => s)
+  const options = subclasses.map((uri) => ({
+    label: labelByURI[uri],
+    value: uri,
+  }))
 
-    let baseURI = baseClass['@id'] ?? ''
-    let baseLabel = labelByURI[baseURI]
-    let valueURI = valueClass['@id'] ?? ''
-    let valueLabel = labelByURI[valueURI]
-
-    const subclasses = subclassesByURI[baseURI].map((s) => s)
-    const options = subclasses.map((value) => {
-      let label = labelByURI[value]
-      return { label, value }
-    })
-
-    // render as selector using first named node as label
-    return (
-      <>
-        <TextField
-          label={baseLabel}
-          select
-          value={valueLabel}
-          onChange={(e) => {
-            dispatch(
-              actions.update(
-                [...keys, OWL.someValuesFrom, OWL.intersectionOf, 1, '@id'],
-                e.target.value
-              )
+  // render as selector using first named node as label
+  return (
+    <Grid container item xs={12}>
+      <TextField
+        select
+        label={baseLabel}
+        value={valueLabel}
+        onChange={(e) =>
+          dispatch(
+            actions.update(
+              [...keys, OWL.someValuesFrom, OWL.intersectionOf, 1, '@id'],
+              e.target.value
             )
-          }}
-        >
-          {options.map((o) => (
-            <MenuItem key={o.value} value={o.value}>
-              {o.label}
+          )
+        }
+      >
+        {!!options.length &&
+          options.map(({ label, value }, i) => (
+            <MenuItem key={i} value={value}>
+              {label}
             </MenuItem>
           ))}
-        </TextField>
-      </>
-    )
-  }
+      </TextField>
+    </Grid>
+  )
+}
+
+export const UnitRestrictionComponent: React.FC<RestrictionProps> = ({
+  keys,
+}) => {
+  const restriction = useSelector<PolicyState, ClassRestriction>((state) =>
+    _.get(state, keys)
+  )
+  let range = restriction['http://www.w3.org/2002/07/owl#someValuesFrom']
+
+  if (isNamedNode(range)) return <UnitRestrictionComponentA keys={keys} />
+
+  if (isIntersectionOf(range)) return <UnitRestrictionComponentB keys={keys} />
 
   return null
 }

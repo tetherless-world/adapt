@@ -3,6 +3,7 @@ import _ from 'lodash'
 import { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { LabelByURIContext } from 'src/contexts'
+import { OWL, XSD } from 'src/namespaces'
 import { actions } from 'src/store'
 import { PolicyState } from 'src/types/policy'
 import { MaximalValueRestriction } from 'src/types/restrictions'
@@ -20,18 +21,15 @@ export const MaximalValueRestrictionComponent: React.FC<RestrictionProps> = ({
     (state) => _.get(state, keys)
   )
 
-  const baseClass = restriction[OWL.someValuesFrom][OWL.intersectionOf][0]
-  const hasValueRestriction =
-    restriction[OWL.someValuesFrom][OWL.intersectionOf][1]
-
-  const unitRestriction =
-    restriction[OWL.someValuesFrom][OWL.intersectionOf][3] ?? undefined
+  const [baseClass, hasValueRest, unitRest] = restriction[OWL.someValuesFrom][
+    OWL.intersectionOf
+  ]
 
   const baseLabel = labelByURI[baseClass['@id'] ?? '']
 
-  const { '@value': value, '@type': type } = hasValueRestriction[
-    OWL.someValuesFrom
-  ][OWL.withRestrictions][0]['xsd:maxInclusive']
+  const { '@value': value, '@type': type } = hasValueRest[OWL.someValuesFrom][
+    OWL.withRestrictions
+  ][0][XSD.maxInclusive]
 
   return (
     <Grid container item xs={12}>
@@ -51,7 +49,7 @@ export const MaximalValueRestrictionComponent: React.FC<RestrictionProps> = ({
                   OWL.someValuesFrom,
                   OWL.withRestrictions,
                   0,
-                  'xsd:maxInclusive',
+                  XSD.maxInclusive,
                 ],
                 e.target.value
               )
@@ -59,7 +57,7 @@ export const MaximalValueRestrictionComponent: React.FC<RestrictionProps> = ({
           }
         />
       </Grid>
-      {!!unitRestriction && (
+      {!!unitRest && (
         <Grid item xs={12} md={6}>
           <UnitRestrictionComponent
             keys={[...keys, OWL.someValuesFrom, OWL.intersectionOf, 2]}

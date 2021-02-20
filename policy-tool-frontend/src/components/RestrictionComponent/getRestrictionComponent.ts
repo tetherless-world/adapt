@@ -19,8 +19,8 @@ import {
   AttributeRestrictionComponent,
   ClassRestrictionComponent,
   IntervalRestrictionComponent,
-  MaximalValueRestrictionComponent,
   MinimalValueRestrictionComponent,
+  MaximalValueRestrictionComponent,
   ValidityRestrictionComponent,
   ValueRestrictionComponent,
 } from './SubtypeRestrictionComponents'

@@ -44,12 +44,7 @@ export const AttributeRestrictionComponent: React.FC<RestrictionProps> = ({
         rest.map((r, i) => (
           <Grid key={i} item xs={12} className={classes.child}>
             <RestrictionComponent
-              keys={[
-                ...keys,
-                OWL.someValuesFrom,
-                OWL.intersectionOf,
-                i + 1,
-              ]}
+              keys={[...keys, OWL.someValuesFrom, OWL.intersectionOf, i + 1]}
             />
           </Grid>
         ))}

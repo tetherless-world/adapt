@@ -3,7 +3,9 @@ import _ from 'lodash'
 import { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { LabelByURIContext } from 'src/contexts'
+import { OWL, XSD } from 'src/namespaces'
 import { actions } from 'src/store'
+import { Literal } from 'src/types/base'
 import { PolicyState } from 'src/types/policy'
 import {
   IntervalRestriction,
@@ -24,16 +26,16 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
-const getMinimalValueLiteral = (minValue: MinimalValueRestriction) => {
+const getMinimalValueLiteral = (minValue: MinimalValueRestriction): Literal => {
   return minValue[OWL.someValuesFrom][OWL.intersectionOf][1][
     OWL.someValuesFrom
-  ][OWL.withRestrictions][0]['xsd:minInclusive']
+  ][OWL.withRestrictions][0][XSD.minInclusive]
 }
 
-const getMaximalValueLiteral = (maxValue: MaximalValueRestriction) => {
+const getMaximalValueLiteral = (maxValue: MaximalValueRestriction): Literal => {
   return maxValue[OWL.someValuesFrom][OWL.intersectionOf][1][
     OWL.someValuesFrom
-  ][OWL.withRestrictions][0]['xsd:maxInclusive']
+  ][OWL.withRestrictions][0][XSD.maxInclusive]
 }
 
 export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
@@ -49,27 +51,23 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
 
   const baseNode = restriction[OWL.someValuesFrom][OWL.intersectionOf][0]
 
-  const minValue = restriction[OWL.someValuesFrom][OWL.intersectionOf][1]
-  const minUnit = minValue[OWL.someValuesFrom][OWL.intersectionOf][2] ?? ''
+  const minValR = restriction[OWL.someValuesFrom][OWL.intersectionOf][1]
+  const minUnit = minValR[OWL.someValuesFrom][OWL.intersectionOf][2] ?? ''
 
-  const maxValue = restriction[OWL.someValuesFrom][OWL.intersectionOf][2]
-  const maxUnit = maxValue[OWL.someValuesFrom][OWL.intersectionOf][2] ?? ''
+  const maxValR = restriction[OWL.someValuesFrom][OWL.intersectionOf][2]
+  const maxUnit = maxValR[OWL.someValuesFrom][OWL.intersectionOf][2] ?? ''
 
-  const minLiteral = getMinimalValueLiteral(minValue)
-  const maxLiteral = getMaximalValueLiteral(maxValue)
+  const { '@type': minType, '@value': minVal } = getMinimalValueLiteral(minValR)
+  const { '@type': maxType, '@value': maxVal } = getMaximalValueLiteral(maxValR)
 
-  const baseLabel = labelByURI[baseNode['@id'] ?? '']
+  const baseLabel = labelByURI[baseNode['@id']]
   const minLabel =
-    labelByURI[
-      minValue[OWL.someValuesFrom][OWL.intersectionOf][0]['@id'] ?? ''
-    ]
+    labelByURI[minValR[OWL.someValuesFrom][OWL.intersectionOf][0]['@id']]
   const maxLabel =
-    labelByURI[
-      maxValue[OWL.someValuesFrom][OWL.intersectionOf][0]['@id'] ?? ''
-    ]
+    labelByURI[maxValR[OWL.someValuesFrom][OWL.intersectionOf][0]['@id']]
 
   const checkUpdateMinValueValidity = (newValue: any) => {
-    if (maxLiteral['@value'] !== null && newValue > maxLiteral['@value']) return
+    if (!!maxVal && newValue > maxVal) return
 
     dispatch(
       actions.update(
@@ -82,7 +80,8 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
           OWL.intersectionOf,
           OWL.withRestrictions,
           0,
-          'xsd:minInclusive',
+          XSD.minInclusive,
+          '@value',
         ],
         newValue
       )
@@ -90,7 +89,7 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
   }
 
   const checkUpdateMaxValueValidity = (newValue: any) => {
-    if (!!minLiteral['@value'] && newValue < minLiteral['@value']) return
+    if (!!minVal && newValue < minVal) return
 
     dispatch(
       actions.update(
@@ -98,12 +97,13 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
           ...keys,
           OWL.someValuesFrom,
           OWL.intersectionOf,
-          1,
+          2,
           OWL.someValuesFrom,
           OWL.intersectionOf,
           OWL.withRestrictions,
           0,
-          'xsd:maxInclusive',
+          XSD.maxInclusive,
+          '@value',
         ],
         newValue
       )
@@ -122,8 +122,8 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
           <Grid item xs={12} md={6}>
             <TextField
               label={minLabel}
-              value={minLiteral['@value']}
-              type={typeMap[minLiteral['@type']]}
+              value={minVal}
+              type={typeMap[minType]}
               onChange={(e) => checkUpdateMinValueValidity(e.target.value)}
             />
           </Grid>
@@ -146,8 +146,8 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
           <Grid item xs={12} md={6}>
             <TextField
               label={maxLabel}
-              value={maxLiteral['@value']}
-              type={typeMap[maxLiteral['@type']]}
+              value={maxVal}
+              type={typeMap[maxType]}
               onChange={(e) => checkUpdateMaxValueValidity(e.target.value)}
             />
           </Grid>
