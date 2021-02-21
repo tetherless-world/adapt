@@ -9,6 +9,7 @@ import {
   isMaximalValueRestriction,
   isMinimalValueRestriction,
   isNamedNode,
+  isRestriction,
   isValidityRestriction,
   isValueRestriction,
   Restriction,
@@ -33,14 +34,7 @@ export const getRestrictionComponent = (
   if (isValidityRestriction(restriction)) return ValidityRestrictionComponent
 
   if (isAgentRestriction(restriction)) {
-    if (
-      isNamedNode(restriction['http://www.w3.org/2002/07/owl#someValuesFrom'])
-    )
-      return AgentRestrictionComponent
-
-    return getRestrictionComponent(
-      restriction['http://www.w3.org/2002/07/owl#someValuesFrom']
-    )
+    return AgentRestrictionComponent
   }
 
   if (isDisjointAttributeRestriction(restriction)) {
@@ -50,6 +44,7 @@ export const getRestrictionComponent = (
       if (isValueRestriction(restriction)) return ValueRestrictionComponent
 
       if (isBoundedValueRestriction(restriction)) {
+        console.log(restriction)
         if (isMinimalValueRestriction(restriction))
           return MinimalValueRestrictionComponent
         if (isMaximalValueRestriction(restriction))
@@ -58,6 +53,7 @@ export const getRestrictionComponent = (
     }
     if (isAttributeRestriction(restriction)) {
       if (isIntervalRestriction(restriction)) {
+        // TODO: Fix this component (currently broken)
         // render range attribute, ensuring no invalid inputs
         return IntervalRestrictionComponent
       }
@@ -66,6 +62,7 @@ export const getRestrictionComponent = (
       return AttributeRestrictionComponent
     }
   }
-
-  throw Error('Unknown RestrictionNode structure')
+  console.error('Unknown Restriction Structure')
+  console.error(restriction['http://www.w3.org/2002/07/owl#onProperty'])
+  throw Error(JSON.stringify(restriction))
 }

@@ -11,10 +11,9 @@ export const RestrictionComponent: React.FC<RestrictionProps> = ({ keys }) => {
     _.get(state, keys)
   )
 
-  const RestrictionComponent = useMemo(
-    () => getRestrictionComponent(restriction),
-    [restriction]
-  )
+  const Component = useMemo(() => getRestrictionComponent(restriction), [
+    restriction,
+  ])
 
-  return !!RestrictionComponent ? <RestrictionComponent keys={keys} /> : null
+  return <>{!!Component && <Component keys={keys} />}</>
 }

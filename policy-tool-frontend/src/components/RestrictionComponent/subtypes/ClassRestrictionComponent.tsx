@@ -21,6 +21,8 @@ const ClassRestrictionComponentA: React.FC<RestrictionProps> = ({ keys }) => {
     PolicyState,
     ClassRestriction & { [OWL.someValuesFrom]: NamedNode }
   >((state) => _.get(state, keys))
+
+  console.log(restriction)
   return (
     <Grid container item xs={12}>
       <TextField
@@ -52,7 +54,7 @@ const ClassRestrictionComponentB: React.FC<RestrictionProps> = ({ keys }) => {
   let baseURI = baseClass['@id']
   let valueURI = valueClass['@id']
   let baseLabel = labelByURI[baseURI]
-  let valueLabel = useMemo(() => labelByURI[valueURI], [valueURI])
+  let valueLabel = labelByURI[valueURI]
 
   const subclasses = subclassesByURI[baseURI].map((s) => s)
   const options = subclasses.map((uri) => ({

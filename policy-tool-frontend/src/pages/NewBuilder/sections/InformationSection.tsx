@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { PolicyState } from 'src/types/policy'
 import { isValidURI } from '../helpers'
 import { actions } from 'src/store'
+import { RDFS, SKOS } from 'src/namespaces'
 
 export interface InformationSectionProps {
   source: [source: string, setSource: Function]
@@ -20,13 +21,18 @@ const parseURI = (uri: string) => {
   }
 }
 
+const selectURI = (state: PolicyState) => {
+  let uri = state['@id']
+  return parseURI(uri)
+}
+
 export const InformationSection: React.FC = () => {
   const dispatch = useDispatch()
 
   const uri = useSelector<PolicyState, string>((state) => state['@id'])
-  const label = useSelector<PolicyState, string>((state) => state['rdfs:label'])
-  const definition = useSelector<PolicyState, string>(
-    (state) => state['skos:definition']
+  const label = useSelector<PolicyState, string>((state) => state[RDFS.label])
+  const def = useSelector<PolicyState, string>(
+    (state) => state[SKOS.definition]
   )
 
   const { id, source } = parseURI(uri)
@@ -76,7 +82,7 @@ export const InformationSection: React.FC = () => {
         <Grid item xs={12}>
           <TextField
             label={'Definition'}
-            value={definition}
+            value={def}
             required={false}
             onChange={(e) => dispatch(actions.setDefinition(e.target.value))}
             multiline

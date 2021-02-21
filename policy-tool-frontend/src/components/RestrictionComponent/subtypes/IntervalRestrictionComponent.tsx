@@ -1,4 +1,4 @@
-import { Grid, makeStyles, TextField, Typography } from '@material-ui/core'
+import { Grid, makeStyles, TextField, Typography, useTheme } from '@material-ui/core'
 import _ from 'lodash'
 import { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -23,6 +23,7 @@ const useStyles = makeStyles((theme) => ({
   },
   child: {
     paddingLeft: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
   },
 }))
 
@@ -41,7 +42,8 @@ const getMaximalValueLiteral = (maxValue: MaximalValueRestriction): Literal => {
 export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
   keys,
 }) => {
-  const classes = useStyles()
+  const theme = useTheme()
+  const classes = useStyles(theme)
   const labelByURI = useContext(LabelByURIContext)
 
   const dispatch = useDispatch()
@@ -89,7 +91,24 @@ export const IntervalRestrictionComponent: React.FC<RestrictionProps> = ({
   }
 
   const checkUpdateMaxValueValidity = (newValue: any) => {
-    if (!!minVal && newValue < minVal) return
+    if (!!minVal && newValue < minVal)
+      dispatch(
+        actions.update(
+          [
+            ...keys,
+            OWL.someValuesFrom,
+            OWL.intersectionOf,
+            2,
+            OWL.someValuesFrom,
+            OWL.intersectionOf,
+            OWL.withRestrictions,
+            0,
+            XSD.maxInclusive,
+            '@value',
+          ],
+          minVal
+        )
+      )
 
     dispatch(
       actions.update(

@@ -50,6 +50,7 @@ export const MinimalValueRestrictionComponent: React.FC<RestrictionProps> = ({
                   OWL.withRestrictions,
                   0,
                   XSD.minInclusive,
+                  '@value'
                 ],
                 e.target.value
               )

@@ -126,7 +126,7 @@ def get_restrictions():
                 add_subclasses_by_superclass(uri)
                 if subclasses_by_uri[uri]:
                     (node[OWL.someValuesFrom][OWL.intersectionOf]
-                        .append({'@id': None}))
+                        .append({'@id': ''}))
                 else:
                     node[OWL.someValuesFrom] = {'@id': uri}
 
@@ -144,7 +144,7 @@ def get_restrictions():
                                     {
                                         XSD.minInclusive: {
                                             '@type': row.range,
-                                            '@value': None
+                                            '@value': 0
                                         }
                                     }
                                 ]
@@ -163,7 +163,7 @@ def get_restrictions():
                                     {
                                         XSD.maxInclusive: {
                                             '@type': row.range,
-                                            '@value': None
+                                            '@value': 0
                                         }
                                     }
                                 ]
@@ -176,7 +176,7 @@ def get_restrictions():
                             OWL.onProperty: {'@id': SIO.hasValue},
                             OWL.hasValue: {
                                 '@type': row.range,
-                                '@value': None
+                                '@value': 0
                             }
                         }))
 
@@ -191,7 +191,7 @@ def get_restrictions():
                                 '@type': OWL.Class,
                                 OWL.intersectionOf: [
                                     {'@id': row.range},
-                                    {'@id': None}
+                                    {'@id': ''}
                                 ]
                             }
                         }))

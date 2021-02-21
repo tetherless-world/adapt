@@ -50,6 +50,7 @@ export const MaximalValueRestrictionComponent: React.FC<RestrictionProps> = ({
                   OWL.withRestrictions,
                   0,
                   XSD.maxInclusive,
+                  '@value'
                 ],
                 e.target.value
               )

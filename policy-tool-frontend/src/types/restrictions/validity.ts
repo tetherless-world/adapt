@@ -1,7 +1,6 @@
 import { OWL, PROV, XSD } from 'src/namespaces'
 import { XOR } from 'ts-xor'
-import { Literal } from '../base'
-import { NamedNode } from '../restrictions'
+import { Literal, NamedNode } from '../base'
 import { DatatypeRestriction, Restriction } from './common'
 
 export interface StartTimeRestriction extends Restriction {

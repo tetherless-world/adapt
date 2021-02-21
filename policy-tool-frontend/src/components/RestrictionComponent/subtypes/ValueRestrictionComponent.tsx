@@ -44,10 +44,8 @@ export const ValueRestrictionComponent: React.FC<RestrictionProps> = ({
                   OWL.someValuesFrom,
                   OWL.intersectionOf,
                   1,
-                  OWL.someValuesFrom,
-                  OWL.withRestrictions,
-                  0,
-                  XSD.minInclusive,
+                  OWL.hasValue,
+                  '@value'
                 ],
                 e.target.value
               )

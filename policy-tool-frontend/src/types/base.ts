@@ -1,4 +1,4 @@
-export interface Node extends Record<any, any> {}
+export type Node = Record<any, any>
 
 export interface NamedNode extends Node {
   '@id': string

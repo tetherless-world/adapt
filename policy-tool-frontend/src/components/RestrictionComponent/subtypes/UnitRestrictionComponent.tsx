@@ -66,7 +66,7 @@ const UnitRestrictionComponentB: React.FC<RestrictionProps> = ({ keys }) => {
     <Grid container item xs={12}>
       <TextField
         select
-        label={baseLabel}
+        label={baseLabel ?? 'Unit'}
         value={valueLabel}
         onChange={(e) =>
           dispatch(

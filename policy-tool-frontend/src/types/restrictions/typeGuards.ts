@@ -1,5 +1,5 @@
 import is from '@sindresorhus/is'
-import { OWL, SIO, XSD } from 'src/namespaces'
+import { OWL, PROV, SIO, XSD } from 'src/namespaces'
 import { Literal, NamedNode, Node, TypedNode } from '../base'
 import { AgentRestriction } from './agent'
 import {
@@ -48,10 +48,9 @@ export const isLiteral = (o: TypedNode): o is Literal => {
 export const isIntersectionOf = (o: TypedNode): o is IntersectionOf => {
   let temp = o as IntersectionOf
   return (
-    o['@type'] === OWL.Class &&
+    temp['@type'] === OWL.Class &&
     is.array(temp[OWL.intersectionOf]) &&
-    temp[OWL.intersectionOf].length >= 2 &&
-    temp[OWL.intersectionOf].every(isNode)
+    temp[OWL.intersectionOf].length >= 2
   )
 }
 
@@ -67,7 +66,7 @@ export const isRestriction = (o: TypedNode): o is Restriction => {
 }
 
 export const isAgentRestriction = (o: Restriction): o is AgentRestriction => {
-  return o[OWL.onProperty]['@id'] === 'prov:wasAssociatedWith'
+  return o[OWL.onProperty]['@id'] === PROV.wasAssociatedWith
 }
 
 export const isValidityRestriction = (
@@ -101,14 +100,14 @@ export const isHasMinimalValueRestriction = (
   o: HasBoundedValueRestriction
 ): o is HasMinimalValueRestriction => {
   let r = o[OWL.someValuesFrom][OWL.withRestrictions][0]
-  return isLiteral(r[XSD.minInclusive])
+  return !!r[XSD.minInclusive] && isLiteral(r[XSD.minInclusive])
 }
 
 export const isHasMaximalValueRestriction = (
   o: HasBoundedValueRestriction
 ): o is HasMaximalValueRestriction => {
   let r = o[OWL.someValuesFrom][OWL.withRestrictions][0]
-  return isLiteral(r[XSD.maxInclusive])
+  return !!r[XSD.maxInclusive] && isLiteral(r[XSD.maxInclusive])
 }
 
 export const isUnitRestriction = (o: Restriction): o is UnitRestriction => {
