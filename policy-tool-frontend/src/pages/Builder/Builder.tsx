@@ -56,7 +56,7 @@ const isValidPolicy = (state: PolicyState) => {
   )
 }
 
-export const NewBuilder: React.FC = () => {
+export const Builder: React.FC = () => {
   const classes = useStyles()
   const history = useHistory()
 
