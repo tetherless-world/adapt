@@ -61,6 +61,13 @@ export const { actions, reducer } = createSlice({
         subclasses[0]['@id'] = action.payload
       },
     },
+    setEffect: {
+      prepare: (effect: string) => ({ payload: effect }),
+      reducer: (state, action: PayloadAction<string>) => {
+        let subclasses = state[RDFS.subClassOf]
+        subclasses[1]['@id'] = action.payload
+      },
+    },
     addAgentRestriction: {
       prepare: (restriction: AgentRestriction) => ({ payload: restriction }),
       reducer: (state, action: PayloadAction<AgentRestriction>) => {

@@ -1,44 +1,53 @@
-import { Grid } from '@material-ui/core'
-import { Selector } from 'src/components'
+import { Grid, MenuItem, TextField } from '@material-ui/core'
+import { useDispatch, useSelector } from 'react-redux'
 import { Option } from 'src/global'
+import { actions, selectEffect, selectPrecedence } from 'src/store'
 
 export interface ConditionSectionProps {
-  action: string
-  setAction: React.Dispatch<React.SetStateAction<string>>
-  validActions: Option[]
-  precedence: string
-  setPrecedence: React.Dispatch<React.SetStateAction<string>>
   validPrecedences: Option[]
+  validEffects: Option[]
 }
 
 export const ConditionSection: React.FC<ConditionSectionProps> = ({
-  action,
-  setAction,
-  validActions,
-  precedence,
-  setPrecedence,
   validPrecedences,
-}) => (
-  <Grid container spacing={2}>
-    <Grid item xs={12} md={6}>
-      <Selector
-        options={validActions}
-        textFieldProps={{
-          label: 'Action',
-          value: action,
-          onChange: (event: any) => setAction(event.target.value),
-        }}
-      />
+  validEffects,
+}) => {
+  const dispatch = useDispatch()
+  const precedence = useSelector(selectPrecedence)
+  const effect = useSelector(selectEffect)
+
+  return (
+    <Grid container item xs={12} spacing={2}>
+      <Grid item xs={12} md={6}>
+        <TextField
+          select
+          label={'Precedence'}
+          value={precedence['@id']}
+          onChange={(e) => dispatch(actions.setPrecedence(e.target.value))}
+          disabled={!validPrecedences.length}
+        >
+          {validPrecedences.map(({ label, value }, i) => (
+            <MenuItem key={i} value={value}>
+              {label}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <TextField
+          select
+          label={'Effect'}
+          value={effect['@id']}
+          onChange={(e) => dispatch(actions.setEffect(e.target.value))}
+          disabled={!validEffects.length}
+        >
+          {validEffects.map(({ label, value }, i) => (
+            <MenuItem key={i} value={value}>
+              {label}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Grid>
     </Grid>
-    <Grid item xs={12} md={6}>
-      <Selector
-        options={validPrecedences}
-        textFieldProps={{
-          label: 'Precedence',
-          value: precedence,
-          onChange: (event: any) => setPrecedence(event.target.value),
-        }}
-      />
-    </Grid>
-  </Grid>
-)
+  )
+}
