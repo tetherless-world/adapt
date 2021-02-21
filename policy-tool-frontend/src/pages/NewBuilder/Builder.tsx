@@ -7,7 +7,6 @@ import { LabelByURIContext, SubclassesByURIContext } from 'src/contexts'
 import {
   useGetActions,
   useGetEffects,
-  useGetObligations,
   useGetPrecedences,
   useGetRestrictions,
   usePostPolicy,
@@ -42,7 +41,8 @@ const policyDefault = {
 const flatten = (obj: Record<any, any>, prefix: string = '') =>
   Object.entries(obj).reduce((r: Record<any, any>, [key, val]) => {
     let k = `${prefix}${key}`
-    if (typeof val === 'object') Object.assign(r, flatten(val, `${k}.`))
+    if (val !== null && val !== undefined && typeof val === 'object')
+      Object.assign(r, flatten(val, `${k}.`))
     else r[k] = val
     return r
   }, {})
@@ -52,7 +52,7 @@ const isValidPolicy = (state: PolicyState) => {
     .filter((k) => k !== SKOS.definition)
     .reduce((obj, k) => ({ ...obj, [k]: state[k as keyof PolicyState] }), {})
   return Object.values(flatten(required)).every(
-    (r) => r !== null && r !== undefined
+    (r) => r !== null && r !== undefined && r !== ''
   )
 }
 
@@ -63,7 +63,6 @@ export const NewBuilder: React.FC = () => {
   const policy = useSelector<PolicyState, PolicyState>((state) => state)
 
   const [restrictionsRes, getRestrictions] = useGetRestrictions()
-  const [obligationsRes, getObligations] = useGetObligations()
   const [effectsRes, getEffects] = useGetEffects()
   const [actionsRes, getActions] = useGetActions()
   const [precedencesRes, getPrecedences] = useGetPrecedences()
@@ -71,11 +70,10 @@ export const NewBuilder: React.FC = () => {
 
   useEffect(() => {
     getRestrictions()
-    getObligations()
     getEffects()
     getActions()
     getPrecedences()
-  }, [getRestrictions, getObligations, getEffects, getActions, getPrecedences])
+  }, [getRestrictions, getEffects, getActions, getPrecedences])
 
   useEffect(() => {
     if (!policyRes.loading && !!policyRes.value) {
@@ -87,11 +85,10 @@ export const NewBuilder: React.FC = () => {
   const isLoading = useMemo(
     () =>
       restrictionsRes.loading &&
-      obligationsRes.loading &&
       effectsRes.loading &&
       actionsRes.loading &&
       precedencesRes.loading,
-    [restrictionsRes, obligationsRes, effectsRes, actionsRes, precedencesRes]
+    [restrictionsRes, effectsRes, actionsRes, precedencesRes]
   )
 
   const {
@@ -106,7 +103,6 @@ export const NewBuilder: React.FC = () => {
   const validEffects = effectsRes.value?.validEffects ?? []
   const validActions = actionsRes.value?.validActions ?? []
   const validPrecedences = precedencesRes.value?.validPrecedences ?? []
-  const validObligations = obligationsRes.value?.validObligations ?? []
 
   const isValid = useMemo(() => isValidPolicy(policy), [policy])
 
