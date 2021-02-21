@@ -11,7 +11,7 @@ get_precedences_query = '''
 SELECT ?uri ?label WHERE {
     ?uri rdfs:subClassOf+ ?superClass;
            rdfs:label ?label .
-    FILTER NOT EXISTS { ?value rdf:type pol:Policy }
+    FILTER NOT EXISTS { ?uri rdf:type pol:Policy }
 }
 '''
 
