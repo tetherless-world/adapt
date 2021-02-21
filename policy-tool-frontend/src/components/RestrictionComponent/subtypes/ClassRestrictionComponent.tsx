@@ -22,7 +22,6 @@ const ClassRestrictionComponentA: React.FC<RestrictionProps> = ({ keys }) => {
     ClassRestriction & { [OWL.someValuesFrom]: NamedNode }
   >((state) => _.get(state, keys))
 
-  console.log(restriction)
   return (
     <Grid container item xs={12}>
       <TextField
@@ -68,7 +67,7 @@ const ClassRestrictionComponentB: React.FC<RestrictionProps> = ({ keys }) => {
       <TextField
         select
         label={baseLabel}
-        value={valueLabel}
+        value={valueURI}
         onChange={(e) =>
           dispatch(
             actions.update(
