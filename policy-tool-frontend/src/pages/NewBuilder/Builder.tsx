@@ -6,7 +6,7 @@ import { FormSection, FormSectionHeader, LoadingWrapper } from 'src/components'
 import {
   LabelByURIContext,
   SioClassByURIContext,
-  SubclassesByURIContext
+  SubclassesByURIContext,
 } from 'src/contexts'
 import {
   useGetActions,
@@ -14,10 +14,11 @@ import {
   useGetObligations,
   useGetPrecedences,
   useGetRestrictions,
-  usePostPolicy
+  usePostPolicy,
 } from 'src/hooks/api'
 import { PolicyState } from 'src/types/policy'
 import { AgentRestrictionSection, InformationSection } from './sections'
+import { ValidityRestrictionSection } from './sections/ValidityRestrictionSection'
 
 const useStyles = makeStyles((theme) => ({
   section: {
@@ -131,7 +132,7 @@ export const NewBuilder: React.FC = () => {
             <FormSection
               gridContainerProps={{ className: classes.section }}
               header={<FormSectionHeader title={'Validity'} />}
-              body={<></>}
+              body={<ValidityRestrictionSection />}
             />
             <FormSection
               gridContainerProps={{ className: classes.section }}

@@ -73,8 +73,8 @@ export const isValidityRestriction = (
   o: Restriction
 ): o is ValidityRestriction => {
   return (
-    o[OWL.onProperty]['@id'] === 'prov:endedAtTime' ||
-    o[OWL.onProperty]['@id'] === 'prov:startedAtTime'
+    o[OWL.onProperty]['@id'] === PROV.startedAtTime ||
+    o[OWL.onProperty]['@id'] === PROV.endedAtTime
   )
 }
 

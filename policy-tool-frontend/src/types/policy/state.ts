@@ -18,7 +18,7 @@ export interface PolicyState {
       // Action
       NamedNode,
       // Agent and Attribute / Validity  restrictions
-      ...XOR<AgentRestriction, ValidityRestriction>[]
+      ...(AgentRestriction | ValidityRestriction)[]
     ]
   }
   [RDFS.subClassOf]: [

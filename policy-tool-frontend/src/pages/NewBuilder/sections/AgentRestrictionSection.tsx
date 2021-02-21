@@ -1,19 +1,14 @@
 import { Button, Grid, IconButton } from '@material-ui/core'
 import { Delete } from '@material-ui/icons'
 import _ from 'lodash'
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { MenuButton } from 'src/components'
 import { RestrictionComponent } from 'src/components/'
 import { LabelByURIContext } from 'src/contexts'
 import { OWL } from 'src/namespaces'
-import { actions } from 'src/store'
-import { PolicyState } from 'src/types/policy'
-import {
-  AgentRestriction,
-  isAgentRestriction,
-  isValidityRestriction,
-} from 'src/types/restrictions'
+import { actions, selectRestrictions } from 'src/store'
+import { AgentRestriction, isAgentRestriction } from 'src/types/restrictions'
 
 export interface AgentRestrictionSectionProps {
   validRestrictions: Record<string, AgentRestriction>
@@ -25,15 +20,19 @@ export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
   const dispatch = useDispatch()
 
   const labelByURI = useContext(LabelByURIContext)
-  const restrictions = useSelector<PolicyState, AgentRestriction[]>((state) => {
-    let restrictions = state[OWL.equivalentClass][OWL.intersectionOf]
-    let [a, ...rest] = restrictions
-    if (rest.findIndex(isAgentRestriction) === -1) return []
+  const restrictions = useSelector(selectRestrictions)
 
-    let iMax = rest.findIndex(isValidityRestriction)
-    if (iMax === -1) return restrictions.slice(1) as AgentRestriction[]
-    else return restrictions.slice(1, iMax) as AgentRestriction[]
-  })
+  const iMax = useMemo(() => {
+    let [a, ...rest] = restrictions
+    let iMax = _.findLastIndex(rest, isAgentRestriction)
+    if (iMax === -1) return -1
+    return iMax + 1
+  }, [restrictions])
+
+  const agentRestrictions = useMemo(() => {
+    if (iMax === -1) return []
+    return restrictions.slice(1, iMax + 1)
+  }, [restrictions, iMax])
 
   const restrictionURIs: string[] = Object.keys(validRestrictions)
   const restrictionLabels = restrictionURIs.map((uri) => labelByURI[uri])
@@ -75,7 +74,7 @@ export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
           <Button onClick={handleResetAgentRestrictions}>Reset</Button>
         </Grid>
         <Grid container item spacing={2}>
-          {restrictions.map((r, i) => {
+          {agentRestrictions.map((r, i) => {
             return (
               <Grid
                 container

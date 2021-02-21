@@ -106,7 +106,7 @@ export const { actions, reducer } = createSlice({
       let restrictions = state[OWL.equivalentClass][OWL.intersectionOf]
       let [a, ...rest] = restrictions
       let iMin = rest.findIndex(isValidityRestriction)
-      if (iMin !== -1) restrictions.splice(iMin, restrictions.length - iMin - 1)
+      if (iMin !== -1) restrictions.splice(iMin + 1, restrictions.length)
     },
     update: {
       prepare: (keys: PropertyPath, value: any) => ({
