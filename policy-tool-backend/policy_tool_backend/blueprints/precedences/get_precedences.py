@@ -9,7 +9,7 @@ from .precedences_blueprint import precedences_blueprint
 
 get_precedences_query = '''
 SELECT ?uri ?label WHERE {
-    ?value rdfs:subClassOf+ ?superClass;
+    ?uri rdfs:subClassOf+ ?superClass;
            rdfs:label ?label .
     FILTER NOT EXISTS { ?value rdf:type pol:Policy }
 }
@@ -21,7 +21,7 @@ def get_precedences():
     results = current_app.store.query_assertions(
         get_precedences_query,
         initNs={'rdf': RDF, 'rdfs': RDFS, 'pol': POL},
-        initBindings={'superClass', PROV.Precedence})
+        initBindings={'superClass': POL.Precedence})
 
     precedences = to_option_list(results)
     sorted_precedences = sorted(precedences, key=itemgetter('label'))
