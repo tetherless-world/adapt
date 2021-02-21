@@ -44,7 +44,6 @@ export const getRestrictionComponent = (
       if (isValueRestriction(restriction)) return ValueRestrictionComponent
 
       if (isBoundedValueRestriction(restriction)) {
-        console.log(restriction)
         if (isMinimalValueRestriction(restriction))
           return MinimalValueRestrictionComponent
         if (isMaximalValueRestriction(restriction))

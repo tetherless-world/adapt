@@ -1,6 +1,6 @@
 import { Grid, MenuItem, TextField } from '@material-ui/core'
 import _ from 'lodash'
-import { useContext, useMemo } from 'react'
+import { useContext, useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { LabelByURIContext, SubclassesByURIContext } from 'src/contexts'
 import { OWL } from 'src/namespaces'
@@ -53,7 +53,6 @@ const UnitRestrictionComponentB: React.FC<RestrictionProps> = ({ keys }) => {
   let baseURI = baseClass['@id']
   let valueURI = valueClass['@id']
   let baseLabel = labelByURI[baseURI]
-  let valueLabel = useMemo(() => labelByURI[valueURI], [valueURI])
 
   const subclasses = subclassesByURI[baseURI].map((s) => s)
   const options = subclasses.map((uri) => ({
@@ -61,13 +60,25 @@ const UnitRestrictionComponentB: React.FC<RestrictionProps> = ({ keys }) => {
     value: uri,
   }))
 
+  useEffect(() => {
+    if (options.length === 1) {
+      dispatch(
+        actions.update(
+          [...keys, OWL.someValuesFrom, OWL.intersectionOf, 1, '@id'],
+          options[0].value
+        )
+      )
+    }
+  }, [options])
+
   // render as selector using first named node as label
   return (
     <Grid container item xs={12}>
       <TextField
         select
         label={baseLabel ?? 'Unit'}
-        value={valueLabel}
+        value={valueURI}
+        disabled={options.length === 1}
         onChange={(e) =>
           dispatch(
             actions.update(

@@ -32,7 +32,7 @@ export const MaximalValueRestrictionComponent: React.FC<RestrictionProps> = ({
   ][0][XSD.maxInclusive]
 
   return (
-    <Grid container item xs={12}>
+    <Grid container item xs={12} spacing={1}>
       <Grid item xs={12} md={6}>
         <TextField
           label={baseLabel}
