@@ -1,10 +1,9 @@
 import { Grid, TextField } from '@material-ui/core'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { actions, selectDefinition, selectLabel } from 'src/store'
 import { PolicyState } from 'src/types/policy'
 import { isValidURI } from '../helpers'
-import { actions } from 'src/store'
-import { RDFS, SKOS } from 'src/namespaces'
 
 export interface InformationSectionProps {
   source: [source: string, setSource: Function]
@@ -21,19 +20,12 @@ const parseURI = (uri: string) => {
   }
 }
 
-const selectURI = (state: PolicyState) => {
-  let uri = state['@id']
-  return parseURI(uri)
-}
-
 export const InformationSection: React.FC = () => {
   const dispatch = useDispatch()
 
   const uri = useSelector<PolicyState, string>((state) => state['@id'])
-  const label = useSelector<PolicyState, string>((state) => state[RDFS.label])
-  const def = useSelector<PolicyState, string>(
-    (state) => state[SKOS.definition]
-  )
+  const label = useSelector<PolicyState, string>(selectLabel)
+  const def = useSelector<PolicyState, string>(selectDefinition)
 
   const { id, source } = parseURI(uri)
 
@@ -48,11 +40,11 @@ export const InformationSection: React.FC = () => {
     } else {
       setValidity(false)
     }
-  }, [sourceBuffer, idBuffer])
+  }, [sourceBuffer, idBuffer, dispatch])
 
   return (
     <Grid container spacing={2}>
-      <Grid container item xs={6} spacing={1} alignContent={'flex-start'}>
+      <Grid container item xs={12} sm={6} spacing={1}>
         <Grid item xs={12}>
           <TextField
             label={'Source'}
@@ -67,7 +59,7 @@ export const InformationSection: React.FC = () => {
             value={idBuffer}
             onChange={(e) => setIdBuffer(e.target.value)}
             error={validity}
-            helperText={validity && 'Source/Id invalid.'}
+            helperText={validity && 'Source or ID is invalid.'}
           />
         </Grid>
         <Grid item xs={12}>
@@ -78,7 +70,7 @@ export const InformationSection: React.FC = () => {
           />
         </Grid>
       </Grid>
-      <Grid container item xs={6}>
+      <Grid container item xs={12} sm={6} spacing={1}>
         <Grid item xs={12}>
           <TextField
             label={'Definition'}
