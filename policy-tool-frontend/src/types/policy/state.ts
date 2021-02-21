@@ -24,8 +24,12 @@ export interface PolicyState {
   [RDFS.subClassOf]: [
     // Precedence
     NamedNode,
+    // Primary Effect
+    NamedNode,
     // Additional Effects
     // TODO: How do we distinguish between effects and obligations here?
+    // Obligations have been disabled for this reason.
+    // Additional effects ignored.
     ...NamedNode[]
   ]
 }
