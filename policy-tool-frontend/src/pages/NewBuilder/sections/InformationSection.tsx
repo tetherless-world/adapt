@@ -1,6 +1,7 @@
 import { Grid, TextField } from '@material-ui/core'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { RDFS, SKOS } from 'src/namespaces'
 import { actions, selectDefinition, selectLabel } from 'src/store'
 import { PolicyState } from 'src/types/policy'
 import { isValidURI } from '../helpers'
@@ -29,37 +30,21 @@ export const InformationSection: React.FC = () => {
 
   const { id, source } = parseURI(uri)
 
-  const [sourceBuffer, setSourceBuffer] = useState<string>(source)
-  const [idBuffer, setIdBuffer] = useState<string>(id)
-  const [validity, setValidity] = useState<boolean>(true)
-
-  useEffect(() => {
-    if (isValidURI(sourceBuffer, idBuffer)) {
-      dispatch(actions.setURI(sourceBuffer, idBuffer))
-      setValidity(true)
-    } else {
-      setValidity(false)
-    }
-  }, [sourceBuffer, idBuffer, dispatch])
-
   return (
     <Grid container spacing={2}>
       <Grid container item xs={12} sm={6} spacing={1}>
         <Grid item xs={12}>
           <TextField
             label={'Source'}
-            value={sourceBuffer}
-            onChange={(e) => setSourceBuffer(e.target.value)}
-            error={validity}
+            value={source}
+            onChange={(e) => dispatch(actions.setURI(e.target.value, id))}
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
             label={'ID'}
-            value={idBuffer}
-            onChange={(e) => setIdBuffer(e.target.value)}
-            error={validity}
-            helperText={validity && 'Source or ID is invalid.'}
+            value={id}
+            onChange={(e) => dispatch(actions.setURI(source, e.target.value))}
           />
         </Grid>
         <Grid item xs={12}>
