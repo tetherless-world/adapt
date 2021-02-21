@@ -36,10 +36,7 @@ export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
 
   const restrictionURIs: string[] = Object.keys(validRestrictions)
   const restrictionLabels = restrictionURIs.map((uri) => labelByURI[uri])
-  const restrictionOptions = restrictionURIs.map((uri) => ({
-    label: labelByURI[uri],
-    value: uri,
-  }))
+  const restrictionOptions = restrictionLabels.map((label) => ({ label }))
 
   const handleSelectOption = (i: number) => {
     let uri = restrictionURIs[i]
@@ -59,7 +56,7 @@ export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
   return (
     <>
       <Grid container item spacing={2}>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={4}>
           <MenuButton
             // TODO: redo this component, it's not right
             options={restrictionOptions}
@@ -70,7 +67,7 @@ export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
             }}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={4}>
           <Button onClick={handleResetAgentRestrictions}>Reset</Button>
         </Grid>
         <Grid container item spacing={2}>

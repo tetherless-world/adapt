@@ -7,10 +7,7 @@ import { MenuButton } from 'src/components'
 import { RestrictionComponent } from 'src/components/'
 import { OWL, PROV, RDFS, XSD } from 'src/namespaces'
 import { actions, selectRestrictions } from 'src/store'
-import { NamedNode } from 'src/types/base'
-import { PolicyState } from 'src/types/policy'
 import {
-  AgentRestriction,
   EndTimeRestriction,
   isValidityRestriction,
   StartTimeRestriction,
@@ -56,7 +53,7 @@ export const ValidityRestrictionSection: React.FC = () => {
   const validityRestrictions = useMemo(() => {
     if (iMin === -1) return []
     return restrictions.slice(iMin)
-  }, [restrictions])
+  }, [restrictions, iMin])
 
   const validRestrictions = defaultValidityRestrictions
   const restrictionLabels = Object.keys(validRestrictions)
@@ -81,14 +78,14 @@ export const ValidityRestrictionSection: React.FC = () => {
   return (
     <>
       <Grid container item spacing={2}>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={4}>
           <MenuButton
             options={restrictionOptions}
             onSelectOption={handleSelectOption}
             buttonProps={{ children: 'Add' }}
           />
         </Grid>
-        <Grid item xs={12} md={4}>
+        <Grid item xs={4}>
           <Button onClick={handleResetValidityRestrictions}>Reset</Button>
         </Grid>
         <Grid container item spacing={2}>
