@@ -1,6 +1,6 @@
 import { Grid, MenuItem, TextField } from '@material-ui/core'
 import _ from 'lodash'
-import { useContext, useMemo } from 'react'
+import { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { LabelByURIContext, SubclassesByURIContext } from 'src/contexts'
 import { OWL } from 'src/namespaces'
@@ -53,7 +53,6 @@ const ClassRestrictionComponentB: React.FC<RestrictionProps> = ({ keys }) => {
   let baseURI = baseClass['@id']
   let valueURI = valueClass['@id']
   let baseLabel = labelByURI[baseURI]
-  let valueLabel = labelByURI[valueURI]
 
   const subclasses = subclassesByURI[baseURI].map((s) => s)
   const options = subclasses.map((uri) => ({

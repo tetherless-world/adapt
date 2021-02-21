@@ -6,11 +6,7 @@ import { OWL } from 'src/namespaces'
 import { actions } from 'src/store'
 import { NamedNode } from 'src/types/base'
 import { PolicyState } from 'src/types/policy'
-import {
-  AgentRestriction,
-  isNamedNode,
-  isRestriction,
-} from 'src/types/restrictions'
+import { AgentRestriction, isNamedNode } from 'src/types/restrictions'
 import { RestrictionProps } from '../props'
 import { RestrictionComponent } from '../RestrictionComponent'
 
@@ -57,7 +53,6 @@ const AgentRestrictionComponentA: React.FC<RestrictionProps> = ({ keys }) => {
 export const AgentRestrictionComponent: React.FC<RestrictionProps> = ({
   keys,
 }) => {
-  const dispatch = useDispatch()
   const restriction = useSelector<PolicyState, AgentRestriction>((state) =>
     _.get(state, keys)
   )

@@ -1,6 +1,6 @@
 import { Grid, MenuItem, TextField } from '@material-ui/core'
 import _ from 'lodash'
-import { useContext, useEffect, useMemo } from 'react'
+import { useContext, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { LabelByURIContext, SubclassesByURIContext } from 'src/contexts'
 import { OWL } from 'src/namespaces'
@@ -12,7 +12,7 @@ import {
   IntersectionOf,
   isIntersectionOf,
   isNamedNode,
-  UnitRestriction,
+  UnitRestriction
 } from 'src/types/restrictions'
 import { RestrictionProps } from '../props'
 

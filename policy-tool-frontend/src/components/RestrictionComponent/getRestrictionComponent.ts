@@ -8,8 +8,6 @@ import {
   isIntervalRestriction,
   isMaximalValueRestriction,
   isMinimalValueRestriction,
-  isNamedNode,
-  isRestriction,
   isValidityRestriction,
   isValueRestriction,
   Restriction,
@@ -20,8 +18,8 @@ import {
   AttributeRestrictionComponent,
   ClassRestrictionComponent,
   IntervalRestrictionComponent,
-  MinimalValueRestrictionComponent,
   MaximalValueRestrictionComponent,
+  MinimalValueRestrictionComponent,
   ValidityRestrictionComponent,
   ValueRestrictionComponent,
 } from './subtypes'
