@@ -139,7 +139,7 @@ def get_restrictions():
                             OWL.onProperty: {'@id': SIO.hasValue},
                             OWL.someValuesFrom: {
                                 '@type': RDFS.Datatype,
-                                OWL.onDatatype: row.range,
+                                OWL.onDatatype: {'@id': row.range},
                                 OWL.withRestrictions: [
                                     {
                                         XSD.minInclusive: {
@@ -158,7 +158,7 @@ def get_restrictions():
                             OWL.onProperty: {'@id': SIO.hasValue},
                             OWL.someValuesFrom: {
                                 '@type': RDFS.Datatype,
-                                OWL.onDatatype: row.range,
+                                OWL.onDatatype: {'@id': row.range},
                                 OWL.withRestrictions: [
                                     {
                                         XSD.maxInclusive: {

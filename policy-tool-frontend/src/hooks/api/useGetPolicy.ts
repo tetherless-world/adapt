@@ -1,15 +1,16 @@
-import { useAsyncFn } from 'react-use'
+import { useAsync } from 'react-use'
+import { PolicyState } from 'src/types/policy'
 import { axios } from './common'
 
-export type GetPolicyResponse = string 
+export interface GetPolicyResponse {
+  policy: PolicyState
+  labelByURI: Record<string, string>
+}
 
-const getPolicy = (uri: string, format: string) => async () => {
+const getPolicy = (uri: string) => async () => {
   let { data } = await axios.get('/policies', { params: { uri } })
   return data
 }
 
-export const useGetPolicy = (uri: string, format: string = 'turtle') =>
-  useAsyncFn<() => Promise<GetPolicyResponse>>(getPolicy(uri, format), [
-    uri,
-    format,
-  ])
+export const useGetPolicy = (uri: string) =>
+  useAsync<() => Promise<GetPolicyResponse>>(getPolicy(uri), [uri])

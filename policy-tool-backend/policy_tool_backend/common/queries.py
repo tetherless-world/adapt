@@ -2,6 +2,14 @@ from flask import current_app
 from rdflib import URIRef
 from rdflib.namespace import RDF, RDFS
 
+ask_is_subclass_query = 'ASK { ?uri rdfs:subClassOf+ ?superClass }'
+
+get_label_by_uri_query = '''
+SELECT ?label WHERE {
+    ?uri rdfs:label ?label .
+}
+'''
+
 get_subclass_by_superclass_query = '''
 SELECT ?subclass ?label WHERE { 
     ?subclass rdfs:subClassOf+ ?superClass;
@@ -15,7 +23,19 @@ SELECT ?uri ?label WHERE {
 }
 '''
 
-ask_is_subclass_query = 'ASK { ?uri rdfs:subClassOf+ ?superClass }'
+
+def ask_is_subclass(uri: str, super_class: str):
+    return current_app.store.query_assertions(ask_is_subclass_query,
+                                              initNs={'rdfs': RDFS},
+                                              initBindings={
+                                                  'uri': URIRef(uri),
+                                                  'superClass': URIRef(super_class)
+                                              })
+
+
+def get_label_by_uri(uri: str):
+    return current_app.store.query_assertions(get_label_by_uri_query, initNs={'rdfs': RDFS},
+                                              initBindings={'uri': URIRef(uri)})
 
 
 def get_subclasses_by_superclass(super_class: str):
@@ -29,12 +49,3 @@ def get_uris_by_type(type_: str):
                                               initNs={'rdf': RDF,
                                                       'rdfs': RDFS},
                                               initBindings={'type': type_})
-
-
-def ask_is_subclass(uri: str, super_class: str):
-    return current_app.store.query_assertions(ask_is_subclass_query,
-                                              initNs={'rdfs': RDFS},
-                                              initBindings={
-                                                  'uri': URIRef(uri),
-                                                  'superClass': URIRef(super_class)
-                                              })
