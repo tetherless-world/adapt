@@ -1,5 +1,5 @@
 # base image
-FROM python:3-slim
+FROM python:3.9-slim
 
 # copy & install python requirements
 WORKDIR /policy-tool-backend

@@ -30,7 +30,6 @@ def app_factory(name):
                       app.config['KNOWLEDGE_STORE_PORT'])
 
     app.register_store(store)
-    # app.json_encoder.default = default_json_encoder
 
     from .blueprints import blueprint_list
     for bp in blueprint_list:
