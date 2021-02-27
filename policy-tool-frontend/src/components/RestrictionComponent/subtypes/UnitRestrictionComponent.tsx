@@ -12,7 +12,7 @@ import {
   IntersectionOf,
   isIntersectionOf,
   isNamedNode,
-  UnitRestriction
+  UnitRestriction,
 } from 'src/types/restrictions'
 import { RestrictionProps } from '../props'
 
@@ -55,10 +55,12 @@ const UnitRestrictionComponentB: React.FC<RestrictionProps> = ({ keys }) => {
   let baseLabel = labelByURI[baseURI]
 
   const subclasses = subclassesByURI[baseURI].map((s) => s)
-  const options = subclasses.map((uri) => ({
-    label: labelByURI[uri],
-    value: uri,
-  }))
+  const options = subclasses
+    .map((uri) => ({
+      label: labelByURI[uri],
+      value: uri,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label))
 
   useEffect(() => {
     if (options.length === 1) {

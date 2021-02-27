@@ -35,12 +35,13 @@ export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
   }, [restrictions, iMax])
 
   const restrictionURIs: string[] = Object.keys(validRestrictions)
-  const restrictionLabels = restrictionURIs.map((uri) => labelByURI[uri])
-  const restrictionOptions = restrictionLabels.map((label) => ({ label }))
+  const restrictionOptions = restrictionURIs
+    .map((uri) => ({ uri, label: labelByURI[uri] }))
+    .sort((a, b) => a.label.localeCompare(b.label))
 
   const handleSelectOption = (i: number) => {
-    let uri = restrictionURIs[i]
-    let restriction = _.cloneDeep(validRestrictions[uri])
+    let option = restrictionOptions[i]
+    let restriction = _.cloneDeep(validRestrictions[option.uri])
     let action = actions.addAgentRestriction(restriction)
     dispatch(action)
   }

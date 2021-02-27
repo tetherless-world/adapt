@@ -55,10 +55,12 @@ const ClassRestrictionComponentB: React.FC<RestrictionProps> = ({ keys }) => {
   let baseLabel = labelByURI[baseURI]
 
   const subclasses = subclassesByURI[baseURI].map((s) => s)
-  const options = subclasses.map((uri) => ({
-    label: labelByURI[uri],
-    value: uri,
-  }))
+  const options = subclasses
+    .map((uri) => ({
+      label: labelByURI[uri],
+      value: uri,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label))
 
   // render as selector using first named node as label
   return (

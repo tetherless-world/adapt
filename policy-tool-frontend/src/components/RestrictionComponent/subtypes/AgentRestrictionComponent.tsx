@@ -1,8 +1,10 @@
 import { Grid, MenuItem, TextField } from '@material-ui/core'
 import _ from 'lodash'
+import { useContext } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { LabelByURIContext, SubclassesByURIContext } from 'src/contexts'
 import { Option } from 'src/global'
-import { OWL } from 'src/namespaces'
+import { OWL, PROV } from 'src/namespaces'
 import { actions } from 'src/store'
 import { NamedNode } from 'src/types/base'
 import { PolicyState } from 'src/types/policy'
@@ -12,13 +14,20 @@ import { RestrictionComponent } from '../RestrictionComponent'
 
 const AgentRestrictionComponentA: React.FC<RestrictionProps> = ({ keys }) => {
   const dispatch = useDispatch()
+  const labelByURI = useContext(LabelByURIContext)
+  const subclassesByURI = useContext(SubclassesByURIContext)
+
   const restriction = useSelector<
     PolicyState,
     AgentRestriction & { [OWL.someValuesFrom]: NamedNode }
   >((state) => _.get(state, [...keys]))
 
-  // TODO: retrieve from AgentsContext or some part of the global store.
-  let options: Option[] = []
+  const options = subclassesByURI[PROV.Agent]
+    .map((uri) => ({
+      label: labelByURI[uri],
+      value: uri,
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label))
 
   return (
     <>

@@ -227,6 +227,21 @@ def get_restrictions():
             OWL.someValuesFrom: graph_by_uri[uri]
         }
 
+    # add agents to the restrictions
+    subclasses_by_uri[PROV.Agent] = []
+    label_by_uri[PROV.Agent] = 'Agent'
+    agents = get_subclasses_by_superclass(PROV.Agent)
+    current_app.logger.info([a for a in agents])
+    for agent in agents:
+        subclasses_by_uri[PROV.Agent].append(agent.subclass)
+        label_by_uri[agent.subclass] = agent.label
+
+    graph_by_uri[PROV.Agent] = {
+        '@type': OWL.Restriction,
+        OWL.onProperty: {'@id': PROV.wasAssociatedWith},
+        OWL.someValuesFrom: {'@id': ''}
+    }
+
     return jsonify({
         'validRestrictions': graph_by_uri,
         'subclassesByURI': subclasses_by_uri,
