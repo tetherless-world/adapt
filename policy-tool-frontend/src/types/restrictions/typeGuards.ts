@@ -41,7 +41,8 @@ export const isLiteral = (o: TypedNode): o is Literal => {
   return (
     is.null_(temp['@value']) ||
     is.string(temp['@value']) ||
-    is.number(temp['@value'])
+    is.number(temp['@value']) ||
+    is.boolean(temp['@value'])
   )
 }
 

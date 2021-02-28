@@ -10,5 +10,5 @@ export interface TypedNode {
 
 export interface Literal extends TypedNode {
   '@type': string
-  '@value'?: string | number
+  '@value'?: string | number | boolean
 }
