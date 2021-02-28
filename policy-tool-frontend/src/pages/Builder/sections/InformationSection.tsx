@@ -1,17 +1,7 @@
 import { Grid, TextField } from '@material-ui/core'
-import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { RDFS, SKOS } from 'src/namespaces'
 import { actions, selectDefinition, selectLabel } from 'src/store'
 import { PolicyState } from 'src/types/policy'
-import { isValidURI } from '../helpers'
-
-export interface InformationSectionProps {
-  source: [source: string, setSource: Function]
-  id: [id: any, setId: Function]
-  label: [label: any, setLabel: Function]
-  definition: [definition: any, setDefinition: Function]
-}
 
 const parseURI = (uri: string) => {
   let i = uri.lastIndexOf('#')
