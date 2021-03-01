@@ -8,7 +8,7 @@ from rdflib.serializer import Serializer
 
 from ...common import POL, graph_factory
 from ...common.node_type import NodeType, is_bnode, is_named
-from ...common.queries import ask_is_subclass, get_label_by_uri
+from ...common.queries import ask_is_subclass, select_label_by_uri
 from .error import MalformedNodeError
 from .policies_blueprint import policies_blueprint
 from .queries import get_policy_by_uri
@@ -40,7 +40,7 @@ def get_policy():
 
         node_uri = node_ref['@id']
         if node_uri[0] != '_':
-            for r in get_label_by_uri(node_uri):
+            for r in select_label_by_uri(node_uri):
                 label_by_uri[node_uri] = r.label
             return node_ref
 
@@ -106,9 +106,9 @@ def get_policy():
                                      key=lambda s: not ask_is_subclass(s['@id'], POL.Precedence))
 
     # add labels for precedence, effect to label_by_uri
-    for r in get_label_by_uri(policy[RDFS.subClassOf][0]['@id']):
+    for r in select_label_by_uri(policy[RDFS.subClassOf][0]['@id']):
         label_by_uri[policy[RDFS.subClassOf][0]['@id']] = r.label
-    for r in get_label_by_uri(policy[RDFS.subClassOf][1]['@id']):
+    for r in select_label_by_uri(policy[RDFS.subClassOf][1]['@id']):
         label_by_uri[policy[RDFS.subClassOf][1]['@id']] = r.label
 
     policy[OWL.equivalentClass] = dfs(root_node[str(OWL.equivalentClass)][0])

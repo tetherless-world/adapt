@@ -7,7 +7,7 @@ from ...common import POL
 from ...common.utils import to_option_list
 from .precedences_blueprint import precedences_blueprint
 
-get_precedences_query = '''
+select_precedences_query = '''
 SELECT ?uri ?label WHERE {
     ?uri rdfs:subClassOf+ ?superClass;
            rdfs:label ?label .
@@ -19,7 +19,7 @@ SELECT ?uri ?label WHERE {
 @precedences_blueprint.route('')
 def get_precedences():
     results = current_app.store.query_assertions(
-        get_precedences_query,
+        select_precedences_query,
         initNs={'rdf': RDF, 'rdfs': RDFS, 'pol': POL},
         initBindings={'superClass': POL.Precedence})
 

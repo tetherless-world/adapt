@@ -6,7 +6,7 @@ from flask import Blueprint, current_app, jsonify
 from rdflib import OWL, RDF, RDFS, XSD, PROV
 
 from ...common import SIO
-from ...common.queries import ask_is_subclass, get_subclasses_by_superclass
+from ...common.queries import ask_is_subclass, select_subclasses_by_superclass
 from .error import RestrictionMappingError
 from .restrictions_blueprint import restrictions_blueprint
 
@@ -97,7 +97,7 @@ def get_restrictions():
             return
 
         subclasses_by_uri[uri] = []
-        subclasses = get_subclasses_by_superclass(uri)
+        subclasses = select_subclasses_by_superclass(uri)
         for s in subclasses:
             subclasses_by_uri[uri].append(s.subclass)
             if s.subclass not in label_by_uri:
@@ -230,7 +230,7 @@ def get_restrictions():
     # add agents to the restrictions
     subclasses_by_uri[PROV.Agent] = []
     label_by_uri[PROV.Agent] = 'Agent'
-    agents = get_subclasses_by_superclass(PROV.Agent)
+    agents = select_subclasses_by_superclass(PROV.Agent)
     current_app.logger.info([a for a in agents])
     for agent in agents:
         subclasses_by_uri[PROV.Agent].append(agent.subclass)
