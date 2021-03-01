@@ -50,6 +50,16 @@ WHERE {
 }
 '''
 
+select_strict_attributes_query = '''
+SELECT ?uri ?label WHERE {
+	?uri rdfs:subClassOf+ sio:Attribute ;
+         rdfs:label ?label .
+	MINUS {
+        ?uri rdfs:subClassOf+/(owl:intersectionOf|owl:onProperty) [].
+	}
+}
+'''
+
 property_order_map = {
     SIO.hasAttribute: 0,
     RDF.type: 1,
@@ -65,12 +75,18 @@ def property_order(property_uri):
 
 
 # TODO: restructure for testing
-if os.getenv('DEBUG'):
+if os.getenv('FLASK_ENV') == 'development':
     @restrictions_blueprint.route('/test')
     def get_restrictions_test():
         results = current_app.store.query_assertions(
             attributes_query,
             initNs={'rdf': RDF, 'rdfs': RDFS, 'sio': SIO, 'owl': OWL})
+        return jsonify([r.asdict() for r in results])
+
+    @restrictions_blueprint.route('/test2')
+    def get_restrictions_test2():
+        results = current_app.store.query_assertions(select_strict_attributes_query,
+                                                     initNs={'rdf': RDF, 'rdfs': RDFS, 'sio': SIO, 'owl': OWL})
         return jsonify([r.asdict() for r in results])
 
 
@@ -231,7 +247,6 @@ def get_restrictions():
     subclasses_by_uri[PROV.Agent] = []
     label_by_uri[PROV.Agent] = 'Agent'
     agents = select_subclasses_by_superclass(PROV.Agent)
-    current_app.logger.info([a for a in agents])
     for agent in agents:
         subclasses_by_uri[PROV.Agent].append(agent.subclass)
         label_by_uri[agent.subclass] = agent.label
@@ -240,6 +255,28 @@ def get_restrictions():
         '@type': OWL.Restriction,
         OWL.onProperty: {'@id': PROV.wasAssociatedWith},
         OWL.someValuesFrom: {'@id': ''}
+    }
+
+    # add "pure" attributes to restrictions:
+    subclasses_by_uri[SIO.Attribute] = []
+    label_by_uri[SIO.Attribute] = 'Attribute'
+    attributes = current_app.store.query_assertions(select_strict_attributes_query,
+                                                    initNs={'rdf': RDF, 'rdfs': RDFS, 'sio': SIO, 'owl': OWL})
+    for a in attributes:
+        subclasses_by_uri[SIO.Attribute].append(a.uri)
+        label_by_uri[a.uri] = a.label
+
+    graph_by_uri[SIO.Attribute] = {
+        '@type': OWL.Restriction,
+        OWL.onProperty: {'@id': PROV.wasAssociatedWith},
+        OWL.someValuesFrom: {
+            '@type': OWL.Restriction,
+            OWL.onProperty: {'@id': SIO.hasAttribute},
+            OWL.someValuesFrom: {
+                '@type': OWL.Class,
+                OWL.intersectionOf: [{'@id': SIO.Attribute}, {'@id': ''}]
+            }
+        }
     }
 
     return jsonify({
