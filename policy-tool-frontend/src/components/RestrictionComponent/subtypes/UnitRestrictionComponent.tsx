@@ -52,7 +52,7 @@ const UnitRestrictionComponentB: React.FC<RestrictionProps> = ({ keys }) => {
 
   let baseURI = baseClass['@id']
   let valueURI = valueClass['@id']
-  let baseLabel = labelByURI[baseURI]
+  let baseLabel = labelByURI[baseURI] ?? 'Unit'
 
   const subclasses = subclassesByURI[baseURI].map((s) => s)
   const options = subclasses
@@ -78,7 +78,7 @@ const UnitRestrictionComponentB: React.FC<RestrictionProps> = ({ keys }) => {
     <Grid container item xs={12}>
       <TextField
         select
-        label={baseLabel ?? 'Unit'}
+        label={baseLabel}
         value={valueURI}
         disabled={options.length === 1}
         onChange={(e) =>

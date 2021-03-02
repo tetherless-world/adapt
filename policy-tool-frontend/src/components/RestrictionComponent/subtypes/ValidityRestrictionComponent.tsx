@@ -28,8 +28,7 @@ const StartTimeRestrictionComponent: React.FC<RestrictionProps> = ({
     <>
       <TextField
         InputLabelProps={{ shrink: true }}
-        label={'Start Time'}
-        helperText={'Time zone is assumed to be UTC'}
+        label={'Start Time (UTC)'}
         value={(value as string).slice(0, -1)}
         type={typeMap[type]}
         onChange={(e) => {
@@ -65,8 +64,7 @@ const EndTimeRestrictionComponent: React.FC<RestrictionProps> = ({ keys }) => {
     <>
       <TextField
         InputLabelProps={{ shrink: true }}
-        label={'End Time'}
-        helperText={'Time zone is assumed to be UTC'}
+        label={'End Time (UTC)'}
         value={(value as string).slice(0, -1)}
         type={typeMap[type]}
         onChange={(e) => {

@@ -7,9 +7,7 @@ export interface ActionSectionProps {
   validActions: Option[]
 }
 
-export const ActionSection: React.FC<ActionSectionProps> = ({
-  validActions,
-}) => {
+export const ActionSection: React.FC<ActionSectionProps> = ({ validActions }) => {
   const dispatch = useDispatch()
   const action = useSelector(selectAction)
 
@@ -18,15 +16,17 @@ export const ActionSection: React.FC<ActionSectionProps> = ({
       <Grid item xs={12} md={6}>
         <TextField
           select
+          label={'Action'}
           value={action['@id']}
           onChange={(e) => dispatch(actions.setAction(e.target.value))}
           disabled={!validActions.length}
         >
-          {validActions.map(({ label, value }, i) => (
-            <MenuItem key={i} value={value}>
-              {label}
-            </MenuItem>
-          ))}
+          {!!validActions.length &&
+            validActions.map(({ label, value }, i) => (
+              <MenuItem key={i} value={value}>
+                {label}
+              </MenuItem>
+            ))}
         </TextField>
       </Grid>
     </Grid>

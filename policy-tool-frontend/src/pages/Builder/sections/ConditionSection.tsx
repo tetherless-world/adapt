@@ -17,7 +17,7 @@ export const ConditionSection: React.FC<ConditionSectionProps> = ({
   const effect = useSelector(selectEffect)
 
   return (
-    <Grid container item xs={12} spacing={2}>
+    <Grid container spacing={2}>
       <Grid item xs={12} md={6}>
         <TextField
           select

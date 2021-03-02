@@ -197,6 +197,8 @@ def get_restrictions():
                         }))
 
             elif row.property == SIO.hasUnit:
+                if row.range not in label_by_uri:
+                    label_by_uri[row.range] = row.unitLabel
                 add_subclasses_by_superclass(row.range)
                 if subclasses_by_uri[row.range]:
                     (node[OWL.someValuesFrom][OWL.intersectionOf]

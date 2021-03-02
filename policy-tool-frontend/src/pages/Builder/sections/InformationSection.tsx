@@ -48,7 +48,7 @@ export const InformationSection: React.FC = () => {
       <Grid container item xs={12} sm={6} spacing={1}>
         <Grid item xs={12}>
           <TextField
-            label={'Definition'}
+            label={'Description'}
             value={def}
             required={false}
             onChange={(e) => dispatch(actions.setDefinition(e.target.value))}

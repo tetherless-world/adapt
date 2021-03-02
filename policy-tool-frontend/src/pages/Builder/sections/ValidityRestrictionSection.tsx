@@ -1,4 +1,11 @@
-import { Button, Grid, IconButton } from '@material-ui/core'
+import {
+  Button,
+  Grid,
+  IconButton,
+  makeStyles,
+  Toolbar,
+  Typography,
+} from '@material-ui/core'
 import { Delete } from '@material-ui/icons'
 import _ from 'lodash'
 import { useMemo } from 'react'
@@ -13,6 +20,7 @@ import {
   StartTimeRestriction,
   ValidityRestriction,
 } from 'src/types/restrictions'
+import { useRestrictionSectionStyles } from './common'
 
 const defaultValidityRestrictions: Record<string, ValidityRestriction> = {
   'Start Time': {
@@ -40,6 +48,8 @@ const defaultValidityRestrictions: Record<string, ValidityRestriction> = {
 }
 
 export const ValidityRestrictionSection: React.FC = () => {
+  const classes = useRestrictionSectionStyles()
+
   const dispatch = useDispatch()
 
   const restrictions = useSelector(selectRestrictions)
@@ -77,41 +87,46 @@ export const ValidityRestrictionSection: React.FC = () => {
 
   return (
     <>
-      <Grid container item spacing={2}>
-        <Grid item xs={4}>
-          <MenuButton
-            options={restrictionOptions}
-            onSelectOption={handleSelectOption}
-            buttonProps={{ children: 'Add' }}
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <Button onClick={handleResetValidityRestrictions}>Reset</Button>
+      <Grid container>
+        <Grid container item className={classes.header}>
+          <Grid container spacing={2}>
+            <Grid item xs={12} md={1}>
+              <Typography variant={'h6'}>Validity</Typography>
+            </Grid>
+            <Grid item xs={12} md={'auto'}>
+              <MenuButton
+                options={restrictionOptions}
+                onSelectOption={handleSelectOption}
+                buttonProps={{ children: 'Add' }}
+              />
+            </Grid>
+            <Grid item xs={12} md={'auto'}>
+              <Button onClick={handleResetValidityRestrictions}>Reset</Button>
+            </Grid>
+          </Grid>
         </Grid>
         <Grid container item spacing={2}>
-          {validityRestrictions.map((r, i) => {
-            return (
-              <Grid
-                container
-                item
-                xs={12}
-                spacing={1}
-                alignItems={'flex-start'}
-                key={i}
-              >
-                <Grid item>
-                  <IconButton onClick={handleDeleteValidityRestriction(i)}>
-                    <Delete />
-                  </IconButton>
-                </Grid>
-                <Grid item xs={11}>
-                  <RestrictionComponent
-                    keys={[OWL.equivalentClass, OWL.intersectionOf, iMin + i]}
-                  />
-                </Grid>
+          {validityRestrictions.map((r, i) => (
+            <Grid
+              container
+              item
+              key={i}
+              xs={8}
+              alignItems={'flex-start'}
+              className={classes.restrictions}
+            >
+              <Grid item xs={1}>
+                <IconButton onClick={handleDeleteValidityRestriction(i)}>
+                  <Delete />
+                </IconButton>
               </Grid>
-            )
-          })}
+              <Grid item xs={11}>
+                <RestrictionComponent
+                  keys={[OWL.equivalentClass, OWL.intersectionOf, iMin + i]}
+                />
+              </Grid>
+            </Grid>
+          ))}
         </Grid>
       </Grid>
     </>

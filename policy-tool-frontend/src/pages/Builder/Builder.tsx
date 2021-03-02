@@ -25,18 +25,14 @@ const useStyles = makeStyles((theme) => ({
   section: {
     paddingBottom: theme.spacing(4),
   },
+  subsection: {
+    paddingTop: theme.spacing(2),
+  },
   save: {
-    paddingTop: theme.spacing(4),
+    paddingTop: theme.spacing(12),
     paddingBottom: theme.spacing(4),
   },
 }))
-
-const policyDefault = {
-  id: 'ExamplePolicy',
-  source: 'http://purl.org/twc/policy/',
-  label: 'Example Policy',
-  precedence: 'http://purl.org/twc/policy/example/dsa/Priority_1',
-}
 
 const flatten = (obj: Record<any, any>, prefix: string = '') =>
   Object.entries(obj).reduce((r: Record<any, any>, [key, val]) => {
@@ -117,24 +113,31 @@ export const Builder: React.FC = () => {
           />
           <FormSection
             gridContainerProps={{ className: classes.section }}
-            header={<FormSectionHeader title={'Action'} />}
-            body={<ActionSection validActions={validActions} />}
-          />
-          <FormSection
-            gridContainerProps={{ className: classes.section }}
-            header={<FormSectionHeader title={'Rules'} />}
+            header={<FormSectionHeader title={'Policy Definition'} />}
             body={
-              <AgentRestrictionSection validRestrictions={validRestrictions} />
+              <>
+                <FormSection
+                  gridContainerProps={{ className: classes.subsection }}
+                  body={<ActionSection validActions={validActions} />}
+                />
+                <FormSection
+                  gridContainerProps={{ className: classes.subsection }}
+                  body={
+                    <AgentRestrictionSection
+                      validRestrictions={validRestrictions}
+                    />
+                  }
+                />
+                <FormSection
+                  gridContainerProps={{ className: classes.subsection }}
+                  body={<ValidityRestrictionSection />}
+                />
+              </>
             }
           />
           <FormSection
-            gridContainerProps={{ className: classes.section }}
-            header={<FormSectionHeader title={'Validity'} />}
-            body={<ValidityRestrictionSection />}
-          />
-          <FormSection
-            gridContainerProps={{ className: classes.section }}
             header={<FormSectionHeader title={'Conditions'} />}
+            gridContainerProps={{ className: classes.section }}
             body={
               <ConditionSection
                 validPrecedences={validPrecedences}
@@ -145,7 +148,7 @@ export const Builder: React.FC = () => {
           <FormSection
             gridContainerProps={{ className: classes.save }}
             body={
-              <Button onClick={postPolicy} disabled={!isValid}>
+              <Button onClick={postPolicy} size={'large'} disabled={!isValid}>
                 Save
               </Button>
             }

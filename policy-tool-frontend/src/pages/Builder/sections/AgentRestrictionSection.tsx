@@ -1,4 +1,4 @@
-import { Button, Grid, IconButton } from '@material-ui/core'
+import { Button, Grid, IconButton, Typography } from '@material-ui/core'
 import { Delete } from '@material-ui/icons'
 import _ from 'lodash'
 import { useContext, useMemo } from 'react'
@@ -9,6 +9,7 @@ import { LabelByURIContext } from 'src/contexts'
 import { OWL } from 'src/namespaces'
 import { actions, selectRestrictions } from 'src/store'
 import { AgentRestriction, isAgentRestriction } from 'src/types/restrictions'
+import { useRestrictionSectionStyles } from './common'
 
 export interface AgentRestrictionSectionProps {
   validRestrictions: Record<string, AgentRestriction>
@@ -17,6 +18,8 @@ export interface AgentRestrictionSectionProps {
 export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = ({
   validRestrictions,
 }) => {
+  const classes = useRestrictionSectionStyles()
+
   const dispatch = useDispatch()
 
   const labelByURI = useContext(LabelByURIContext)
@@ -55,48 +58,51 @@ export const AgentRestrictionSection: React.FC<AgentRestrictionSectionProps> = (
   }
 
   return (
-    <>
-      <Grid container item spacing={2}>
-        <Grid item xs={4}>
-          <MenuButton
-            // TODO: redo this component, it's not right
-            options={restrictionOptions}
-            onSelectOption={handleSelectOption}
-            buttonProps={{
-              children: 'Add',
-              disabled: !restrictionOptions.length,
-            }}
-          />
-        </Grid>
-        <Grid item xs={4}>
-          <Button onClick={handleResetAgentRestrictions}>Reset</Button>
-        </Grid>
-        <Grid container item spacing={2}>
-          {agentRestrictions.map((r, i) => {
-            return (
-              <Grid
-                container
-                item
-                xs={12}
-                spacing={1}
-                alignItems={'flex-start'}
-                key={i}
-              >
-                <Grid item>
-                  <IconButton onClick={handleDeleteAgentRestriction(i)}>
-                    <Delete />
-                  </IconButton>
-                </Grid>
-                <Grid item xs={11}>
-                  <RestrictionComponent
-                    keys={[OWL.equivalentClass, OWL.intersectionOf, i + 1]}
-                  />
-                </Grid>
-              </Grid>
-            )
-          })}
+    <Grid container>
+      <Grid container item xs={12} className={classes.header}>
+        <Grid container spacing={2}>
+          <Grid item xs={12} md={1}>
+            <Typography variant={'h6'}>Rules</Typography>
+          </Grid>
+          <Grid item xs={12} md={'auto'}>
+            <MenuButton
+              // TODO: redo this component, it's not right
+              options={restrictionOptions}
+              onSelectOption={handleSelectOption}
+              buttonProps={{
+                children: 'Add',
+                disabled: !restrictionOptions.length,
+              }}
+            />
+          </Grid>
+          <Grid item xs={12} md={'auto'}>
+            <Button onClick={handleResetAgentRestrictions}>Reset</Button>
+          </Grid>
         </Grid>
       </Grid>
-    </>
+      <Grid container item spacing={2}>
+        {agentRestrictions.map((r, i) => (
+          <Grid
+            container
+            item
+            key={i}
+            xs={8}
+            alignItems={'flex-start'}
+            className={classes.restrictions}
+          >
+            <Grid item xs={1}>
+              <IconButton onClick={handleDeleteAgentRestriction(i)}>
+                <Delete />
+              </IconButton>
+            </Grid>
+            <Grid item xs={11}>
+              <RestrictionComponent
+                keys={[OWL.equivalentClass, OWL.intersectionOf, i + 1]}
+              />
+            </Grid>
+          </Grid>
+        ))}
+      </Grid>
+    </Grid>
   )
 }

@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core'
 import { BrowserRouter as Router, Link, Route, Switch } from 'react-router-dom'
 import { Layout, LayoutHeader } from './components'
-import { Home, Builder, NotFound, View } from './pages'
+import { Builder, Home, NotFound, View } from './pages'
 import { theme } from './theme'
 
 const useStyles = makeStyles((theme) => ({
@@ -44,6 +44,7 @@ export const App: React.FC = () => {
   return (
     <div>
       <MuiThemeProvider theme={theme}>
+        <CssBaseline />
         <Router>
           <Layout
             header={<Header />}

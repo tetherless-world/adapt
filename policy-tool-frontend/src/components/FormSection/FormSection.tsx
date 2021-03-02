@@ -16,12 +16,16 @@ export const FormSection: React.FC<FormSectionProps> = ({
   return (
     <>
       <Grid container {...gridContainerProps}>
-        <Grid container item {...gridItemProps}>
-          {!!header && header}
-        </Grid>
-        <Grid container item {...gridItemProps}>
-          {!!body && body}
-        </Grid>
+        {!!header && (
+          <Grid container item {...gridItemProps}>
+            {header}
+          </Grid>
+        )}
+        {!!body && (
+          <Grid container item {...gridItemProps}>
+            {body}
+          </Grid>
+        )}
       </Grid>
     </>
   )
