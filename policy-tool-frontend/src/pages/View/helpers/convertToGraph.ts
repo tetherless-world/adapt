@@ -1,4 +1,10 @@
-import { EdgeDefinition, ElementDefinition, ElementsDefinition, NodeDataDefinition, NodeDefinition } from 'cytoscape'
+import {
+  EdgeDefinition,
+  ElementDefinition,
+  ElementsDefinition,
+  NodeDataDefinition,
+  NodeDefinition,
+} from 'cytoscape'
 import { OWL, PROV, RDFS, SKOS, XSD } from 'src/namespaces'
 import { Node } from 'src/types/base'
 import { PolicyState } from 'src/types/policy'
@@ -25,14 +31,18 @@ interface MyNodeDefinition extends NodeDefinition {
   }
 }
 
-interface MyElementsDefinition extends ElementsDefinition {
-  nodes: MyNodeDefinition[]
-  edges: EdgeDefinition[]
+export interface ConversionResult {
+  elements: {
+    nodes: MyNodeDefinition[]
+    edges: EdgeDefinition[]
+  }
+  root: MyNodeDefinition
 }
 
-export type ConversionResult = [MyElementsDefinition, MyNodeDefinition]
-
-export const convertToGraph = (policy: PolicyState, labelByURI: Record<string, string>): ConversionResult => {
+export const convertToGraph = (
+  policy: PolicyState,
+  labelByURI: Record<string, string>
+): ConversionResult => {
   let nodeIdCounter = 0
 
   const nodes: MyNodeDefinition[] = []
@@ -66,7 +76,9 @@ export const convertToGraph = (policy: PolicyState, labelByURI: Record<string, s
               label: 'started at time',
             },
           }
-          let value = convertToGraphNode(node[OWL.someValuesFrom][OWL.withRestrictions][0][XSD.minInclusive])
+          let value = convertToGraphNode(
+            node[OWL.someValuesFrom][OWL.withRestrictions][0][XSD.minInclusive]
+          )
           nodes.push(value)
           edges.push({
             data: {
@@ -84,7 +96,9 @@ export const convertToGraph = (policy: PolicyState, labelByURI: Record<string, s
               label: 'ended at time',
             },
           }
-          let value = convertToGraphNode(node[OWL.someValuesFrom][OWL.withRestrictions][0][XSD.maxInclusive])
+          let value = convertToGraphNode(
+            node[OWL.someValuesFrom][OWL.withRestrictions][0][XSD.maxInclusive]
+          )
           nodes.push(value)
           edges.push({
             data: {
@@ -101,7 +115,7 @@ export const convertToGraph = (policy: PolicyState, labelByURI: Record<string, s
         let wasAssociatedWith = {
           data: {
             id: generateNodeId(),
-            label: 'was associated with',
+            label: 'was assoc. with',
           },
         }
         let child = convertToGraphNode(node[OWL.someValuesFrom])
@@ -127,7 +141,9 @@ export const convertToGraph = (policy: PolicyState, labelByURI: Record<string, s
         if (isClassRestriction(node)) {
           let child = isNamedNode(node[OWL.someValuesFrom])
             ? convertToGraphNode(node[OWL.someValuesFrom])
-            : convertToGraphNode(node[OWL.someValuesFrom][OWL.intersectionOf][1])
+            : convertToGraphNode(
+                node[OWL.someValuesFrom][OWL.intersectionOf][1]
+              )
 
           nodes.push(child)
           edges.push({
@@ -193,11 +209,19 @@ export const convertToGraph = (policy: PolicyState, labelByURI: Record<string, s
         if (isHasBoundedValueRestriction(node)) {
           let [value, edgeLabel] = isHasMinimalValueRestriction(node)
             ? [
-                convertToGraphNode(node[OWL.someValuesFrom][OWL.withRestrictions][0][XSD.minInclusive]),
+                convertToGraphNode(
+                  node[OWL.someValuesFrom][OWL.withRestrictions][0][
+                    XSD.minInclusive
+                  ]
+                ),
                 'greater than or equal to',
               ]
             : [
-                convertToGraphNode(node[OWL.someValuesFrom][OWL.withRestrictions][0][XSD.maxInclusive]),
+                convertToGraphNode(
+                  node[OWL.someValuesFrom][OWL.withRestrictions][0][
+                    XSD.maxInclusive
+                  ]
+                ),
                 'less than or equal to',
               ]
 
@@ -243,32 +267,27 @@ export const convertToGraph = (policy: PolicyState, labelByURI: Record<string, s
     throw Error(JSON.stringify(node))
   }
 
-  let root = { data: { id: generateNodeId(), label: policy['@id'] } }
+  let root = {
+    data: { id: generateNodeId(), label: policy[RDFS.label] ?? policy['@id'] },
+  }
   nodes.push(root)
-
-  // add label
-  let label = { data: { id: generateNodeId(), label: policy[RDFS.label] } }
-  nodes.push(label)
-  edges.push({
-    data: {
-      label: 'label',
-      source: root.data.id,
-      target: label.data.id,
-    },
-  })
 
   // add definition
   if (policy[SKOS.definition] !== '') {
     let def = { data: { id: generateNodeId(), label: policy[SKOS.definition] } }
     nodes.push(def)
-    edges.push({ data: { source: root.data.id, target: def.data.id, label: 'definition' } })
+    edges.push({
+      data: { source: root.data.id, target: def.data.id, label: 'definition' },
+    })
   }
 
   // add precedences
   let precedence = {
     data: {
       id: generateNodeId(),
-      label: labelByURI[policy[RDFS.subClassOf][0]['@id']] ?? policy[RDFS.subClassOf][0]['@id'],
+      label:
+        labelByURI[policy[RDFS.subClassOf][0]['@id']] ??
+        policy[RDFS.subClassOf][0]['@id'],
     },
   }
   nodes.push(precedence)
@@ -284,7 +303,9 @@ export const convertToGraph = (policy: PolicyState, labelByURI: Record<string, s
   let effect = {
     data: {
       id: generateNodeId(),
-      label: labelByURI[policy[RDFS.subClassOf][1]['@id']] ?? policy[RDFS.subClassOf][1]['@id'],
+      label:
+        labelByURI[policy[RDFS.subClassOf][1]['@id']] ??
+        policy[RDFS.subClassOf][1]['@id'],
     },
   }
   nodes.push(effect)
@@ -305,12 +326,20 @@ export const convertToGraph = (policy: PolicyState, labelByURI: Record<string, s
     },
   }
   nodes.push(actionNode)
-  edges.push({ data: { source: root.data.id, target: actionNode.data.id, label: 'equivalent to' } })
+  edges.push({
+    data: {
+      source: root.data.id,
+      target: actionNode.data.id,
+      label: 'equivalent to',
+    },
+  })
 
   rest.map(convertToGraphNode).forEach((r) => {
     nodes.push(r)
-    edges.push({ data: { source: actionNode.data.id, target: r.data.id, label: 'and' } })
+    edges.push({
+      data: { source: actionNode.data.id, target: r.data.id, label: 'and' },
+    })
   })
 
-  return [{ nodes, edges }, root]
+  return { elements: { nodes, edges }, root }
 }

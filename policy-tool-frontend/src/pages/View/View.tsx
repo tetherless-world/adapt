@@ -41,11 +41,11 @@ export const View: React.FC<ViewProps> = () => {
 
   const { policy, labelByURI } = value ?? {}
 
-  const [graphData, root] = useMemo(
+  const { elements } = useMemo(
     () =>
       !!policy && !!labelByURI
         ? convertToGraph(policy, labelByURI)
-        : [{ nodes: [], edges: [] }, { data: { id: '' } }],
+        : { elements: { nodes: [], edges: [] } },
     [policy, labelByURI]
   )
 
@@ -57,24 +57,44 @@ export const View: React.FC<ViewProps> = () => {
     !!cyEl &&
     cytoscape({
       container: cyEl,
-      elements: graphData,
+      elements: elements,
       wheelSensitivity: 0.2,
       layout: {
         // Dagre does not have ts declarations, so it causes errors.
         // @ts-expect-error
         name: 'dagre',
-        spacingFactor: 1.75,
-        nodeDimensionIncludesLayout: true,
-        nodeSep: 100,
+        spacingFactor: 3,
+        nodeDimensionIncludesLabels: true,
+        nodeSep: 40,
+        edgeSep: 40,
+        rankDir: 'LR',
+        ranker: 'tight-tree',
       },
       style: [
         {
           selector: 'node',
-          style: { label: 'data(label)' },
+          style: {
+            label: 'data(label)',
+            'text-valign': 'center',
+            shape: 'roundrectangle',
+          },
         },
         {
           selector: 'edge',
-          style: { label: 'data(label)' },
+          style: {
+            label: 'data(label)',
+            // 'font-size': 10,
+            // 'curve-style': 'taxi',
+          },
+        },
+        {
+          selector: 'label',
+          css: {
+            color: '#fff',
+            'font-size': 14,
+            'text-outline-color': '#000',
+            'text-outline-width': 2,
+          },
         },
       ],
     })
@@ -83,9 +103,9 @@ export const View: React.FC<ViewProps> = () => {
     <Redirect to={'/404'} />
   ) : (
     <LoadingWrapper loading={loading}>
-      <Grid container>
+      <Grid container spacing={2}>
         <Grid container item>
-          <Typography variant={'h4'}>View</Typography>
+          <Typography variant={'h4'}>View Policy</Typography>
         </Grid>
         <Grid container item>
           <Grid item xs={12} md={6}>
