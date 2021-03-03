@@ -1,39 +1,39 @@
 version: '3'
 services:
-  policy-tool-frontend:
-    hostname: policy-tool-frontend
-    container_name: policy-tool-frontend
+  adapt-ui:
+    hostname: adapt-ui
+    container_name: adapt-ui
     depends_on:
-      - policy-tool-backend
+      - adapt-api
       - twks-server
     build: 
       context: ../../..
-      dockerfile: docker/image/policy-tool-frontend/Dockerfile
-    image: tetherlessworld/policy-tool-frontend:${POLICY_TOOL_IMAGE_TAG:-latest}
+      dockerfile: docker/image/adapt-ui/Dockerfile
+    image: tetherlessworld/adapt-ui:${ADAPT_IMAGE_TAG:-latest}
     ports:
       - 80:80
 
-  policy-tool-backend:
-    hostname: policy-tool-backend
-    container_name: policy-tool-backend
+  adapt-api:
+    hostname: adapt-api
+    container_name: adapt-api
     depends_on:
       - twks-server
     build:
       context: ../../..
-      dockerfile: docker/image/policy-tool-backend/Dockerfile
-    image: tetherlessworld/policy-tool-backend:${POLICY_TOOL_IMAGE_TAG:-latest}
+      dockerfile: docker/image/adapt-api/Dockerfile
+    image: tetherlessworld/policy-tool-backend:${ADAPT_IMAGE_TAG:-latest}
     ports:
       - 5000:5000
   
-  policy-tool-reasoner:
-    hostname: policy-tool-reasoner
-    container_name: policy-tool-reasoner
+  adapt-reasoner:
+    hostname: adapt-reasoner
+    container_name: adapt-reasoner
     depends_on:
       - twks-server
     build:
       context: ../../..
-      dockerfile: docker/image/policy-tool-reasoner/Dockerfile
-    image: tetherlessworld/policy-tool-reasoner:${POLICY_TOOL_IMAGE_TAG:-latest}
+      dockerfile: docker/image/adapt-reasoner/Dockerfile
+    image: tetherlessworld/adapt-reasoner:${ADAPT_IMAGE_TAG:-latest}
     ports:
       - 9000:9000
 
