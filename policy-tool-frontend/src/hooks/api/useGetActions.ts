@@ -1,4 +1,4 @@
-import { useAsyncFn } from 'react-use'
+import { useAsync } from 'react-use'
 import { Option } from 'src/global'
 import { axios } from './common'
 
@@ -11,5 +11,9 @@ const getActions = async () => {
   return data
 }
 
-export const useGetActions = () =>
-  useAsyncFn<() => Promise<GetActionsResponse>>(getActions, [])
+export const useGetActions = () => {
+  const { value = { validActions: [] }, ...rest } = useAsync<
+    () => Promise<GetActionsResponse>
+  >(getActions, [])
+  return { value, ...rest }
+}

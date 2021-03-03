@@ -58,18 +58,11 @@ export const Builder: React.FC = () => {
 
   const policy = useSelector<PolicyState, PolicyState>((state) => state)
 
-  const [restrictionsRes, getRestrictions] = useGetRestrictions()
-  const [effectsRes, getEffects] = useGetEffects()
-  const [actionsRes, getActions] = useGetActions()
-  const [precedencesRes, getPrecedences] = useGetPrecedences()
+  const restrictionsRes = useGetRestrictions()
+  const effectsRes = useGetEffects()
+  const actionsRes = useGetActions()
+  const precedencesRes = useGetPrecedences()
   const [policyRes, postPolicy] = usePostPolicy(policy)
-
-  useEffect(() => {
-    getRestrictions()
-    getEffects()
-    getActions()
-    getPrecedences()
-  }, [getRestrictions, getEffects, getActions, getPrecedences])
 
   useEffect(() => {
     if (!policyRes.loading && !!policyRes.value) {
@@ -91,14 +84,10 @@ export const Builder: React.FC = () => {
     validRestrictions,
     subclassesByURI,
     labelByURI,
-  } = restrictionsRes.value ?? {
-    validRestrictions: {},
-    subclassesByURI: {},
-    labelByURI: {},
-  }
-  const validEffects = effectsRes.value?.validEffects ?? []
-  const validActions = actionsRes.value?.validActions ?? []
-  const validPrecedences = precedencesRes.value?.validPrecedences ?? []
+  } = restrictionsRes.value
+  const { validEffects } = effectsRes.value
+  const { validActions } = actionsRes.value
+  const { validPrecedences } = precedencesRes.value
 
   const isValid = useMemo(() => isValidPolicy(policy), [policy])
 

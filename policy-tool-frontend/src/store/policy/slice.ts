@@ -9,7 +9,7 @@ import {
   ValidityRestriction,
 } from 'src/types/restrictions'
 
-const init: PolicyState = {
+export const defaultPolicyState: PolicyState = {
   '@id': '',
   '@type': POL.Policy,
   [RDFS.label]: '',
@@ -27,7 +27,7 @@ type UpdateFunction = (state: Draft<PolicyState>) => void
 
 export const { actions, reducer } = createSlice({
   name: 'policy',
-  initialState: init,
+  initialState: defaultPolicyState,
   reducers: {
     setURI: {
       prepare: (source: string, id: string) => ({ payload: { source, id } }),

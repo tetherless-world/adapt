@@ -1,4 +1,4 @@
-import { useAsyncFn } from 'react-use'
+import { useAsync } from 'react-use'
 import { Option } from 'src/global'
 import { axios } from './common'
 
@@ -11,5 +11,9 @@ const getPrecedences = async () => {
   return data
 }
 
-export const useGetPrecedences = () =>
-  useAsyncFn<() => Promise<GetPrecedencesResponse>>(getPrecedences, [])
+export const useGetPrecedences = () => {
+  const { value = { validPrecedences: [] }, ...rest } = useAsync<
+    () => Promise<GetPrecedencesResponse>
+  >(getPrecedences, [])
+  return { value, ...rest }
+}
