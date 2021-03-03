@@ -1,23 +1,23 @@
 version: 2
 jobs:
   test-reasoner:
-    working_directory: /git-policy-tool
+    working_directory: /git-adapt
     docker:
       - image: hseeberger/scala-sbt:11.0.6_1.3.8_2.13.1
     steps:
       - checkout
       - run:
-          name: Install policy-tool-models locally
+          name: Install adapt-models locally
           command: |
-            cd policy-tool-models && sbt publishLocal
+            cd adapt-models && sbt publishLocal
       - run:
-          name: Test policy-tool-reasoner
+          name: Test adapt-reasoner
           command: |
-            cd policy-tool-reasoner && sbt test
+            cd adapt-reasoner && sbt test
       - store_test_results:
-          path: policy-tool-reasoner/target/test-reports
+          path: adapt-reasoner/target/test-reports
   build:
-    working_directory: /git-policy-tool
+    working_directory: /git-adapt
     docker:
       - image: docker/compose:1.25.5
     steps:
@@ -27,15 +27,15 @@ jobs:
       - run:
           name: Build Docker frontend image
           command: |
-            cd docker/compose/split && docker-compose build policy-tool-frontend
+            cd docker/compose/split && docker-compose build adapt-ui
       - run:
           name: Build Docker backend image
           command: |
-            cd docker/compose/split && docker-compose build policy-tool-backend
+            cd docker/compose/split && docker-compose build adapt-api
       - run:
           name: Build Docker reasoner image
           command: |
-            cd docker/compose/split && docker-compose build policy-tool-reasoner
+            cd docker/compose/split && docker-compose build adapt-reasoner
       # - run:
       #     name: Run tests
       #     command: |

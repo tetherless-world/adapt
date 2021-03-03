@@ -49,6 +49,11 @@ rdf:type rdf:type owl:ObjectProperty .
              rdfs:label "Affiliation" .
 
 
+###  http://purl.org/twc/policy/example/dsa/Deny
+:Deny rdf:type owl:Class ;
+      rdfs:subClassOf prov:Activity .
+
+
 ###  http://purl.org/twc/policy/example/dsa/FederalAffiliation
 :FederalAffiliation rdf:type owl:Class ;
                     rdfs:subClassOf :Affiliation ;
@@ -137,6 +142,11 @@ rdf:type rdf:type owl:ObjectProperty .
                        rdfs:label "Non-Federal affiliation" .
 
 
+###  http://purl.org/twc/policy/example/dsa/Permit
+:Permit rdf:type owl:Class ;
+        rdfs:subClassOf prov:Activity .
+
+
 ###  http://purl.org/twc/policy/example/dsa/Priority_1
 :Priority_1 rdf:type owl:Class ;
             rdfs:subClassOf <http://purl.org/twc/policy/Precedence> ;
@@ -214,6 +224,16 @@ owl:Class rdf:type owl:Class .
 <http://purl.obolibrary.org/obo/UO_0000325> rdf:type owl:NamedIndividual .
 
 
+###  http://purl.org/twc/policy/example/dsa/Deny
+:Deny rdf:type owl:NamedIndividual ,
+               <http://purl.org/twc/policy/Effect> .
+
+
+###  http://purl.org/twc/policy/example/dsa/Permit
+:Permit rdf:type owl:NamedIndividual ,
+                 <http://purl.org/twc/policy/Effect> .
+
+
 ###  http://purl.org/twc/policy/example/dsa/Transmit
 :Transmit rdf:type owl:NamedIndividual ,
                    prov:Activity .
@@ -227,6 +247,12 @@ owl:Class rdf:type owl:Class .
 
 
 <http://purl.obolibrary.org/obo/UO_0000325> rdfs:label "megaHertz" .
+
+
+:Deny rdfs:label "Deny" .
+
+
+:Permit rdfs:label "Permit" .
 
 
 :Transmit rdfs:label "Transmit" .

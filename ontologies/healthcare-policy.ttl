@@ -324,8 +324,7 @@
 
 
 ###  http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Recommendation
-<http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Recommendation> rdf:type owl:NamedIndividual ,
-                                                                                      <http://purl.org/twc/policy/Effect> .
+<http://purl.org/twc/policy/example/healthcare/policy/5.20.1-Recommendation> rdf:type owl:NamedIndividual .
 
 
 ###  http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Drink
@@ -339,8 +338,7 @@
 
 
 ###  http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Recommendation
-<http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Recommendation> rdf:type owl:NamedIndividual ,
-                                                                                      <http://purl.org/twc/policy/Effect> .
+<http://purl.org/twc/policy/example/healthcare/policy/5.20.2-Recommendation> rdf:type owl:NamedIndividual .
 
 
 #################################################################
