@@ -1,0 +1,21 @@
+body {
+  margin: 40px auto;
+  max-width: 600px;
+  line-height: 1.6;
+  padding: 0 20px;
+  color: #333;
+  background-color: #ededed;
+  font-size: 18px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.item {
+  flex: auto;
+}
