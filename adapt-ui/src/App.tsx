@@ -52,7 +52,7 @@ export const App: React.FC = () => {
               <Box paddingX={4}>
                 <Switch>
                   <Route path={'/builder'} component={Builder} />
-                  <Route path={'/view'} component={View} />
+                  <Route path={'/view/:uuid'} component={View} />
                   <Route path={'/'} exact component={Home} />
                   <Route path={'*'} component={NotFound} />
                 </Switch>

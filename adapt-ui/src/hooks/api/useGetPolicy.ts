@@ -7,10 +7,10 @@ export interface GetPolicyResponse {
   labelByURI: Record<string, string>
 }
 
-const getPolicy = (uri: string) => async () => {
-  let { data } = await axios.get('/policies', { params: { uri } })
+const getPolicy = (uuid: string) => async () => {
+  let { data } = await axios.get(`/policies/${uuid}`)
   return data
 }
 
-export const useGetPolicy = (uri: string) =>
-  useAsync<() => Promise<GetPolicyResponse>>(getPolicy(uri), [uri])
+export const useGetPolicy = (uuid: string) =>
+  useAsync<() => Promise<GetPolicyResponse>>(getPolicy(uuid), [uuid])

@@ -1,34 +1,70 @@
 import json
-from pprint import pprint
 from copy import deepcopy
 
-from flask import current_app, jsonify, request, abort
-from rdflib import OWL, RDFS, SKOS, XSD, Graph, plugin, PROV
+from flask import abort, current_app, jsonify
+from rdflib import OWL, PROV, RDFS, SKOS, XSD, Graph, URIRef, plugin
 from rdflib.serializer import Serializer
 
-from ...common import POL, graph_factory
+from ...common.namespaces import POL
 from ...common.node_type import NodeType, is_bnode, is_named
 from ...common.queries import ask_is_subclass, select_label_by_uri
 from .error import MalformedNodeError
 from .policies_blueprint import policies_blueprint
-from .queries import get_policy_by_uri
 
 
-@policies_blueprint.route('')
-def get_policy():
-    uri = request.args.get('uri')
-    triples = get_policy_by_uri(uri)
+def get_uri_from_nanopub(uuid):
+    # this query breaks if ever there are multiple policies per nanopub
+    potential_uri = current_app.store.query_nanopublications(
+        '''
+        prefix np: <http://www.nanopub.org/nschema#>
+        SELECT ?uri WHERE {
+            GRAPH ?H {
+                ?uuid np:hasAssertion ?A
+            } GRAPH ?A {
+                ?uri a pol:Policy .
+            }
+        }
+        ''',
+        initNs={'pol': POL},
+        initBindings={'uuid': URIRef(uuid.urn)}
+    )
+    return list(potential_uri).pop().uri
 
-    g = graph_factory()
-    for triple in triples:
-        g.add(triple)
+
+def get_policy_by_uri(uuid, uri):
+    return current_app.store.query_nanopublications(
+        '''
+        prefix np: <http://www.nanopub.org/nschema#>
+        DESCRIBE ?uri WHERE {
+            GRAPH ?H {
+                ?uuid np:hasAssertion ?A
+            } GRAPH ?A {
+                ?uri a pol:Policy .
+            }
+        }
+        ''',
+        initNs={'pol': POL},
+        initBindings={'uuid': URIRef(uuid.urn),
+                      'uri': URIRef(uri)})
+
+
+@policies_blueprint.route('/<uuid:uuid>')
+def get_policy(uuid):
+    # if ordering is deterministic on describe, then get_uri is not necessary.
+    uri = get_uri_from_nanopub(uuid)
+
+    results = get_policy_by_uri(uuid, uri)
+
+    if results.graph is None:
+        abort(404, uuid)
 
     # convert to json-ld
-    policy_json = json.loads(g.serialize(format='json-ld').decode('utf-8'))
-
-    # 404 if empty
-    if not policy_json:
-        abort(404, uri)
+    policy_json = (
+        json.loads(
+            results.graph.serialize(format='json-ld').decode('utf-8')
+        )
+    )
+    current_app.logger.info(policy_json)
 
     # group nodes by id
     nodes_by_id = {node['@id']: node for node in policy_json}
@@ -96,7 +132,7 @@ def get_policy():
 
         return result
 
-    root_node = nodes_by_id[uri]
+    root_node = nodes_by_id[str(uri)]
     policy = {}
     policy['@id'] = uri
     policy['@type'] = root_node['@type'][0]

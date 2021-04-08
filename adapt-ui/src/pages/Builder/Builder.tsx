@@ -66,7 +66,7 @@ export const Builder: React.FC = () => {
 
   useEffect(() => {
     if (!policyRes.loading && !!policyRes.value) {
-      let url = `/view?uri=${encodeURIComponent(policyRes.value)}`
+      let url = `/view/${policyRes.value.uuid}`
       history.push(url)
     }
   }, [policyRes, history])

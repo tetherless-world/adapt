@@ -8,36 +8,32 @@ import {
 import cytoscape from 'cytoscape'
 import dagre from 'cytoscape-dagre'
 import { useEffect, useMemo, useState } from 'react'
-import { Redirect, useHistory } from 'react-router-dom'
-import { useLocation } from 'react-use'
+import { Redirect, RouteComponentProps } from 'react-router-dom'
 import { LoadingWrapper } from 'src/components'
 import { useGetPolicy } from 'src/hooks/api'
 import { convertToGraph } from './helpers'
 
 cytoscape.use(dagre)
 
-export interface ViewProps {}
+interface MatchParams {
+  uuid: string
+}
 
-const useQuery = () => new URLSearchParams(useLocation().search)
+export interface ViewProps extends RouteComponentProps<MatchParams> {}
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles({
   graphComponent: {
     height: 720,
     width: '100%',
   },
-}))
+})
 
-export const View: React.FC<ViewProps> = () => {
-  const query = useQuery()
-  const history = useHistory()
-  const uri = query.get('uri')
+export const View: React.FC<ViewProps> = (props) => {
   const classes = useStyles()
 
-  if (!uri) {
-    history.push('/404')
-  }
+  const uuid = props.match.params.uuid
 
-  const { loading, error, value } = useGetPolicy(uri ?? '')
+  const { loading, error, value } = useGetPolicy(uuid)
 
   const { policy, labelByURI } = value ?? {}
 
@@ -111,7 +107,7 @@ export const View: React.FC<ViewProps> = () => {
           <Grid item xs={12} md={6}>
             <TextField
               label={'Identifier'}
-              value={uri}
+              value={!!policy && policy['@id']}
               margin={'dense'}
               disabled
             />
