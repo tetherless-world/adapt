@@ -6,7 +6,7 @@ from rdflib import OWL, PROV, RDFS, SKOS, XSD, Graph, URIRef, plugin
 from rdflib.serializer import Serializer
 
 from ...common.namespaces import POL
-from ...common.node_type import NodeType, is_bnode, is_named
+from ...common.node_type import NodeType, is_named
 from ...common.queries import ask_is_subclass, select_label_by_uri
 from .error import MalformedNodeError
 from .policies_blueprint import policies_blueprint
@@ -34,9 +34,11 @@ def get_uri_from_nanopub(uuid):
 def get_policy_by_uri(uuid, uri):
     return current_app.store.query_nanopublications(
         '''
-        prefix np: <http://www.nanopub.org/nschema#>
+        PREFIX np: <http://www.nanopub.org/nschema#>
+        PREFIX pol: <http://purl.org/twc/policy/>
+
         DESCRIBE ?uri WHERE {
-            GRAPH ?H {
+            GRAPH ?H { 
                 ?uuid np:hasAssertion ?A
             } GRAPH ?A {
                 ?uri a pol:Policy .

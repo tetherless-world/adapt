@@ -87,6 +87,8 @@ export const View: React.FC<ViewProps> = (props) => {
           selector: 'label',
           css: {
             color: '#fff',
+            'text-wrap':'wrap',
+            'text-max-width': '600px',
             'font-size': 14,
             'text-outline-color': '#000',
             'text-outline-width': 2,
