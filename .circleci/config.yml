@@ -53,5 +53,13 @@ workflows:
   version: 2
   build_and_test:
     jobs:
-      - test-reasoner
-      - build
+      - build:
+          filters:
+            branches:
+              ignore: gh-pages
+      - test-reasoner:
+          requires: 
+            - build
+          filters:
+            branches:
+              ignore: gh-pages
