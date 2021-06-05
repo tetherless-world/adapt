@@ -1,5 +1,0 @@
-venv
-__pycache__
-node_modules
-build
-package-lock.json
