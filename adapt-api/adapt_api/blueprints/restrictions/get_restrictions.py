@@ -1,9 +1,11 @@
 import os
+import json
 from collections import defaultdict
 from copy import deepcopy
+from mergedeep import merge
 
-from flask import Blueprint, current_app, jsonify
-from rdflib import OWL, RDF, RDFS, XSD, PROV
+from flask import current_app, jsonify
+from rdflib import OWL, PROV, RDF, RDFS, XSD
 
 from ...common import SIO
 from ...common.queries import ask_is_subclass, select_subclasses_by_superclass
@@ -88,6 +90,99 @@ if os.getenv('FLASK_ENV') == 'development':
         results = current_app.store.query_assertions(select_strict_attributes_query,
                                                      initNs={'rdf': RDF, 'rdfs': RDFS, 'sio': SIO, 'owl': OWL})
         return jsonify([r.asdict() for r in results])
+
+    @restrictions_blueprint.route('/test3')
+    def get_restrictions_test3():
+        results = current_app.store.query_assertions(
+            '''
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX owl: <http://www.w3.org/2002/07/owl#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+PREFIX prov: <http://www.w3.org/ns/prov#>
+PREFIX sio: <http://semanticscience.org/resource/>
+
+CONSTRUCT {
+    ?subClasses rdfs:subClassOf ?uri .
+    ?uri rdfs:label ?label ;
+         owl:equivalentTo [
+            rdf:type       owl:Restriction ;
+            owl:onProperty sio:hasAttribute ;
+            owl:someValuesFrom [
+                rdf:type owl:Class ;
+                owl:intersectionOf ( ?uri  ) 
+            ]
+         ] . 
+}
+WHERE {
+    SELECT DISTINCT ?uri ?label (SAMPLE(?x) as ?subClasses)  WHERE {
+        ?uri rdfs:label ?label .
+        ?uri rdfs:subClassOf+ sio:Attribute .
+        ?uri (rdfs:subClassOf|owl:equivalentClass|(owl:intersectionOf/rdf:rest*/rdf:first))* ?superClass .
+        OPTIONAL { 
+            ?x rdfs:subClassOf ?uri .
+        }
+    }
+    GROUP BY ?uri ?label
+}
+
+
+#     SELECT DISTINCT 
+#         ?uri 
+#         ?label 
+#         ?property 
+#         ?range 
+#         ?propertyType 
+#         ?extent 
+#         ?cardinality
+#         # for construct query
+#         ?isMaximal
+#         ?isMinimal
+#         ?isInterval
+#         ?
+#     WHERE {
+#         ?uri rdfs:label ?label ;
+#              rdfs:subClassOf+ sio:Attribute ;
+#              (rdfs:subClassOf|owl:equivalentClass|(owl:intersectionOf/rdf:rest*/rdf:first))* ?superClass .
+#         {
+#             ?superClass owl:onProperty ?property ;
+#                         owl:someValuesFrom|owl:allValuesFrom ?range ;
+#                         ?extent ?range .
+#             optional { ?property rdf:type ?propertyType }
+#         } UNION {
+#             ?superClass owl:onDataRange ?range ;
+#                         owl:onProperty ?property ;
+#                         owl:minQualifiedCardinality|owl:maxQualifiedCardinality|owl:qualifiedCardinality ?cardinality ;
+#                         ?extent ?cardinality .
+#             bind(owl:DatatypeProperty as ?propertyType)
+#         } UNION {
+#             ?superClass owl:onClass ?range ;
+#                         owl:onProperty ?property ;
+#                         owl:minQualifiedCardinality|owl:maxQualifiedCardinality|owl:qualifiedCardinality ?cardinality ;
+#                         ?extent ?cardinality .
+#             bind(owl:ObjectProperty as ?propertyType)
+#         } UNION {
+#             ?superClass owl:onProperty ?property ;
+#                         owl:minCardinality|owl:maxCardinality|owl:exactCardinality ?cardinality ;
+#                         ?extent ?cardinality .
+#             optional { ?property rdf:type ?propertyType }
+#         } UNION {
+#             ?property rdfs:domain ?superClass;
+#                     rdfs:range ?range .
+#             optional { ?property rdf:type ?propertyType }
+#         } UNION {
+            
+#         }
+#     }
+# }
+            '''
+        )
+        rjson = json.loads(results.serialize(
+            format='json-ld', auto_compact=True))
+        graph = rjson['@graph']
+        rjson2 = [merge({}, )]
+
+        return jsonify(rjson)
 
 
 @restrictions_blueprint.route('')
