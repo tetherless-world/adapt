@@ -15,4 +15,4 @@ six==1.15.0
 SPARQLWrapper==1.8.5
 twks-client==1.0.3
 urllib3==1.26.3
-Werkzeug==1.0.1
+Werkzeug==2.2.3
